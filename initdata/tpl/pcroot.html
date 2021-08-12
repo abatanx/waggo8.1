@@ -1,0 +1,62 @@
+<html lang="ja">
+<head>
+	<meta http-equiv="content-language" content="ja">
+	<meta http-equiv="content-type" content="text/html" charset="UTF-8">
+	<meta charset="UTF-8">
+	<meta name="robots" content="noindex,nofollow">
+	<meta name="keywords" content="">
+	<meta name="author" content="">
+	<meta name="description" content="">
+	<meta name="generator" content="waggo8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<meta http-equiv="pragma" content="no-cache">
+	<meta http-equiv="cache-control" content="no-cache">
+
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+
+	<link rel="stylesheet" href="/wgcss/waggo8.css{val _nocache}">
+	<script type="text/javascript" charset="utf-8" src="/wgjs/waggo8.js{val _nocache}"></script>
+{rval in_head}
+<!--{def in_heads}-->
+<!-- EMBBED IN_HEADS -->
+<!--{each in_heads}-->
+{rval in_heads/data}
+
+<!--{/each}-->
+<!--{/def}-->
+<script type="text/javascript" charset="utf-8">
+$(window).on('load', function()
+{
+<!--{each in_onload_functions}-->
+	{rval in_onload_functions/data}
+
+<!--{/each}-->
+});
+
+$(window).on('unload', function()
+{
+<!--{each in_onunload_functions}-->
+	{rval in_onunload_functions/data}
+
+<!--{/each}-->
+});
+//-->
+	</script>
+
+{rval in_head}
+<!--{def in_heads}-->
+<!--{each in_heads}-->
+{rval in_heads/data}
+
+<!--{/each}-->
+<!--{/def}-->
+
+	<title>{val title}</title>
+</head>
+<body>
+{@pagecanvas}
+</body>
+</html>
