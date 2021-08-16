@@ -5,51 +5,57 @@
  * @license MIT
  */
 
-function cls()
+function wi_cls(): void
 {
 	echo "\x1b[2J\x1b[1;1H";
 }
 
-function locate($x,$y)
+function wi_locate( $col, $row ): void
 {
-	printf("\x1b[%d;%dH", $y+1, $x+1);
+	printf( "\x1b[%d;%dH", $row + 1, $col + 1 );
 }
 
-function stdin()
+function wi_stdin(): string
 {
-	$in = fgets(STDIN);
-	return $in !== false ? trim($in) : die("\n");
+	$in = fgets( STDIN );
+
+	return $in !== false ? trim( $in ) : die( "\n" );
 }
 
-function q($msg,$a=[])
+function wi_read( $m, $a = [] ): string
 {
-	do {
-		echo $msg;
-		$s = stdin();
+	do
+	{
+		echo $m;
+		$s = wi_stdin();
 	}
-	while(!in_array($s,$a));
+	while ( ! in_array( $s, $a ) );
+
 	return $s;
 }
 
-function a($msg)
+function wi_pause( $m )
 {
-	echo $msg;
-	stdin();
+	echo $m;
+	wi_stdin();
 }
 
-function in($msg)
+function wi_in( $m ): string
 {
-	echo $msg;
-	return stdin();
+	echo $m;
+
+	return wi_stdin();
 }
 
-function indef($msg,$default,$require)
+function wi_in_default( $m, $default, $require ): string
 {
-	do {
-		echo $msg;
-		$s = stdin();
-		$r = empty($s) ? $default : $s;
+	do
+	{
+		echo $m;
+		$s = wi_stdin();
+		$r = empty( $s ) ? $default : $s;
 	}
-	while($require && empty($r));
+	while ( $require && empty( $r ) );
+
 	return $r;
 }

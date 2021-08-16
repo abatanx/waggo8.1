@@ -10,11 +10,11 @@ require_once __DIR__ . '/lib/escseq.php';
 
 $state = "license";
 
-$fw = detect_waggo_version();
+$fw = wi_detect_waggo_version();
 
-for($endflag=false ; !$endflag ; )
+for ( $endflag = false; ! $endflag; )
 {
-	cls();
+	wi_cls();
 	echo <<<___END___
 --------------------------------------------------------------------------------
 
@@ -26,30 +26,30 @@ for($endflag=false ; !$endflag ; )
 
 ___END___;
 
-	switch($state)
+	switch ( $state )
 	{
-		case "license":
+		case 'license':
 			echo "ライセンスについて\n\n";
-			require_once __DIR__.'/lib/license.php';
-			$state = install_license() ? "dircheck" : "abort" ;
+			require_once __DIR__ . '/lib/license.php';
+			$state = wi_license_agreement() ? "dircheck" : "abort";
 			break;
 
-		case "dircheck":
+		case 'dircheck':
 			echo "ディレクトリチェック\n\n";
-			require_once __DIR__.'/lib/dircheck.php';
-			$state = install_dircheck() ? "dir" : "abort" ;
+			require_once __DIR__ . '/lib/dircheck.php';
+			$state = wi_setup_dir() ? "dir" : "abort";
 			break;
 
-		case "dir":
+		case 'dir':
 			echo "ディレクトリの確認及び作成\n\n";
-			require_once __DIR__.'/lib/dircheck.php';
-			$state = install_mkdir() ? "instinfo" : "abort" ;
+			require_once __DIR__ . '/lib/dircheck.php';
+			$state = wi_setup_dir_and_permissions() ? "instinfo" : "abort";
 			break;
 
-		case "instinfo":
+		case 'instinfo':
 			echo "インストールのための各種情報入力\n\n";
-			require_once __DIR__.'/lib/instinfo.php';
-			install_instinfo();
+			require_once __DIR__ . '/lib/instinfo.php';
+			wi_setup();
 			break;
 
 		default:
@@ -58,7 +58,7 @@ ___END___;
 			break;
 	}
 
-	switch($state)
+	switch ( $state )
 	{
 		case "abort":
 			echo "セットアップを中止します。\n\n";

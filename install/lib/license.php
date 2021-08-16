@@ -5,10 +5,10 @@
  * @license MIT
  */
 
-function install_license()
+function wi_license_agreement(): bool
 {
 	echo file_get_contents( __DIR__ . '/../../LICENSE' );
 	echo "\n\n";
-	return q("上記のライセンス条項に同意しますか (Yes/No) -> ", ["Yes","No"])==="Yes" ? true : false;
-}
 
+	return wi_read( "上記のライセンス条項に同意しますか (Yes/No) -> ", [ 'Yes', 'No' ] ) === 'Yes' ;
+}

@@ -9,45 +9,77 @@ require_once __DIR__ . '/dircheck.php';
 require_once __DIR__ . '/gencontroller.php';
 require_once __DIR__ . '/detect.php';
 
-function file_waggoconf()
+function wi_gen_waggo_php_conf(): string
 {
-	$tf = <<<___END___
+	$s = <<<___END___
 <?php
 /**
  * waggo8 configuration
+ */
+define( 'WG_ENCODING', mb_internal_encoding());
+
+/**
+ * Install directory
+ */
+const WG_INSTALLDIR						=	'' ;
+
+/**
+ * Logging
  */
 const WG_DEBUG							=	false ; // Log for debug
 const WG_SQLDEBUG						=	false ; // Log for SQL debug
 const WG_SESSIONDEBUG					=	false ; // Log for Session debug
 const WG_CONTROLLERDEBUG				=	false ; // Log for Controller debug
 const WG_MODELDEBUG						=	false ; // Log for Model debug
-const WG_JSNOCACHE						=	false ; // Ignore cache for JS script
-const WG_INSTALLDIR						=	'' ;
-const WG_LOGDIR							=	WG_INSTALLDIR . "/logs" ;
+
+const WG_LOGDIR							=	WG_INSTALLDIR . '/logs' ;
 const WG_LOGNAME						=	'' ;
 const WG_LOGFILE						=	WG_LOGDIR.'/'.WG_LOGNAME ;
 const WG_LOGTYPE						=	0 ;
-const WG_ENCODING						=	mb_internal_encoding();
 
+/**
+ * Cache control
+ */
+const WG_JSNOCACHE						=	false ; // Ignore cache for JS script
+
+/**
+ * Directories
+ */
 const WGCONF_DIR_ROOT					=	WG_INSTALLDIR ;
-const WGCONF_DIR_WAGGO					=	realpath( __DIR__ . '/../waggo8');
-const WGCONF_DIR_PUB					=	realpath( __DIR__ . '/../../pub');
-const WGCONF_DIR_SYS					=	realpath( __DIR__ . '/../../sys');
-const WGCONF_DIR_TPL					=	realpath( __DIR__ . '/../../tpl');
-const WGCONF_CANVASCACHE				=	WG_INSTALLDIR.'/temporary';
-const WGCONF_DIR_UP						=	WG_INSTALLDIR.'/upload';
-const WGCONF_DIR_RES					=	WG_INSTALLDIR.'/resources';
+const WGCONF_DIR_PUB					=	WG_INSTALLDIR . '/pub';
+const WGCONF_DIR_SYS					=	WG_INSTALLDIR . '/sys';
+const WGCONF_DIR_WAGGO					=	WG_INSTALLDIR . '/sys/waggo8';
+const WGCONF_DIR_TPL					=	WG_INSTALLDIR . '/tpl';
+const WGCONF_CANVASCACHE				=	WG_INSTALLDIR . '/temporary';
+const WGCONF_DIR_UP						=	WG_INSTALLDIR . '/upload';
+const WGCONF_DIR_RES					=	WG_INSTALLDIR . '/resources';
+const WGCONF_DIR_PLUGINS				=	WG_INSTALLDIR . '/plugins';
 
-const WGCONF_DIR_FRAMEWORK				=	WGCONF_DIR_WAGGO.'/framework';
-const WGCONF_DIR_FRAMEWORK_MODEL		=	WGCONF_DIR_FRAMEWORK.'/m';
-const WGCONF_DIR_FRAMEWORK_VIEW8		=	WGCONF_DIR_FRAMEWORK.'/v8';
-const WGCONF_DIR_FRAMEWORK_CONTROLLER 	=	WGCONF_DIR_FRAMEWORK.'/c';
-const WGCONF_DIR_FRAMEWORK_EXT			=	WGCONF_DIR_FRAMEWORK.'/exts';
-const WGCONF_DIR_FRAMEWORK_GAUNTLET		=	WGCONF_DIR_FRAMEWORK.'/gauntlet';
+const WGCONF_DIR_FRAMEWORK				=	WGCONF_DIR_WAGGO . '/framework';
+const WGCONF_DIR_FRAMEWORK_MODEL		=	WGCONF_DIR_FRAMEWORK . '/m';
+const WGCONF_DIR_FRAMEWORK_VIEW8		=	WGCONF_DIR_FRAMEWORK . '/v8';
+const WGCONF_DIR_FRAMEWORK_CONTROLLER 	=	WGCONF_DIR_FRAMEWORK . '/c';
+const WGCONF_DIR_FRAMEWORK_EXT			=	WGCONF_DIR_FRAMEWORK . '/exts';
+const WGCONF_DIR_FRAMEWORK_GAUNTLET		=	WGCONF_DIR_FRAMEWORK . '/gauntlet';
 
+/**
+ * GC settings
+ */
+const WGCONF_SESSION_GCTIME				=	60 * 30;
+
+/**
+ * PEAR
+ */
 const WGCONF_PEAR						=	'/usr/local/lib/php' ;
+
+/**
+ * Imaging
+ */
 const WGCONF_UP_PX						=	640 ;
 
+/**
+ * SMTP
+ */
 const WGCONF_SMTP_HOST					=	'localhost' ;
 const WGCONF_SMTP_PORT					=	25 ;
 const WGCONF_SMTP_AUTH					=	false ;
@@ -62,8 +94,9 @@ const WGCONF_EMAIL						=	'root@localhost' ;
 const WGCONF_ERRMAIL					=	WGCONF_EMAIL ;
 const WGCONF_REPORTMAIL					=	WGCONF_EMAIL ;
 
-const WGCONF_SESSION_GCTIME				=	60 * 30;
-
+/**
+ * Database
+ */
 const WGCONF_DBMS_TYPE					=	'pgsql' ;
 const WGCONF_DBMS_HOST					=	'localhost' ;
 const WGCONF_DBMS_PORT					=	5432 ;
@@ -71,17 +104,31 @@ const WGCONF_DBMS_DB					=	'' ;
 const WGCONF_DBMS_USER					=	'' ;
 const WGCONF_DBMS_PASSWD				=	'' ;
 const WGCONF_DBMS_CA					=	'';
-const WGCONF_URLBASE					=	"http://{\$_SERVER['SERVER_NAME']}" ;
+
+/**
+ * Presentation URLs
+ */
+define( 'WGCONF_URLBASE', "http://{\$_SERVER['SERVER_NAME']}" );
 
 const WGCONF_GOOGLEMAPS_X				=	139.767073 ;
 const WGCONF_GOOGLEMAPS_Y				=	35.681304 ;
+
+/**
+ * Command-Line utils
+ */
 const WGCONF_PHPCLI						=	'/usr/local/bin/php' ;
 const WGCONF_CONVERT					=	'/usr/local/bin/convert' ;
 const WGCONF_FFMPEG						=	'/usr/local/bin/ffmpeg' ;
 
+/**
+ * Hash keys
+ */
 const WGCONF_HASHKEY					=	'' ;
 const WGCONF_PASSWORD_HASHKEY			=	'' ;
 
+/**
+ * Auto-loading
+ */
 global \$WGCONF_AUTOLOAD;
 \$WGCONF_AUTOLOAD = [
 	WGCONF_DIR_FRAMEWORK_VIEW8,
@@ -92,27 +139,26 @@ global \$WGCONF_AUTOLOAD;
 ];
 ___END___;
 
-	return $tf;
+	return $s;
 }
 
-function file_conf()
+function wi_gen_include_php_conf(): string
 {
-	$tf = <<<___END___
+	$s = <<<___END___
 <?php
-//
-// Common include script
-//
-
+/**
+ * Common
+ */
 
 ___END___;
 
-	return $tf;
+	return $s;
 }
 
 
-function file_apache( $domain, $dir, $email )
+function wi_gen_apache_conf( $domain, $dir, $email ): string
 {
-	$tf = <<<___END___
+	$s = <<<___END___
 #
 #
 #
@@ -135,7 +181,7 @@ function file_apache( $domain, $dir, $email )
 
 ___END___;
 
-	return $tf;
+	return $s;
 }
 
 function addsingleslashes( $str )
@@ -162,59 +208,54 @@ function addsingleslashes( $str )
 
 function replace_waggoconf( $filename, $dat )
 {
-	$dirInfo = install_dirinfo();
+	$dirInfo   = wi_install_dir_info();
 	$newConfig = "";
 
 	$editMessage = "// Edited by install.php at " . date( "Y/m/d H:i:s" );
-	$lines = file( $filename, FILE_IGNORE_NEW_LINES );
+	$lines       = file( $filename, FILE_IGNORE_NEW_LINES );
 	foreach ( $lines as $line )
 	{
 		$checker = trim( $line );
 		if ( preg_match( '/^const(\s+)([0-9A-Za-z_]+)(\s*=\s*)(.+)$/', $checker, $m ) )
 		{
 			list( , $prefix, $key, $equal, $val ) = $m;
-			$code = 'return $' . $key . $equal . $val;
-			echo $code."\n";
-
-			$eval = eval( 'return $' . $key . $equal . $val );
-
 			switch ( $key )
 			{
 				case 'WG_INSTALLDIR':
-					$line = sprintf( "const%s%s%s'%s' ); {$editMessage}", $prefix, $key, $equal, addsingleslashes( $dirInfo["application"] ) );
+					$line = sprintf( "const%s%s%s'%s'; {$editMessage}", $prefix, $key, $equal, addsingleslashes( $dirInfo["application"] ) );
 					break;
 				case 'WG_LOGNAME':
-					$line = sprintf( "const%s%s%s'%s' ); {$editMessage}", $prefix, $key, $equal, addsingleslashes( 'waggo.' . $dat["domain"]["domain"] . '.log' ) );
+					$line = sprintf( "const%s%s%s'%s'; {$editMessage}", $prefix, $key, $equal, addsingleslashes( 'waggo.' . $dat["domain"]["domain"] . '.log' ) );
 					break;
 				case 'WGCONF_DBMS_DB':
-					$line = sprintf( "const%s%s%s'%s' ); {$editMessage}", $prefix, $key, $equal, addsingleslashes( $dat["postgresql"]["dbname"] ) );
+					$line = sprintf( "const%s%s%s'%s'; {$editMessage}", $prefix, $key, $equal, addsingleslashes( $dat["postgresql"]["dbname"] ) );
 					break;
 				case 'WGCONF_DBMS_USER':
-					$line = sprintf( "const%s%s%s'%s' ); {$editMessage}", $prefix, $key, $equal, addsingleslashes( $dat["postgresql"]["username"] ) );
+					$line = sprintf( "const%s%s%s'%s'; {$editMessage}", $prefix, $key, $equal, addsingleslashes( $dat["postgresql"]["username"] ) );
 					break;
 				case 'WGCONF_DBMS_PASSWD':
-					$line = sprintf( "const%s%s%s'%s' ); {$editMessage}", $prefix, $key, $equal, addsingleslashes( $dat["postgresql"]["password"] ) );
+					$line = sprintf( "const%s%s%s'%s'; {$editMessage}", $prefix, $key, $equal, addsingleslashes( $dat["postgresql"]["password"] ) );
 					break;
 				case 'WGCONF_DBMS_HOST':
-					$line = sprintf( "const%s%s%s'%s' ); {$editMessage}", $prefix, $key, $equal, addsingleslashes( $dat["postgresql"]["host"] ) );
+					$line = sprintf( "const%s%s%s'%s'; {$editMessage}", $prefix, $key, $equal, addsingleslashes( $dat["postgresql"]["host"] ) );
 					break;
 				case 'WGCONF_HASHKEY':
-					$line = sprintf( "const%s%s%s'%s' ); {$editMessage}", $prefix, $key, $equal, addsingleslashes( $dat["hash"]["general_hashkey"] ) );
+					$line = sprintf( "const%s%s%s'%s'; {$editMessage}", $prefix, $key, $equal, addsingleslashes( $dat["hash"]["general_hashkey"] ) );
 					break;
 				case 'WGCONF_PASSWORD_HASHKEY':
-					$line = sprintf( "const%s%s%s'%s' ); {$editMessage}", $prefix, $key, $equal, addsingleslashes( $dat["hash"]["password_hashkey"] ) );
+					$line = sprintf( "const%s%s%s'%s'; {$editMessage}", $prefix, $key, $equal, addsingleslashes( $dat["hash"]["password_hashkey"] ) );
 					break;
 				case 'WGCONF_PHPCLI':
-					$line = sprintf( "const%s%s%s'%s' ); {$editMessage}", $prefix, $key, $equal, addsingleslashes( $dat["executable"]["phpcli"] ) );
+					$line = sprintf( "const%s%s%s'%s'; {$editMessage}", $prefix, $key, $equal, addsingleslashes( $dat["executable"]["phpcli"] ) );
 					break;
 				case 'WGCONF_CONVERT':
-					$line = sprintf( "const%s%s%s'%s' ); {$editMessage}", $prefix, $key, $equal, addsingleslashes( $dat["executable"]["convert"] ) );
+					$line = sprintf( "const%s%s%s'%s'; {$editMessage}", $prefix, $key, $equal, addsingleslashes( $dat["executable"]["convert"] ) );
 					break;
 				case 'WGCONF_FFMPEG':
-					$line = sprintf( "const%s%s%s'%s' ); {$editMessage}", $prefix, $key, $equal, addsingleslashes( $dat["executable"]["ffmpeg"] ) );
+					$line = sprintf( "const%s%s%s'%s'; {$editMessage}", $prefix, $key, $equal, addsingleslashes( $dat["executable"]["ffmpeg"] ) );
 					break;
 				case 'WGCONF_PEAR':
-					$line = sprintf( "const%s%s%s'%s' ); {$editMessage}", $prefix, $key, $equal, addsingleslashes( $dat["pear"]["dir"] ) );
+					$line = sprintf( "const%s%s%s'%s'; {$editMessage}", $prefix, $key, $equal, addsingleslashes( $dat["pear"]["dir"] ) );
 					break;
 			}
 		}
@@ -223,7 +264,7 @@ function replace_waggoconf( $filename, $dat )
 	file_put_contents( $filename, $newConfig );
 }
 
-function install_gen_hash()
+function wi_gen_hash(): string
 {
 	$r = "";
 	for ( $i = 0; $i < 32; $i ++ )
@@ -239,7 +280,7 @@ function install_gen_hash()
 	return $r;
 }
 
-function install_instinfo()
+function wi_setup(): void
 {
 	// データファイル検索
 	$infs   = [];
@@ -273,7 +314,7 @@ function install_instinfo()
 	// どのドメインを利用するか。
 	do
 	{
-		$id = in( "どのドメインを利用してインストールを行いますか？ -> " );
+		$id = wi_in( "どのドメインを利用してインストールを行いますか？ -> " );
 		if ( $id == 'q' )
 		{
 			exit;
@@ -300,13 +341,13 @@ function install_instinfo()
 				),
 			'executable' =>
 				array(
-					'phpcli'  => detect_phpcli(),
-					'convert' => detect_convert(),
-					'ffmpeg'  => detect_ffmpeg()
+					'phpcli'  => wi_search_phpcli(),
+					'convert' => wi_search_convert(),
+					'ffmpeg'  => wi_search_ffmpeg()
 				),
 			'pear'       =>
 				array(
-					'dir' => detect_pear()
+					'dir' => wi_search_pear()
 				),
 			'postgresql' =>
 				array(
@@ -321,41 +362,43 @@ function install_instinfo()
 				),
 			'hash'       =>
 				array(
-					'general_hashkey'  => install_gen_hash(),
-					'password_hashkey' => install_gen_hash()
+					'general_hashkey'  => wi_gen_hash(),
+					'password_hashkey' => wi_gen_hash()
 				)
 		) : $infs[ $id ][2];
 
 	// データ入力
-	$settings = array(
-		array(
+	$settings = [
+		[
 			'domain',
 			'domain',
 			'このフレームワークで構築するサイトのドメイン名',
 			'127.0.0.1'
-		),
-		array(
+		],
+		[
 			'app',
 			'prefix',
 			'このフレームワークで構築するコントローラ等に付与する接頭句',
 			'App'
-		),
-		array( 'app', 'email', '連絡先メールアドレス', 'root@localhost' ),
-		array( 'executable', 'phpcli', 'PHP(CLI)', detect_phpcli() ),
-		array( 'pear', 'dir', 'PEAR', detect_pear() ),
-		array( 'executable', 'convert', 'convert(ImageMagick)', detect_convert() ),
-		array( 'executable', 'ffmpeg', 'ffmpeg', detect_ffmpeg() ),
-		array( 'postgresql', 'host', 'DB サーバアドレス', 'localhost' ),
-		array( 'postgresql', 'dbname', 'DB データベース名', 'waggo' ),
-		array( 'postgresql', 'username', 'DB 接続ユーザ名', 'waggo' ),
-		array( 'postgresql', 'password', 'DB 接続パスワード', 'password' ),
-		array( 'hash', 'general_hashkey', '汎用ハッシュキー', '通常は自動生成されています' ),
-		array( 'hash', 'password_hashkey', 'パスワード用ハッシュキー', '通常は自動生成されています' )
-	);
+		],
+		[ 'app', 'email', '連絡先メールアドレス', 'root@localhost' ],
+		[ 'executable', 'phpcli', 'PHP(CLI)', wi_search_phpcli() ],
+		[ 'pear', 'dir', 'PEAR', wi_search_pear() ],
+		[ 'executable', 'convert', 'convert(ImageMagick)', wi_search_convert() ],
+		[ 'executable', 'ffmpeg', 'ffmpeg', wi_search_ffmpeg() ],
+		[ 'postgresql', 'host', 'DB サーバアドレス', 'localhost' ],
+		[ 'postgresql', 'dbname', 'DB データベース名', 'waggo' ],
+		[ 'postgresql', 'username', 'DB 接続ユーザ名', 'waggo' ],
+		[ 'postgresql', 'password', 'DB 接続パスワード', 'password' ],
+		[ 'hash', 'general_hashkey', '汎用ハッシュキー', '通常は自動生成されています' ],
+		[ 'hash', 'password_hashkey', 'パスワード用ハッシュキー', '通常は自動生成されています' ]
+	];
+
 	foreach ( $settings as $setting )
 	{
-		$def                               = @$inf[ $setting[0] ][ $setting[1] ];
-		$inf[ $setting[0] ][ $setting[1] ] = indef(
+		$def = @$inf[ $setting[0] ][ $setting[1] ];
+
+		$inf[ $setting[0] ][ $setting[1] ] = wi_in_default(
 			"● {$setting[2]}\n" .
 			"              例:({$setting[3]})\n" .
 			"   Enter規定値 -> {$def}\n" .
@@ -364,7 +407,7 @@ function install_instinfo()
 	}
 
 	// どのドメインを利用するか。
-	if ( q( "設定ファイルを更新してもよいですか？ (Yes/No) -> ", array( "Yes", "No" ) ) !== "Yes" )
+	if ( wi_read( "設定ファイルを更新してもよいですか？ (Yes/No) -> ", array( "Yes", "No" ) ) !== "Yes" )
 	{
 		return;
 	}
@@ -384,7 +427,7 @@ function install_instinfo()
 	fclose( $fp );
 
 	// 設定ファイルの作成
-	$dirinfo    = install_dirinfo();
+	$dirinfo    = wi_install_dir_info();
 	$domain     = $inf['domain']['domain'];
 	$waggoconf  = $dirinfo['config'] . "/waggo.{$domain}.php";
 	$apacheconf = $dirinfo['config'] . "/apache-vhosts.{$domain}.conf";
@@ -392,12 +435,12 @@ function install_instinfo()
 
 	if ( ! file_exists( $waggoconf ) )
 	{
-		file_put_contents( $waggoconf, file_waggoconf() );
+		file_put_contents( $waggoconf, wi_gen_waggo_php_conf() );
 	}
-	file_put_contents( $apacheconf, file_apache( $domain, $dirinfo["application"], $inf["app"]["email"] ) );
+	file_put_contents( $apacheconf, wi_gen_apache_conf( $domain, $dirinfo["application"], $inf["app"]["email"] ) );
 	if ( ! file_exists( $appconf ) )
 	{
-		file_put_contents( $appconf, file_conf() );
+		file_put_contents( $appconf, wi_gen_include_php_conf() );
 	}
 
 	// 初期テンプレートの複写
@@ -420,5 +463,5 @@ function install_instinfo()
 	install_gencontroller( $inf["app"]["prefix"] );
 
 	//
-	a( "設定ファイルを更新しました。" );
+	wi_pause( "設定ファイルを更新しました。" );
 }

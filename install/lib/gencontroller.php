@@ -83,7 +83,7 @@ ___END___;
 
 function install_gencontroller($prefix)
 {
-	$dirinfo = install_dirinfo();
+	$dirinfo = wi_install_dir_info();
 
 	$files = [
 		[	$dirinfo["inc"]."/{$prefix}PCController.php"	,	file_pccontroller($prefix)		],

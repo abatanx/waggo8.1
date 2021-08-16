@@ -5,7 +5,7 @@
  * @license MIT
  */
 
-function detect_waggo_version(): array
+function wi_detect_waggo_version(): array
 {
 	$cs = file( __DIR__ . '/../../waggo.php' );
 	foreach ( $cs as $c )
