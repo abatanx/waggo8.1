@@ -22,14 +22,21 @@ function wgdie( $msg )
 	}
 }
 
-if ( isset( $_SERVER['WAGGO_FORCE_CONFIG'] ) && strlen( $_SERVER['WAGGO_FORCE_CONFIG'] ) > 0 )
+if( defined('WG_UNITTEST') )
 {
-	$configFile = __DIR__ . "/../config/waggo.{$_SERVER['WAGGO_FORCE_CONFIG']}.php";
+	$configFile = __DIR__ . '/ut/unittest-config.php';
 }
 else
 {
-	$configPort = $_SERVER["SERVER_PORT"] != 80 ? ".${_SERVER['SERVER_PORT']}" : "";
-	$configFile = __DIR__ . "/../config/waggo.{$_SERVER['SERVER_NAME']}{$configPort}.php";
+	if ( isset( $_SERVER['WAGGO_FORCE_CONFIG'] ) && strlen( $_SERVER['WAGGO_FORCE_CONFIG'] ) > 0 )
+	{
+		$configFile = __DIR__ . "/../config/waggo.{$_SERVER['WAGGO_FORCE_CONFIG']}.php";
+	}
+	else
+	{
+		$configPort = $_SERVER["SERVER_PORT"] != 80 ? ".${_SERVER['SERVER_PORT']}" : "";
+		$configFile = __DIR__ . "/../config/waggo.{$_SERVER['SERVER_NAME']}{$configPort}.php";
+	}
 }
 
 if ( ! file_exists( $configFile ) )

@@ -7,6 +7,8 @@
 
 use PHPUnit\Framework\TestCase;
 
+if( !defined('WG_UNITTEST') ) define( 'WG_UNITTEST', true );
+
 require __DIR__ . '/../../api/datetime/WGDateTime.php';
 
 class ApiDatetimeWGDateTimeTest extends TestCase
