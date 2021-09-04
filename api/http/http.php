@@ -5,115 +5,162 @@
  * @license MIT
  */
 
-function wg_location($url)
+/**
+ * リダイレクトを行う。
+ *
+ * @param string $url リダイレクト先URL
+ */
+function wg_location( string $url ): void
 {
-	header("Location: $url");
+	header( "Location: $url" );
 	exit;
 }
 
 /**
- * 自分へのサイトへのアクセスを示すURLかを判定する。
- * @param String $url 判定するURL文字列
+ * 自サイトへのアクセスを示すURLかを判定する。
+ * scheme, host, port, user, pass が存在しない場合、自サイトへのアクセスとする。
+ *
+ * @param string $url 判定するURL文字列。
+ *
+ * @return bool 自サイトへのアクセスであれば true を、それ以外は false を返す。
  */
-function wg_is_myselfurl($url)
+function wg_is_myselfurl( string $url ): bool
 {
-	$q = parse_url($url);
-	$a = ["schema","host","port","user","pass"];
-	foreach( $a as $c ) if( $q[$c]!="" ) return false;
-	return true;
-}
-
-/**
- * URIチェック及びurlencodeを行う。自ホスト以外へのURIは無効。
- * @param String $url URL文字列
- * @param Bool $is_encode urlencodeを行うか
- * @return String エンコード後のURI文字列
- */
-function wg_encodeuri($url,$is_encode=true)
-{
-	if(!wg_is_myselfurl($url)) die("自サイト以外へのアクセスが発生したので、処理を中断しました。");
-	return ($is_encode) ? urlencode($url) : $url;
-}
-
-/**
- * $_GETの再構築を行なって、パラメータ文字列を返す。
- * @param array $reget 置き換えるキー／内容の連想配列(NULLがキーのデータの場合、そのキーは削除される)
- * @return string 再構築を行った後のURLパラメータ文字列
- */
-function wg_remake_get($reget=[])
-{
-	$nowget = $_GET;
-	$newget = [];
-	foreach( $reget  as $key => $val )
-	{
-		if( $val==="" || is_null($val) ) unset($nowget[$key]);
-		else $nowget[$key]=$val;
-	}
-	foreach( $nowget as $key => $val )
-	{
-		$newget[] = urlencode($key).(($val!="")?("=".urlencode($val)):"");
-	}
-	return implode("&",$newget);
-}
-
-/**
- * $_GETの再構築を行ない、URLを返す。
- * @param array $reget 置き換えるキー／内容の連想配列(NULLがキーのデータの場合、そのキーは削除される)
- * @return String 再構築を行った後のURL文字列
- */
-function wg_remake_uri( $reget = [] )
-{
-	$param = wg_remake_get( $reget );
-
-	return ( $param == "" ) ? $_SERVER["SCRIPT_NAME"] : $_SERVER["SCRIPT_NAME"] . "?${param}";
-}
-
-/**
- * 指定された URL からパラメータの再構築を行なって、再構築後のURLを返す。
- * @param string $url 再構築対象となるURL文字列
- * @param array $params 置き換えるキー／内容の連想配列(NULLがキーのデータの場合、そのキーは削除される)
- * @return mixed 成功した場合は再構築を行った後のURL文字列、失敗した場合は false を返す。
- */
-function wg_remake_url( $url, $params = [] )
-{
-	if ( ( $q = parse_url( $url ) ) == false )
+	if ( ( $q = parse_url( $url ) ) === false )
 	{
 		return false;
 	}
 
-	foreach( ['scheme','host','port','user','pass','path','query','fragment'] as $c )
+	$a = [ "schema", "host", "port", "user", "pass" ];
+	foreach ( $a as $c )
 	{
-		if( !@isset($q[$c]) ) $q[$c] = '';
-	}
-
-	$qys = explode( '&', $q["query"] );
-	$qps = [];
-	foreach ( $qys as $qq )
-	{
-		if ( $qq != "" )
+		$t = $q[ $c ] ?? '';
+		if ( $t !== '' )
 		{
-			$qe            = explode( '=', $qq );
-			$qps[ $qe[0] ] = urldecode( $qe[1] );
+			return false;
 		}
 	}
-	foreach ( $params as $k => $p )
-	{
-		$qps[ $k ] = $p;
-	}
 
-	$qys = [];
-	foreach ( $qps as $k => $v )
+	return true;
+}
+
+/**
+ * クエリ文字列から、連想配列を返す。
+ * 'a=b&c=d' => ['a'=>'b', 'c'=>'d'] のような変換を行う。
+ * キー及び値は urldecode によってデコードする。
+ *
+ * @param string $query クエリ文字列。
+ *
+ * @return array 変換した連想配列。
+ */
+function wg_query_to_array( string $query ): array
+{
+	$eq = explode( '&', $query );
+
+	$r = [];
+	foreach ( $eq as $q )
 	{
-		if ( ! is_null( $v ) )
+		if ( $q !== '' )
 		{
-			$qys[] = urlencode( $k ) . ( ( $v !== '' ) ? ( '=' . urlencode( $v ) ) : '' );
+			list( $k, $v ) = explode( '=', $q );
+			$k       = urldecode( (string) $k );
+			$v       = urldecode( (string) $v );
+			$r[ $k ] = urldecode( $v );
 		}
 	}
-	$q['query'] = implode( '&', $qys );
+
+	return $r;
+}
+
+/**
+ * パラメータの再調整を行う。
+ *
+ * @param array $original パラメータとして与えられた連想配列
+ * @param array $replace 置き換える連想配列。連想配列内の値が '' または NULLの場合、そのパラメータは削除される。
+ *
+ * @return string 置き換えたあとのパラメータを & で連結した文字列。
+ */
+function wg_array_to_query( array $original, array $replace = [] ): string
+{
+	$r = [];
+	foreach ( $replace as $k => $v )
+	{
+		$k = (string) $k;
+		if ( $v === '' || is_null( $v ) )
+		{
+			unset( $original[ $k ] );
+		}
+		else
+		{
+			$original[ $k ] = (string) $v;
+		}
+	}
+
+	foreach ( $original as $k => $v )
+	{
+		$r[] = urlencode( $k ) . ( ( $v !== '' ) ? ( '=' . urlencode( $v ) ) : '' );
+	}
+
+	return implode( "&", $r );
+}
+
+/**
+ * $_GET の再構築を行なって、パラメータ文字列を返す。
+ * キー及び値は urlencode でエンコードされ、& で連結される。
+ * $_GET の内容は破壊しない。
+ *
+ * @param array $params 置き換える連想配列。連想配列内の値が '' または NULLの場合、そのパラメータは削除される。
+ *
+ * @return string 再構築を行った後のURLパラメータ文字列。& で連結された文字列。
+ */
+function wg_remake_get( array $params = [] ): string
+{
+	return wg_array_to_query( $_GET, $params );
+}
+
+/**
+ * アクセスされているURLの再構築を行なって、URLを返す。
+ * アクセスされているURLは、$_SERVER['SCRIPT_NAME'] による。
+ * キー及び値は urlencode でエンコードされ、& で連結される。
+ *
+ * @param array $params 置き換える連想配列。連想配列内の値が '' または NULLの場合、そのパラメータは削除される。
+ *
+ * @return string 再構築を行った後のURL文字列。
+ */
+function wg_remake_uri( array $params = [] ): string
+{
+	$param = wg_remake_get( $params );
+
+	return ( $param === '' ) ? $_SERVER['SCRIPT_NAME'] : $_SERVER['SCRIPT_NAME'] . "?{$param}";
+}
+
+/**
+ * 与えられたURLの再構築を行なって、URLを返す。
+ *
+ * @param string $url 再構築対象となるURL文字列
+ * @param array $params 置き換える連想配列。連想配列内の値が '' または NULLの場合、そのパラメータは削除される。
+ *
+ * @return string|false 成功した場合は再構築を行った後のURL文字列、失敗した場合は false を返す。
+ */
+function wg_remake_url( string $url, array $params = [] ): string|false
+{
+	if ( ( $q = parse_url( $url ) ) === false )
+	{
+		return false;
+	}
+
+	foreach ( [ 'scheme', 'host', 'port', 'user', 'pass', 'path', 'query', 'fragment' ] as $c )
+	{
+		$q[ $c ] = (string) $q[ $c ];
+	}
+
+	$q['query'] = wg_array_to_query( wg_query_to_array( $q['query'] ), $params );
 
 	return
-		( ( $q["scheme"] != "" ) ? "{$q['scheme']}://" : "" ) .
-		( ( $q["host"] != "" ) ? "{$q['host']}" : "" ) .
-		( ( $q["port"] != "" ) ? ":{$q['port']}" : "" ) .
-		$q["path"] . ( ( $q["query"] != "" ) ? "?$q[query]" : "" ) . ( ( $q["fragment"] != "" ) ? "#$q[flagment]" : "" );
+		( ( $q['scheme'] !== '' ) ? "{$q['scheme']}://" : '' ) .
+		( ( $q['host'] !== '' ) ? "{$q['host']}" : '' ) .
+		( ( $q['port'] !== '' ) ? ":{$q['port']}" : '' ) .
+		$q['path'] .
+		( ( $q['query'] !== '' ) ? "?{$q['query']}" : '' ) .
+		( ( $q['fragment'] !== '' ) ? "#{$q['fragment']}" : '' );
 }
