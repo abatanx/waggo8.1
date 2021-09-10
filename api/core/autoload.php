@@ -20,12 +20,23 @@ function waggo_class_autoload( string $dir, string $class ): bool
 		wg_log_write( WGLOG_INFO, "[[ Autoload class : $dir/$class ]]" );
 
 		/** @noinspection */
-		require_once $file ;
+		require_once $file;
 
 		return true;
 	}
 
 	return false;
+}
+
+/**
+ * Add directory for class-autoloader
+ *
+ * @param string directory
+ */
+function wg_add_autoload( string $dir ): void
+{
+	global $WGCONF_AUTOLOAD;
+	$WGCONF_AUTOLOAD[] = $dir;
 }
 
 /**

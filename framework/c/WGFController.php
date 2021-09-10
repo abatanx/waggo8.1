@@ -261,7 +261,7 @@ abstract class WGFController
 	 * コントローラーに登録されたビューが、エラー状態のものが存在するかチェックする。
 	 * @return boolean エラー状態が存在している場合は true を、存在しない場合は false を返す。
 	 */
-	protected function hasError()
+	protected function hasError():bool
 	{
 		if(WG_CONTROLLERDEBUG)
 		{

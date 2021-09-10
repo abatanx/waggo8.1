@@ -34,10 +34,11 @@ $wg_log_write_types = [
  * @param array $params func_get_args() を指定する。
  *
  * @return mixed 転送先関数からの戻り値。
+ * @noinspection PhpUnused
  */
 function wg_deprecated( bool $is_forward, string $func, string $solver, array $params = [] ): mixed
 {
-	wg_log_write( WGLOG_WARNING, "{$func} は非推奨APIです。今後 {$solver} を利用してください。" );
+	wg_log_write( WGLOG_WARNING, "$func is deprecated. so you should use $solver." );
 	if ( $is_forward )
 	{
 		return call_user_func_array( $solver, $params );
@@ -50,10 +51,11 @@ function wg_deprecated( bool $is_forward, string $func, string $solver, array $p
  * ログに情報を出力する。
  *
  * @param string $log ログ記録内容
+ * @noinspection PhpUnused
  */
 function wg_log_write_error_log( string $log ): void
 {
-	switch ( WGCONF_LOGTYPE )
+	switch ( WG_LOGTYPE )
 	{
 		case 0:
 		default:
@@ -61,8 +63,8 @@ function wg_log_write_error_log( string $log ): void
 			break;
 
 		case 1:
-			@chmod( WGCONF_LOGFILE, 0666 );
-			error_log( $log, 3, WGCONF_LOGFILE );
+			@chmod( WG_LOGFILE, 0666 );
+			error_log( $log, 3, WG_LOGFILE );
 			break;
 	}
 }
@@ -72,10 +74,11 @@ function wg_log_write_error_log( string $log ): void
  *
  * @param int $logtype 出力するメッセージのタイプ(WGLOG_APP|WGLOG_INFO|WGLOG_WARNING|WGLOG_ERROR|WGLOG_FATAL)
  * @param mixed $fmt,... メッセージ。可変パラメータがない場合は $fmt はそのまま表示される。
+ * @noinspection PhpUnused
  */
 function wg_log_write( int $logtype, mixed $fmt ): void
 {
-	if ( WGCONF_LOGFILE == '' )
+	if ( WG_LOGFILE == '' )
 	{
 		return;
 	}
@@ -121,6 +124,7 @@ function wg_log_write( int $logtype, mixed $fmt ): void
  *
  * @param int $logtype 出力するメッセージのタイプ(WGLOG_APP|WGLOG_INFO|WGLOG_WARNING|WGLOG_ERROR|WGLOG_FATAL)
  * @param mixed $var 出力する変数
+ * @noinspection PhpUnused
  */
 function wg_log_dump( int $logtype, mixed $var ): void
 {
@@ -140,6 +144,7 @@ function wg_log_dump( int $logtype, mixed $var ): void
  * エラーをログファイルに出力し、スクリプトを強制終了する。
  *
  * @param string $msg エラーメッセージ。
+ * @noinspection PhpUnused
  */
 function wg_die( string $msg ): void
 {
@@ -150,10 +155,11 @@ function wg_die( string $msg ): void
 /**
  * REMOTE IPアドレス取得
  * @return string
+ * @noinspection PhpUnused
  */
 function wg_get_remote_adr(): string
 {
-	$remoteAdr = $_SERVER['REMOTE_ADDR'] ?? false;
+	$remoteAdr = $_SERVER['REMOTE_ADDR'] ?? '';
 
 	if ( isset( $_SERVER['HTTP_X_CLIENT_IP'] ) )
 	{

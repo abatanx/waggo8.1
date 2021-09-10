@@ -12,24 +12,16 @@ class WGV8Object
 	/**
 	 * @var WGV8Params $params
 	 */
-	public $params;
+	public WGV8Params $params;
 
-	protected $id, $key, $enable, $lock, $focus, $extra;
+	protected string|null $id;
+	protected string|null $key;
+	protected bool $enable, $lock, $focus;
+	protected mixed $extra;
+	protected WGG|null $gauntlet;
 
-	/**
-	 * @var WGG
-	 */
-	protected $gauntlet;
-
-	/**
-	 * @var WGFController
-	 */
-	public $controller;
-
-	/**
-	 * @var WGFSession
-	 */
-	public $session;
+	public WGFController $controller;
+	public WGFSession $session;
 
 	/**
 	 * WGV8Object constructor.
@@ -50,7 +42,7 @@ class WGV8Object
 	 * Generate new identifier.
 	 * @return string
 	 */
-	public function newId()
+	public function newId(): string
 	{
 		if ( ! isset( $_SESSION['_sOBJSEQ'] ) || ! is_int( $_SESSION['_sOBJSEQ'] ) )
 		{
@@ -61,246 +53,245 @@ class WGV8Object
 		return sprintf( "wg-view-%d", wg_m10w31( $seq ) );
 	}
 
-	public function getId()
+	public function getId(): string
 	{
 		return $this->id;
 	}
 
-	public function setId( $id )
+	public function setId( $id ): self
 	{
 		$this->id = $id;
 
 		return $this;
 	}
 
-	public function getIds()
-	{
-		return $this->getId();
-	}
-
-	public function initSession( $session )
+	public function initSession( WGFSession $session ): self
 	{
 		$this->session = $session;
 
 		return $this;
 	}
 
-	public function initController( $controller )
+	public function initController( WGFController $controller ): self
 	{
 		$this->controller = $controller;
 
 		return $this;
 	}
 
-	public function initFirst()
+	public function initFirst(): bool
 	{
 		return true;
 	}
 
-	public function init()
+	public function init(): bool
 	{
 		return true;
 	}
 
-	public function getParams()
+	/**
+	 * @return WGV8Params
+	 * @noinspection PhpUnused
+	 */
+	public function getParams(): WGV8Params
 	{
 		return $this->params;
 	}
 
-	public function getKey()
+	public function getKey(): string
 	{
 		return $this->key;
 	}
 
-	public function setKey( $key )
+	public function setKey( string $key ): self
 	{
 		$this->key = $key;
 
 		return $this;
 	}
 
-	public function getName()
+	public function getName(): string
 	{
 		return $this->getKey();
 	}
 
-	public function setName( $key )
+	public function setName( string $key ): self
 	{
 		return $this->setKey( $key );
 	}
 
-	public function getValue()
+	public function getValue(): mixed
 	{
 		return $this->session->get( $this->key );
 	}
 
-	public function setValue( $v )
+	public function setValue( mixed $v ): self
 	{
 		$this->session->set( $this->key, $v );
 
 		return $this;
 	}
 
-	public function issetValue()
+	public function issetValue(): bool
 	{
 		return $this->session->isExists( $this->key );
 	}
 
-	public function clear()
+	public function clear(): self
 	{
 		$this->setValue( null );
 
 		return $this;
 	}
 
-	public function unsetValue()
+	public function unsetValue(): self
 	{
 		$this->setValue( null );
 
 		return $this;
 	}
 
-	public function setLocalValue( $key, $v )
+	public function setLocalValue( string $key, mixed $v ): self
 	{
 		$this->session->set( "{$this->key}/{$key}", $v );
 
 		return $this;
 	}
 
-	public function getLocalValue( $key )
+	public function getLocalValue( string $key ): mixed
 	{
 		return $this->session->get( "{$this->key}/{$key}" );
 	}
 
-	public function issetLocalValue( $key )
+	public function issetLocalValue( string $key ): bool
 	{
 		return $this->session->isExists( "{$this->key}/{$key}" );
 	}
 
-	public function emptyLocalValue( $key )
+	public function emptyLocalValue( string $key ): bool
 	{
 		return $this->session->isEmpty( "{$this->key}/{$key}" );
 	}
 
-	public function unsetLocalValue( $key )
+	public function unsetLocalValue( $key ): self
 	{
 		$this->session->delete( "{$this->key}/{$key}" );
 
 		return $this;
 	}
 
-	public function getError()
+	public function getError(): mixed
 	{
 		return $this->session->get( "{$this->key}#error" );
 	}
 
-	public function setError( $v )
+	public function setError( mixed $v ): self
 	{
 		$this->session->set( "{$this->key}#error", $v );
 
 		return $this;
 	}
 
-	public function unsetError()
+	public function unsetError(): self
 	{
 		$this->session->delete( "{$this->key}#error" );
 
 		return $this;
 	}
 
-	public function isError()
+	public function isError(): bool
 	{
 		return ! $this->session->isEmpty( "{$this->key}#error" );
 	}
 
-	public function getEnable()
+	public function getEnable(): bool
 	{
 		return $this->enable;
 	}
 
-	public function isEnable()
+	public function isEnable(): bool
 	{
 		return $this->getEnable();
 	}
 
-	public function setEnable( $enableFlag )
+	public function setEnable( bool $enableFlag ): self
 	{
 		$this->enable = $enableFlag;
 
 		return $this;
 	}
 
-	public function enable()
+	public function enable(): self
 	{
 		$this->setEnable( true );
 
 		return $this;
 	}
 
-	public function disable()
+	public function disable(): self
 	{
 		$this->setEnable( false );
 
 		return $this;
 	}
 
-	public function isSubmit()
+	public function isSubmit(): bool
 	{
 		return false;
 	}
 
-	public function isShowOnly()
+	public function isShowOnly(): bool
 	{
 		return false;
 	}
 
-	public function formHtml()
+	public function formHtml(): string
 	{
 		return "";
 	}
 
-	public function showHtml()
+	public function showHtml(): string
 	{
 		return "";
 	}
 
-	public function postCopy()
+	public function postCopy(): self
 	{
 		return $this;
 	}
 
-	public function setLock( $lockFlag )
+	public function setLock( $lockFlag ): self
 	{
 		$this->lock = $lockFlag;
 
 		return $this;
 	}
 
-	public function lock()
+	public function lock(): self
 	{
 		$this->setLock( true );
 
 		return $this;
 	}
 
-	public function unlock()
+	public function unlock(): self
 	{
 		$this->setLock( false );
 
 		return $this;
 	}
 
-	public function isLock()
+	public function isLock(): bool
 	{
 		return $this->lock;
 	}
 
 	/**
-	 * @param WGG $gauntlet
+	 * @param WGG|null $gauntlet
 	 *
 	 * @return $this
 	 */
-	public function execGauntlet( $gauntlet )
+	public function execGauntlet( WGG|null $gauntlet ): self
 	{
 		$this->unsetError();
 		if ( is_null( $gauntlet ) )
@@ -320,33 +311,33 @@ class WGV8Object
 		return $this;
 	}
 
-	public function filterGauntlet()
+	public function filterGauntlet(): self
 	{
 		$this->execGauntlet( $this->gauntlet );
 
 		return $this;
 	}
 
-	public function check()
+	public function check(): self
 	{
 		$this->filterGauntlet();
 
 		return $this;
 	}
 
-	public function setGauntlet( $g )
+	public function setGauntlet( WGG|null $g ): self
 	{
 		$this->gauntlet = $g;
 
 		return $this;
 	}
 
-	public function getGauntlet()
+	public function getGauntlet(): WGG
 	{
 		return $this->gauntlet;
 	}
 
-	public function clearGauntlet()
+	public function clearGauntlet(): self
 	{
 		$this->gauntlet = null;
 
@@ -358,12 +349,12 @@ class WGV8Object
 	 *
 	 * @return WGV8Object
 	 */
-	public function controller( $c )
+	public function controller( WGFController $c ): self
 	{
 		return $this;
 	}
 
-	public function getExtra()
+	public function getExtra(): mixed
 	{
 		return $this->extra;
 	}
@@ -373,7 +364,7 @@ class WGV8Object
 	 * {@key:{id,name,value...}}
 	 * @return string[]
 	 */
-	public function publish()
+	public function publish(): array
 	{
 		return
 			[

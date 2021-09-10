@@ -91,7 +91,7 @@ function _Q( string $format, string|int|float ...$values )
  *
  * @return array|false 成功した場合はレコード配列、失敗した場合は false を返す
  */
-function QQ( string $format, ...$values ): array|false
+function _QQ( string $format, ...$values ): array|false
 {
 	$p = [ $format, ...$values ];
 

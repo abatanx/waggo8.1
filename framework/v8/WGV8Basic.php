@@ -9,7 +9,7 @@ require_once __DIR__ . '/WGV8Object.php';
 
 class WGV8Basic extends WGV8Object
 {
-	public function postCopy()
+	public function postCopy(): static
 	{
 		parent::postCopy();
 
@@ -22,7 +22,7 @@ class WGV8Basic extends WGV8Object
 		return $this;
 	}
 
-	public function controller( $c )
+	public function controller( WGFController $c ): static
 	{
 		/**
 		 * @var WGFController $c
