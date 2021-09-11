@@ -27,7 +27,7 @@ class WGFPCController extends WGFController
 
 	public function loadCSS($url)
 	{
-		$keyseq = $this->getKeySeq("css-load-");
+		$keyseq = $this->getSerialId("css-load-");
 		$canvas = $this->getTargetCanvasForJS();
 		$canvas->html["in_heads"][] =
 			[
@@ -39,7 +39,7 @@ class WGFPCController extends WGFController
 
 	public function loadJS($url)
 	{
-		$keyseq = $this->getKeySeq("js-load-");
+		$keyseq = $this->getSerialId("js-load-");
 		$canvas = $this->getTargetCanvasForJS();
 		$canvas->html["in_heads"][] =
 			[
@@ -63,7 +63,7 @@ class WGFPCController extends WGFController
 
 	public function runJS($javascript,$event = self::RUNJS_ONREADY)
 	{
-		$keyseq = $this->getKeySeq("run-js-");
+		$keyseq = $this->getSerialId("run-js-");
 		$canvas = $this->getTargetCanvasForJS();
 		$canvas->html["in_on{$event}_functions"][] =
 			[

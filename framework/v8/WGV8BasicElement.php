@@ -9,16 +9,13 @@ require_once __DIR__ . '/WGV8Object.php';
 
 class WGV8BasicElement extends WGV8Basic
 {
-	public function isSubmit()
+	public function isSubmit(): bool
 	{
 		return false;
 	}
 
-	public function controller( $c )
+	public function controller( WGFController $c ): self
 	{
-		/**
-		 * @var WGFController $c
-		 */
 		parent::controller( $c );
 
 		$id = htmlspecialchars( $this->getId() );
@@ -28,5 +25,7 @@ class WGV8BasicElement extends WGV8Basic
 		{
 			$c->runJS( "\$('#{$id}').attr({disabled:'disabled'});", $x );
 		}
+
+		return $this;
 	}
 }

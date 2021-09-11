@@ -9,7 +9,7 @@ require_once __DIR__ . '/WGV8Object.php';
 
 class WGV8BasicCheckElement extends WGV8BasicElement
 {
-	public function postCopy()
+	public function postCopy(): self
 	{
 		parent::postCopy();
 
@@ -30,11 +30,8 @@ class WGV8BasicCheckElement extends WGV8BasicElement
 		return $this;
 	}
 
-	public function controller( $c )
+	public function controller( WGFController $c ): self
 	{
-		/**
-		 * @var WGFController $c
-		 */
 		parent::controller( $c );
 
 		$id = htmlspecialchars( $this->getId() );
@@ -44,9 +41,11 @@ class WGV8BasicCheckElement extends WGV8BasicElement
 		{
 			$c->runJS( "\$('#{$id}, #{$id}-init').attr({disabled:'disabled'});", $x );
 		}
+
+		return $this;
 	}
 
-	public function publish()
+	public function publish(): array
 	{
 		$a = $this->getValue() == false ?
 			[] : [ 'checked' => 'checked' ];

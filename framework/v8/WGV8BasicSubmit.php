@@ -9,16 +9,13 @@ require_once __DIR__ . '/WGV8Object.php';
 
 class WGV8BasicSubmit extends WGV8Basic
 {
-	public function isSubmit()
+	public function isSubmit(): bool
 	{
 		return true;
 	}
 
-	public function controller( $c )
+	public function controller( WGFController $c ): self
 	{
-		/**
-		 * @var WGFController $c
-		 */
 		parent::controller( $c );
 
 		$id = htmlspecialchars( $this->getId() );
@@ -48,5 +45,7 @@ class WGV8BasicSubmit extends WGV8Basic
 				);
 			}
 		}
+
+		return $this;
 	}
 }

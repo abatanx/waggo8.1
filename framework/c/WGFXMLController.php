@@ -32,7 +32,7 @@ class WGFXMLController extends WGFController
 
 	public function runJS($javascript,$event = self::RUNJS_ONLOADED)
 	{
-		$keyseq = $this->getKeySeq("js-");
+		$keyseq = $this->getSerialId("js-");
 		$this->appCanvas->html["script"][] =
 			[
 				"key"	=>	$keyseq,
