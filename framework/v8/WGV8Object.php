@@ -20,8 +20,8 @@ class WGV8Object
 	protected mixed $extra;
 	protected WGG|null $gauntlet;
 
-	public WGFController $controller;
-	public WGFSession $session;
+	public WGFController|null $controller;
+	public WGFSession|null $session;
 
 	/**
 	 * WGV8Object constructor.
@@ -65,14 +65,14 @@ class WGV8Object
 		return $this;
 	}
 
-	public function initSession( WGFSession $session ): self
+	public function initSession( WGFSession|null $session ): self
 	{
 		$this->session = $session;
 
 		return $this;
 	}
 
-	public function initController( WGFController $controller ): self
+	public function initController( WGFController|null $controller ): self
 	{
 		$this->controller = $controller;
 

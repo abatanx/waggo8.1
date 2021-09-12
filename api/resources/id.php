@@ -124,7 +124,7 @@ function wg_create_grpcd()
  * @param int $length 文字列の長さ
  * @return string ランダムな文字列
  */
-function wg_create_uniqid( $length = 32 )
+function wg_create_uniqid( int $length = 32 ):string
 {
 	$basechrs1 = "ghijklmnopqrstuvwxyz";
 	$basechrs2 = "0123456789abcdefghijklmnopqrstuvwxyz";

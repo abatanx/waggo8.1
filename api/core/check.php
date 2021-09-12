@@ -10,7 +10,7 @@ require_once __DIR__ . '/lib.php';
 /**
  * 入力値が数値(numeric)であるかチェックし、妥当であれば変数にセットする。
  *
- * @param float $result チェック後セットされる変数。エラーの場合、0 がセットされる。
+ * @param float|null $result チェック後セットされる変数。エラーの場合、0 がセットされる。
  * @param string|null $src 入力値(文字列)。
  * @param float $min 受け入れる数値の最小値。
  * @param float $max 受け入れる数値の最大値。
@@ -18,7 +18,7 @@ require_once __DIR__ . '/lib.php';
  * @return bool 妥当であれば trueを、それ以外であれば false を返す。入力値が null の場合は、必ず false を返す。
  * @noinspection PhpUnused
  */
-function wg_inchk_number( float &$result, string|null $src, float $min = 0, float $max = 2147483647 ): bool
+function wg_inchk_float( float|null &$result, string|null $src, float $min = 0, float $max = 2147483647 ): bool
 {
 	$result = 0;
 
@@ -31,7 +31,7 @@ function wg_inchk_number( float &$result, string|null $src, float $min = 0, floa
 	{
 		return false;
 	}
-	$result = $src;
+	$result = (float) $src;
 
 	return true;
 }
@@ -39,7 +39,7 @@ function wg_inchk_number( float &$result, string|null $src, float $min = 0, floa
 /**
  * 入力値が整数(integer)であるかチェックし、妥当であれば変数にセットする。
  *
- * @param int $result チェック後セットされる変数。エラーの場合、0 がセットされる。
+ * @param int|null $result チェック後セットされる変数。エラーの場合、0 がセットされる。
  * @param string|null $src 入力値(文字列)。
  * @param int $min 受け入れる整数の最小値。
  * @param int $max 受け入れる整数の最大値。
@@ -47,7 +47,7 @@ function wg_inchk_number( float &$result, string|null $src, float $min = 0, floa
  * @return bool 妥当であれば trueを、それ以外であれば false を返す。$src が null の場合、必ず false を返す。
  * @noinspection PhpUnused
  */
-function wg_inchk_int( int &$result, string|null $src, int $min = 0, int $max = 2147483647 ): bool
+function wg_inchk_int( int|null &$result, string|null $src, int $min = 0, int $max = 2147483647 ): bool
 {
 	$result = 0;
 
@@ -68,7 +68,7 @@ function wg_inchk_int( int &$result, string|null $src, int $min = 0, int $max = 
 /**
  * 入力値が規定範囲内の文字列であるかチェックし、妥当であれば変数にセットする。
  *
- * @param string $result チェック後セットされる変数。エラーの場合、"" がセットされる。
+ * @param string|null $result チェック後セットされる変数。エラーの場合、"" がセットされる。
  * @param string|null $src 入力値(文字列)。
  * @param int $min 受け入れる文字列の最小長。
  * @param int $max 受け入れる文字列の最大長。
@@ -76,7 +76,7 @@ function wg_inchk_int( int &$result, string|null $src, int $min = 0, int $max = 
  * @return bool 妥当であれば trueを、それ以外であれば false を返す。$src が null の場合、必ず false を返す。
  * @noinspection PhpUnused
  */
-function wg_inchk_string( string &$result, string|null $src, int $min = 0, int $max = 2147483647 ): bool
+function wg_inchk_string( string|null &$result, string|null $src, int $min = 0, int $max = 2147483647 ): bool
 {
 	$result = '';
 
@@ -98,13 +98,13 @@ function wg_inchk_string( string &$result, string|null $src, int $min = 0, int $
  * 入力値が日付(YYYY/MM/DD)であるかチェックし、妥当であれば変数にセットする。
  * なお、入力する日付の形式は YYYY[/-]MM[/-]DD 形式による。
  *
- * @param string $result チェック後セットされる変数(YYYY/MM/DD形式)。エラーの場合 false がセットされる。
+ * @param string|null $result チェック後セットされる変数(YYYY/MM/DD形式)。エラーの場合 false がセットされる。
  * @param string|null $src 入力値(文字列)。
  *
  * @return bool 妥当であれば trueを、それ以外であれば false を返す。$src が null の場合、必ず false を返す。
  * @noinspection PhpUnused
  */
-function wg_inchk_ymd( string &$result, string|null $src ): bool
+function wg_inchk_ymd( string|null &$result, string|null $src ): bool
 {
 	$result = false;
 
@@ -135,14 +135,14 @@ function wg_inchk_ymd( string &$result, string|null $src ): bool
  * 入力値が年月(YYYY/MM)であるかチェックし、妥当であれば変数にセットする。
  * なお、入力する日付の形式は YYYY[/-]MM 形式により、1800〜2100年までの数値を受け付ける。
  *
- * @param string $result チェック後セットされる変数(YYYY/MM または YYYY/MM/01形式)。エラーの場合 false がセットされる。
+ * @param string|null $result チェック後セットされる変数(YYYY/MM または YYYY/MM/01形式)。エラーの場合 false がセットされる。
  * @param string|null $src 入力値(文字列)。
  * @param bool $isAsYmd 日として1日(すなわちYYYY/MM/01の形式)に変換して $result に代入するかどうか。
  *
  * @return bool 妥当であれば trueを、それ以外であれば false を返す。$src が null の場合、必ず false を返す。
  * @noinspection PhpUnused
  */
-function wg_inchk_ym( string &$result, string|null $src, bool $isAsYmd = true ): bool
+function wg_inchk_ym( string|null &$result, string|null $src, bool $isAsYmd = true ): bool
 {
 	$result = false;
 
@@ -179,7 +179,7 @@ function wg_inchk_ym( string &$result, string|null $src, bool $isAsYmd = true ):
 /**
  * 入力値を与えられた正規表現(PREG)でチェックし、妥当であれば変数にセットする。
  *
- * @param string $result チェック後セットされる変数。エラーの場合、"" がセットされる。
+ * @param string|null $result チェック後セットされる変数。エラーの場合、"" がセットされる。
  * @param string|null $src 入力値(文字列)。
  * @param string $regex 正規表現(preg_match互換)。
  * @param int $min 受け入れる文字列の最小長。
@@ -188,7 +188,7 @@ function wg_inchk_ym( string &$result, string|null $src, bool $isAsYmd = true ):
  * @return bool 妥当であれば trueを、それ以外であれば false を返す。$src が null の場合、必ず false を返す。
  * @noinspection PhpUnused
  */
-function wg_inchk_pregex( string &$result, string|null $src, string $regex, int $min = 0, int $max = 2147483647 ): bool
+function wg_inchk_pregex( string|null &$result, string|null $src, string $regex, int $min = 0, int $max = 2147483647 ): bool
 {
 	$result = '';
 
@@ -215,7 +215,7 @@ function wg_inchk_pregex( string &$result, string|null $src, string $regex, int 
 /**
  * 入力値を与えられた正規表現(PREG)でチェックし、妥当であれば変数にセット及びマッチ配列を取得する。
  *
- * @param string $result チェック後セットされる変数。エラーの場合、"" がセットされる。
+ * @param string|null $result チェック後セットされる変数。エラーの場合、"" がセットされる。
  * @param string|null $src 入力値(文字列)。
  * @param string $regex 正規表現(preg_match互換)。
  * @param int $min 受け入れる文字列の最小長。
@@ -225,7 +225,7 @@ function wg_inchk_pregex( string &$result, string|null $src, string $regex, int 
  * @noinspection PhpUnused
  */
 function wg_inchk_pregexmatch(
-	string &$result, string|null $src, string $regex, int $min = 0, int $max = 2147483647
+	string|null &$result, string|null $src, string $regex, int $min = 0, int $max = 2147483647
 ): bool {
 	$result = '';
 
@@ -485,13 +485,13 @@ function wg_toank( string $data ): string
 /**
  * 入力値がカナに変換可能な文字であるかチェックし、妥当であれば変数にセットする。
  *
- * @param string $result チェック後セットされる変数。エラーの場合、"" がセットされる。
+ * @param string|null $result チェック後セットされる変数。エラーの場合、"" がセットされる。
  * @param string|null $src 入力値(文字列)。
  *
  * @return bool 妥当であれば trueを、それ以外であれば false を返す。$src が null の場合、必ず false を返す。
  * @noinspection PhpUnused
  */
-function wg_inchk_kana( string &$result, string|null $src ): bool
+function wg_inchk_kana( string|null &$result, string|null $src ): bool
 {
 	if ( is_null( $src ) )
 	{
@@ -513,13 +513,13 @@ function wg_inchk_kana( string &$result, string|null $src ): bool
 /**
  * ひらがな版
  *
- * @param string $result チェック後セットされる変数。エラーの場合、"" がセットされる。
+ * @param string|null $result チェック後セットされる変数。エラーの場合、"" がセットされる。
  * @param string|null $src 入力値(文字列)。
  *
  * @return bool 妥当であれば trueを、それ以外であれば false を返す。$src が null の場合、必ず false を返す。
  * @noinspection PhpUnused
  */
-function wg_inchk_hiragana( string &$result, string|null $src ): bool
+function wg_inchk_hiragana( string|null &$result, string|null $src ): bool
 {
 	if ( is_null( $src ) )
 	{

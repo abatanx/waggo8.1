@@ -67,8 +67,9 @@ class WGFPCController extends WGFController
 
 	public function runJS( string $javascript, $event = self::RUNJS_ONREADY ): string
 	{
-		$keyseq                                    = $this->getSerialId( "run-js-" );
-		$canvas                                    = $this->getTargetCanvasForJS();
+		$keyseq = $this->getSerialId( "run-js-" );
+		$canvas = $this->getTargetCanvasForJS();
+
 		$canvas->html["in_on{$event}_functions"][] =
 			[
 				"key"  => $keyseq,
