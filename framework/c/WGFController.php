@@ -4,19 +4,20 @@
  * @copyright 2013-2021 CIEL, K.K., project waggo.
  * @license MIT
  */
+declare( strict_types=1 );
 
 require_once __DIR__ . '/../../waggo.php';
-require_once __DIR__ . '/WGFSession.php';
 require_once __DIR__ . '/../v8/WGV8Object.php';
 require_once __DIR__ . '/../m/WGMModel.php';
+require_once __DIR__ . '/WGFSession.php';
 
 /**
- * Controller
+ * WGFController
  */
 abstract class WGFController
 {
-	const    FORMHTML = 0, SHOWHTML = 1;
-	const    LIMITTIME = 600;
+	const FORMHTML = 0, SHOWHTML = 1;
+	const LIMITTIME = 600;
 
 	/**
 	 * @var WGCanvas $appCanvas
@@ -28,8 +29,8 @@ abstract class WGFController
 	 */
 	public WGCanvas $pageCanvas;
 
-	public $inheads, $onload_functions, $onunload_functions;
-	public $template, $html;
+	//public $inheads, $onload_functions, $onunload_functions;
+	//public $template, $html;
 	public int $usercd;
 
 	public array $views, $models, $connectors;
@@ -59,7 +60,7 @@ abstract class WGFController
 	public function __construct()
 	{
 		$class = get_class( $this );
-		wg_log_write( WGLOG_INFO, "[[ Controller : {$class} ]]" );
+		wg_log_write( WGLOG_INFO, "[[ Controller : $class ]]" );
 
 		header( "Pragma: no-cache" );
 		header( "Cache-Control: no-cache" );
@@ -96,10 +97,13 @@ abstract class WGFController
 
 	/**
 	 * コントローラーが保持する遷移セッションをクリアする。
+	 * @noinspection PhpUnused
 	 */
-	public function END(): void
+	public function END(): self
 	{
 		$this->session->cleanup();
+
+		return $this;
 	}
 
 	/**
@@ -161,6 +165,7 @@ abstract class WGFController
 	/**
 	 * フォームのエンコード方法を multipart に設定する。
 	 * @return self
+	 * @noinspection PhpUnused
 	 */
 	public function setFormMULTIPART()
 	{
@@ -216,7 +221,7 @@ abstract class WGFController
 	 **/
 	protected function addView( string $id, WGV8Object $view ): WGV8Object
 	{
-		wg_log_write( WGLOG_INFO, get_class( $this ) . ".addView {$id}(" . get_class( $view ) . ")" );
+		wg_log_write( WGLOG_INFO, get_class( $this ) . ".addView $id(" . get_class( $view ) . ")" );
 		$this->views[ $id ] = $view;
 		$this->initView( $id );
 
@@ -229,11 +234,12 @@ abstract class WGFController
 	 * @param $view WGV8Object ビューのインスタンス
 	 *
 	 * @return WGV8Object ビューのインスタンス
+	 * @noinspection PhpUnused
 	 */
 	protected function restoreView( WGV8Object $view ): WGV8Object
 	{
 		$id = $view->getName();
-		wg_log_write( WGLOG_INFO, get_class( $this ) . ".restoreView {$id}(" . get_class( $view ) . ")" );
+		wg_log_write( WGLOG_INFO, get_class( $this ) . ".restoreView $id(" . get_class( $view ) . ")" );
 		$this->views[ $id ] = $view;
 		$this->initView( $id );
 
@@ -251,7 +257,7 @@ abstract class WGFController
 	{
 		if ( ! ( $this->views[ $id ] ?? null ) instanceof WGV8Object )
 		{
-			wg_log_write( WGLOG_FATAL, "{$id} というビューインスタンスは登録されていません。" );
+			wg_log_write( WGLOG_FATAL, "$id というビューインスタンスは登録されていません。" );
 		}
 
 		return $this->views[ $id ];
@@ -275,6 +281,7 @@ abstract class WGFController
 	/**
 	 * コントローラーからすべてのビューを削除する。
 	 * @return self
+	 * @noinspection PhpUnused
 	 */
 	protected function delAllViews(): self
 	{
@@ -297,11 +304,11 @@ abstract class WGFController
 				$c = get_class( $this->views[ $k ] );
 				if ( $e != false )
 				{
-					wg_log_write( WGLOG_INFO, "{$k}({$c}) が入力エラー状態 : {$e}" );
+					wg_log_write( WGLOG_INFO, "$k($c) が入力エラー状態 : $e" );
 				}
 			}
 		}
-		foreach ( $this->views as $k => $v )
+		foreach ( $this->views as $v )
 		{
 			if ( $v->getError() != false )
 			{
@@ -315,11 +322,12 @@ abstract class WGFController
 	/**
 	 * コントローラーに登録されたビューがエラーのものを、ビューの配列で返す。
 	 * @return WGV8Object[] ビュー配列
+	 * @noinspection PhpUnused
 	 */
 	protected function errorViews(): array
 	{
 		$errorViews = [];
-		foreach ( $this->views as $k => $v )
+		foreach ( $this->views as $v )
 		{
 			if ( $v->getError() )
 			{
@@ -359,7 +367,7 @@ abstract class WGFController
 	{
 		if ( ! ( $this->models[ $id ] ?? null ) instanceof WGMModel )
 		{
-			wg_log_write( WGLOG_FATAL, "{$id} というモデルインスタンスは登録されていません。" );
+			wg_log_write( WGLOG_FATAL, "$id というモデルインスタンスは登録されていません。" );
 		}
 
 		return $this->models[ $id ];
@@ -386,29 +394,10 @@ abstract class WGFController
 	}
 
 	/**
-	 * コントローラーのトランザクション実行中のセッション内に、指定されたキーの項目があるかどうかチェックする。
-	 * @return boolean true|false 存在する。
+	 * @param $key
+	 *
+	 * @noinspection PhpUnused
 	 */
-	protected function issetSession( $key )
-	{
-		wg_log_write( WGLOG_WARNING, "Deprecated issetSession: {$_SERVER['SCRIPT_FILENAME']}" );
-
-		return $this->session->isExists( $key );
-	}
-
-	protected function getSession( $key )
-	{
-		wg_log_write( WGLOG_WARNING, "Deprecated getSession: {$_SERVER['SCRIPT_FILENAME']}" );
-
-		return $this->session->get( $key );
-	}
-
-	protected function setSession( $key, $val )
-	{
-		wg_log_write( WGLOG_WARNING, "Deprecated setSession: {$_SERVER['SCRIPT_FILENAME']}" );
-		$this->session->set( $key, $val );
-	}
-
 	protected function unsetSession( $key )
 	{
 		wg_log_write( WGLOG_WARNING, "Deprecated unsetSession: {$_SERVER['SCRIPT_FILENAME']}" );
@@ -416,17 +405,16 @@ abstract class WGFController
 	}
 
 	/**
-	 * デフォルトコールバックメソッド
+	 * Event methods for App-implementations
 	 */
-	protected function create(): bool
+	protected function create()
 	{
-		return true;
 	}
 
 	/**
 	 * @return WGMModel[]
 	 */
-	protected function models(): array
+	protected function models()
 	{
 		return [];
 	}
@@ -434,7 +422,7 @@ abstract class WGFController
 	/**
 	 * @return WGV8Object[]
 	 */
-	protected function views(): array
+	protected function views()
 	{
 		return [];
 	}
@@ -442,7 +430,7 @@ abstract class WGFController
 	/**
 	 * @return array
 	 */
-	protected function connectors(): array
+	protected function connectors()
 	{
 		return [];
 	}
@@ -515,7 +503,10 @@ abstract class WGFController
 	{
 	}
 
-	protected function input(): string|null
+	/**
+	 * @return string|null|void
+	 */
+	protected function input()
 	{
 		return $this->defaultTemplate();
 	}
@@ -587,7 +578,7 @@ abstract class WGFController
 		}
 		else
 		{
-			wg_log_write( WGLOG_FATAL, "models() で設定されたものが、テーブル名(string) または WGMModelインスタンスではありません。" );
+			wg_log_write( WGLOG_FATAL, get_class($this) . '::models() is not WGMModel and table name string.' );
 		}
 	}
 
@@ -596,7 +587,7 @@ abstract class WGFController
 		$this->beforeModels();
 		if ( ! is_array( $models ) )
 		{
-			wg_log_write( WGLOG_FATAL, "models() は、テーブル名(string) または、WGMModelインスタンスの配列である必要があります。" );
+			wg_log_write( WGLOG_FATAL, get_class($this) . '::models() must be return as array of WGMModel or table name string.' );
 		}
 		foreach ( $models as $k => $t )
 		{
@@ -611,13 +602,19 @@ abstract class WGFController
 		return $this;
 	}
 
+	/**
+	 * コントローラーにビューを一括追加する。
+	 * @param array $views
+	 *
+	 * @return $this
+	 */
 	protected function initViews( array $views ): self
 	{
 		$this->beforeViews();
 
 		if ( ! is_array( $views ) )
 		{
-			wg_log_write( WGLOG_FATAL, "views() は、ビューインスタンス(WGV8Object) を配列で返してください。" );
+			wg_log_write( WGLOG_FATAL, get_class($this) . '::views() must be return as WGV8Object[].' );
 		}
 
 		foreach ( $views as $id => $v )
@@ -630,6 +627,12 @@ abstract class WGFController
 		return $this;
 	}
 
+	/**
+	 * コネクター情報による、ビューとモデル間のコネクションを初期化する。
+	 * @param array $connectors
+	 *
+	 * @return $this
+	 */
 	protected function initConnectors( array $connectors ): self
 	{
 		$this->beforeConnectors();
@@ -641,7 +644,7 @@ abstract class WGFController
 		{
 			if ( ! $this->models[ $model ] instanceof WGMModel )
 			{
-				wg_log_write( WGLOG_FATAL, "{$model} のモデルインスタンスがありません。" );
+				wg_log_write( WGLOG_FATAL, "$model のモデルインスタンスがありません。" );
 			}
 			foreach ( $kvs as $k => $v )
 			{
@@ -649,7 +652,7 @@ abstract class WGFController
 				{
 					if ( ! $this->views[ $v ] instanceof WGV8Object )
 					{
-						wg_log_write( WGLOG_FATAL, "ビュー({$v}) が WGV8Objectではないため、モデルと接続できません。" );
+						wg_log_write( WGLOG_FATAL, "ビュー($v) が WGV8Objectではないため、モデルと接続できません。" );
 					}
 					else
 					{
@@ -662,7 +665,7 @@ abstract class WGFController
 					{
 						if ( ! $this->views[ $v ] instanceof WGV8Object )
 						{
-							wg_log_write( WGLOG_FATAL, "ビュー({$v}) が WGV8Objectではないため、モデルと接続できません。" );
+							wg_log_write( WGLOG_FATAL, "ビュー($v) が WGV8Objectではないため、モデルと接続できません。" );
 						}
 						else
 						{
@@ -673,11 +676,11 @@ abstract class WGFController
 					{
 						if ( ! $this->views[ $v[0] ] instanceof WGV8Object )
 						{
-							wg_log_write( WGLOG_FATAL, "ビュー({$v}) が WGV8Objectではないため、モデルと接続できません。" );
+							wg_log_write( WGLOG_FATAL, "ビュー($v) が WGV8Objectではないため、モデルと接続できません。" );
 						}
 						else if ( ! $v[1] instanceof WGMModelFilter )
 						{
-							wg_log_write( WGLOG_FATAL, "モデルフィルターオブジェクト ({$v[1]}) が WGMModelFilter ではないため、モデルと接続できません。" );
+							wg_log_write( WGLOG_FATAL, "モデルフィルターオブジェクト ($v[1]) が WGMModelFilter ではないため、モデルと接続できません。" );
 						}
 						else
 						{
@@ -699,16 +702,17 @@ abstract class WGFController
 	 * @param string $url 遷移先URL
 	 * @param mixed $data 遷移先に引き渡す情報
 	 *
+	 * @throws
 	 * @api Stackable Transition
 	 */
 	protected function call( string $callback, string $url, mixed $data ): void
 	{
-		$this->session->__call = [
-			'hash'     => md5( mt_rand() ),
+		$this->session->set( '__call', [
+			'hash'     => bin2hex( random_bytes( 16 ) ),
 			'source'   => $_SERVER['REQUEST_URI'],
 			'callback' => $callback,
 			'data'     => serialize( $data )
-		];
+		] );
 
 		$gp = [ WGTransition::TRANSKEYCALL => $this->session->getCombinedId() ];
 		wg_location( wg_remake_url( $url, $gp ) );
@@ -723,16 +727,16 @@ abstract class WGFController
 	 */
 	protected function ret( mixed $data ): void
 	{
-		$ret         = $this->session->__ret;
+		$ret         = $this->session->get( '__ret' );
 		$source_sess = WGFSession::restoreByCombinedId( $ret['combined'] );
 		if ( $source_sess instanceof WGFSession )
 		{
-			$call = $source_sess->__call;
+			$call = $source_sess->get( '__call' );
 			if ( $call['hash'] === $ret['hash'] )
 			{
-				$ret['data']          = serialize( $data );
-				$this->session->__ret = $ret;
-				$gp                   = [ WGTransition::TRANSKEYRET => $this->session->getCombinedId() ];
+				$ret['data'] = serialize( $data );
+				$this->session->set( '__ret', $ret );
+				$gp = [ WGTransition::TRANSKEYRET => $this->session->getCombinedId() ];
 				wg_location( wg_remake_url( $call['source'], $gp ) );
 			}
 		}
@@ -752,15 +756,15 @@ abstract class WGFController
 			$source_sess = WGFSession::restoreByCombinedId( $ci );
 			if ( $source_sess instanceof WGFSession )
 			{
-				$source_call = $source_sess->__call;
+				$source_call = $source_sess->get( '__call' );
 				if ( is_array( $source_call ) )
 				{
-					$data                 = unserialize( $source_call['data'] );
-					$this->session->__ret = [
+					$data = unserialize( $source_call['data'] );
+					$this->session->set( '__ret', [
 						'combined' => $ci,
 						'hash'     => $source_call['hash'],
 						'data'     => serialize( null )
-					];
+					] );
 					$this->initFirstCall( $data );
 					$is_reload_required = true;
 				}
@@ -793,8 +797,8 @@ abstract class WGFController
 			$dest_sess = WGFSession::restoreByCombinedId( $ci );
 			if ( $dest_sess instanceof WGFSession )
 			{
-				$source_call = $this->session->__call;
-				$dest_ret    = $dest_sess->__ret;
+				$source_call = $this->session->get( '__call' );
+				$dest_ret    = $dest_sess->get( '__ret' );
 				if ( isset( $dest_ret['hash'] ) && isset( $source_call['hash'] ) &&
 					 $dest_ret['hash'] === $source_call['hash'] )
 				{
@@ -829,7 +833,8 @@ abstract class WGFController
 	}
 
 	/**
-	 *
+	 * 次に遷移するべき URL を返す。
+	 * @return string 遷移するべき URL 。
 	 */
 	public function getNextURL(): string
 	{
@@ -837,16 +842,17 @@ abstract class WGFController
 	}
 
 	/**
-	 *
-	 * @return string UI入力画面タイプ。
+	 * コントローラーの、現在の画面タイプを返す。
+	 * @return int UI入力画面タイプ。
 	 */
-	public function getInputType(): string
+	public function getInputType(): int
 	{
 		return $this->inputType;
 	}
 
 	/**
-	 *
+	 * 登録されているすべてのビューに対して、 $_POST された情報を受け取るよう指示する。
+	 * @return $this
 	 */
 	protected function postCopy(): self
 	{
@@ -858,26 +864,23 @@ abstract class WGFController
 		return $this;
 	}
 
-	protected function submit( $k ): self
-	{
-		wg_log_write( WGLOG_FATAL, "submit() または _{$k} が未実装です。" );
-
-		return $this;
-	}
-
+	/**
+	 * コントローラーの制御を実行する。
+	 * @return $this
+	 */
 	protected function execute(): self
 	{
 		$postKeys = [];
-		foreach ( array_keys( $_POST ) as $pk )
+		foreach ( array_keys( $_POST ) as $p )
 		{
-			list( $k ) = explode( ",", $pk );
-			$postKeys[ $k ]  = $pk;
-			$postKeys[ $pk ] = $pk;
+			list( $k ) = explode( ',', $p );
+			$postKeys[ $k ] = $p;
+			$postKeys[ $p ] = $p;
 		}
 
 		$template = null;
 		$exec     = false;
-		foreach ( $this->views as $k => $v )
+		foreach ( $this->views as $v )
 		{
 			if ( $v->isSubmit() )
 			{
@@ -892,7 +895,7 @@ abstract class WGFController
 
 					if ( ! method_exists( $this, $m ) )
 					{
-						$this->abort( get_class( $this ) . "::{$m} が未実装です。" );
+						wg_log_write( WGLOG_FATAL, 'No ' . get_class( $this ) . "::$m() implementation" );
 					}
 
 					$template = call_user_func_array( array( $this, $m ), $a );
@@ -919,79 +922,80 @@ abstract class WGFController
 		return $this;
 	}
 
+	/**
+	 * ビューのレンダリング情報を構築する。
+	 * @return $this
+	 */
 	protected function build(): self
 	{
-		if ( $this->template !== false )
+		foreach ( $this->views as $k => $v )
 		{
-			foreach ( $this->views as $k => $v )
+			$chtml = '';
+			$cid   = '';
+
+			switch ( $this->inputType )
 			{
-				$chtml = "";
-				$cid   = "";
-
-				switch ( $this->inputType )
-				{
-					case self::FORMHTML:
-						$chtml = $v->formHtml();
-						$cid   = $v->getId();
-						break;
-					case self::SHOWHTML:
-						$chtml = $v->showHtml();
-						$cid   = $v->getId();
-						break;
-					default:
-						wg_log_write( WGLOG_FATAL, "不明な実行種別を実行しようとしました。" );
-				}
-
-				if ( ! is_array( $chtml ) )
-				{
-					$this->pageCanvas->html[ $k ] = $chtml;
-				}
-				else
-				{
-					foreach ( $chtml as $kk => $vv )
-					{
-						$this->pageCanvas->html[ $kk ] = $vv;
-					}
-				}
-
-				if ( ! is_array( $cid ) )
-				{
-					$this->pageCanvas->html["#{$k}"] = $cid;
-				}
-				else
-				{
-					foreach ( $cid as $kk => $vv )
-					{
-						$this->pageCanvas->html["#{$kk}"] = $vv;
-					}
-				}
-
-				if ( $v instanceof WGV8Object )
-				{
-					foreach ( $v->publish() as $kk => $vv )
-					{
-						$this->pageCanvas->html[ $k . ':' . $kk ] = $vv;
-					}
-				}
-
-				$v->controller( $this );
+				case self::FORMHTML:
+					$chtml = $v->formHtml();
+					$cid   = $v->getId();
+					break;
+				case self::SHOWHTML:
+					$chtml = $v->showHtml();
+					$cid   = $v->getId();
+					break;
+				default:
+					wg_log_write( WGLOG_FATAL, 'Invalid inputType at build()' );
 			}
 
-			$this->pageCanvas->html["form:action"]  = wg_remake_uri();
-			$this->pageCanvas->html["form:method"]  = 'POST';
-			$this->pageCanvas->html["form:enctype"] = $this->formEnctype;
+			if ( ! is_array( $chtml ) )
+			{
+				$this->pageCanvas->html[ $k ] = $chtml;
+			}
+			else
+			{
+				foreach ( $chtml as $kk => $vv )
+				{
+					$this->pageCanvas->html[ $kk ] = $vv;
+				}
+			}
 
-			$this->pageCanvas->html["transition:id"] = $this->transition->getTransitionId();
-			$this->render();
+			if ( ! is_array( $cid ) )
+			{
+				$this->pageCanvas->html["#$k"] = $cid;
+			}
+			else
+			{
+				foreach ( $cid as $kk => $vv )
+				{
+					$this->pageCanvas->html["#$kk"] = $vv;
+				}
+			}
+
+			if ( $v instanceof WGV8Object )
+			{
+				foreach ( $v->publish() as $kk => $vv )
+				{
+					$this->pageCanvas->html[ $k . ':' . $kk ] = $vv;
+				}
+			}
+
+			$v->controller( $this );
 		}
-		else
-		{
-			wg_log_write( WGLOG_FATAL, "テンプレートが設定されていません。" );
-		}
+
+		$this->pageCanvas->html['form:action']  = wg_remake_uri();
+		$this->pageCanvas->html['form:method']  = 'POST';
+		$this->pageCanvas->html['form:enctype'] = $this->formEnctype;
+
+		$this->pageCanvas->html['transition:id'] = $this->transition->getTransitionId();
+		$this->render();
 
 		return $this;
 	}
 
+	/**
+	 * appCanvas, pageCanvas のHTMLレンダリングを実行し、出力する。
+	 * @return $this
+	 */
 	protected function render(): self
 	{
 		if ( ! is_null( $this->appCanvas ) )
@@ -1007,6 +1011,10 @@ abstract class WGFController
 		return $this;
 	}
 
+	/**
+	 * トランザクショナルセッション内のシリアライズされたビューから、コントローラーのビューとして復元する。
+	 * @return $this
+	 */
 	protected function loadViews(): self
 	{
 		if ( $this->session->isExists( "@@@_saveviews" ) )
@@ -1014,29 +1022,37 @@ abstract class WGFController
 			$this->views = unserialize( $this->session->get( "@@@_saveviews" ) );
 		}
 
-		foreach ( $this->views as $o )
+		foreach ( $this->views as $v )
 		{
-			$o->initController( $this );
-			$o->initSession( $this->session );
+			$v->initController( $this );
+			$v->initSession( $this->session );
 		}
 		$this->session->set( "@@@_saveviews", null );
 
 		return $this;
 	}
 
+	/**
+	 * コントローラーに追加されているビューを、トランザクショナルセッション内にシリアライズして保存する。
+	 * @return $this
+	 */
 	protected function saveViews(): self
 	{
-		// 循環ループ状態で serialize してしまうので、セーブ前にビュー内に保存している親コントローラポインタを破棄する。
-		foreach ( $this->views as $o )
+		// 循環 serialize してしまうので、セーブ前にビュー内に保存しているコントローラポインタを初期化。
+		foreach ( $this->views as $v )
 		{
-			$o->initController( null );
-			$o->initSession( null );
+			$v->initController( null );
+			$v->initSession( null );
 		}
 		$this->session->set( "@@@_saveviews", serialize( $this->views ) );
 
 		return $this;
 	}
 
+	/**
+	 * トランザクショナルセッションをクローズする。
+	 * @return $this
+	 */
 	protected function closeSession(): self
 	{
 		$this->session->close();
@@ -1044,7 +1060,14 @@ abstract class WGFController
 		return $this;
 	}
 
-	protected function abort( $msg = "アクセスできませんでした。" ): void
+	/**
+	 * コントローラーの実行を、ユーザーに通知し停止する。
+	 *
+	 * @param string $msg ユーザーに通知するメッセージ。
+	 *
+	 * @return void
+	 */
+	protected function abort( string $msg = "アクセスできませんでした。" ): void
 	{
 		$this->pageCanvas->html["abort_message"] = $msg;
 		$this->pageCanvas->html["abort_class"]   = get_class( $this );
@@ -1054,24 +1077,31 @@ abstract class WGFController
 		exit;
 	}
 
+	/**
+	 * デフォルトテンプレートファイル名を生成する。
+	 * @return string テンプレートファイル名。
+	 */
 	protected function defaultTemplate(): string
 	{
-		$s = realpath( $_SERVER["SCRIPT_FILENAME"] );
+		$s = realpath( $_SERVER['SCRIPT_FILENAME'] );
 		$d = dirname( $s );
 		$b = basename( $s );
-		$e = "_" . preg_replace( '/\..+$/', '.html', $b );
-		$p = "{$d}/{$e}";
+		$e = '_' . preg_replace( '/\..+$/', '.html', $b );
 
-		return $p;
+		return "$d/$e";
 	}
 
+	/**
+	 * コントローラーを実行する。
+	 * @return $this
+	 */
 	public function run(): self
 	{
 		$this->loadViews();
 
 		$this->isFirstPage ? $this->firstpage() : $this->nextpage();
 
-		if ( $_SERVER["REQUEST_METHOD"] == "POST" )
+		if ( ( $_SERVER['REQUEST_METHOD'] ?? null ) === 'POST' )
 		{
 			$this->beforePost();
 			$this->postCopy();
