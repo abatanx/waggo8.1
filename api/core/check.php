@@ -39,7 +39,7 @@ function wg_inchk_float( float|null &$result, string|null $src, float $min = 0, 
 /**
  * 入力値が整数(integer)であるかチェックし、妥当であれば変数にセットする。
  *
- * @param int|null $result チェック後セットされる変数。エラーの場合、0 がセットされる。
+ * @param int $result チェック後セットされる変数。エラーの場合、0 がセットされる。
  * @param string|null $src 入力値(文字列)。
  * @param int $min 受け入れる整数の最小値。
  * @param int $max 受け入れる整数の最大値。
@@ -47,7 +47,7 @@ function wg_inchk_float( float|null &$result, string|null $src, float $min = 0, 
  * @return bool 妥当であれば trueを、それ以外であれば false を返す。$src が null の場合、必ず false を返す。
  * @noinspection PhpUnused
  */
-function wg_inchk_int( int|null &$result, string|null $src, int $min = 0, int $max = 2147483647 ): bool
+function wg_inchk_int( int &$result, string|null $src, int $min = 0, int $max = 2147483647 ): bool
 {
 	$result = 0;
 
