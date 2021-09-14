@@ -10,11 +10,6 @@ function wi_cls(): void
 	echo "\x1b[2J\x1b[1;1H";
 }
 
-function wi_locate( $col, $row ): void
-{
-	printf( "\x1b[%d;%dH", $row + 1, $col + 1 );
-}
-
 function wi_stdin(): string
 {
 	$in = fgets( STDIN );
@@ -22,7 +17,7 @@ function wi_stdin(): string
 	return $in !== false ? trim( $in ) : die( "\n" );
 }
 
-function wi_read( $m, $a = [] ): string
+function wi_read( string $m, array $a = [] ): string
 {
 	do
 	{
@@ -34,20 +29,20 @@ function wi_read( $m, $a = [] ): string
 	return $s;
 }
 
-function wi_pause( $m )
+function wi_pause( string $m )
 {
 	echo $m;
 	wi_stdin();
 }
 
-function wi_in( $m ): string
+function wi_in( string $m ): string
 {
 	echo $m;
 
 	return wi_stdin();
 }
 
-function wi_in_default( $m, $default, $require ): string
+function wi_in_default( string $m, string $default, bool $require ): string
 {
 	do
 	{
@@ -58,4 +53,9 @@ function wi_in_default( $m, $default, $require ): string
 	while ( $require && empty( $r ) );
 
 	return $r;
+}
+
+function wi_echo( string $format, mixed ...$args ): void
+{
+	echo ( count( $args ) > 0 ? vsprintf( $format, ...$args ) : $format ) . "\n";
 }

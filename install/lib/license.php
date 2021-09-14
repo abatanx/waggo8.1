@@ -10,5 +10,5 @@ function wi_license_agreement(): bool
 	echo file_get_contents( __DIR__ . '/../../LICENSE' );
 	echo "\n\n";
 
-	return wi_read( "上記のライセンス条項に同意しますか (Yes/No) -> ", [ 'Yes', 'No' ] ) === 'Yes' ;
+	return wi_read( "Do you accept the license agreement ? (Yes/No) -> ", [ 'Yes', 'No' ] ) === 'Yes' ;
 }

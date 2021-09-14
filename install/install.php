@@ -5,69 +5,76 @@
  * @license MIT
  */
 
+require_once __DIR__ . '/lib/stdin.php';
 require_once __DIR__ . '/lib/lib.php';
-require_once __DIR__ . '/lib/escseq.php';
 
-$state = "license";
+const
+STATE_ABORT        = - 1,
+STATE_END          = 0,
+STATE_LICENSE      = 1,
+STATE_DIR_CHECK    = 2,
+STATE_DIR          = 3,
+STATE_INSTALL_INFO = 4;
 
-$fw = wi_detect_waggo_version();
+$state = STATE_LICENSE;
 
-for ( $endflag = false; ! $endflag; )
+$framework = wi_detect_waggo_version();
+
+for ( $isTerminate = false; ! $isTerminate; )
 {
 	wi_cls();
 	echo <<<___END___
 --------------------------------------------------------------------------------
 
-\t{$fw["name"]} version {$fw["version"]} installer
-\t{$fw["copyright"]}
+\t{$framework["name"]} version {$framework["version"]} installer
+\t{$framework["copyright"]}
 
 --------------------------------------------------------------------------------
-
 
 ___END___;
 
 	switch ( $state )
 	{
-		case 'license':
-			echo "ライセンスについて\n\n";
+		case STATE_LICENSE:
+			wi_echo( 'License' );
 			require_once __DIR__ . '/lib/license.php';
-			$state = wi_license_agreement() ? "dircheck" : "abort";
+			$state = wi_license_agreement() ? STATE_DIR_CHECK : STATE_ABORT;
 			break;
 
-		case 'dircheck':
-			echo "ディレクトリチェック\n\n";
-			require_once __DIR__ . '/lib/dircheck.php';
-			$state = wi_setup_dir() ? "dir" : "abort";
+		case STATE_DIR_CHECK:
+			wi_echo( 'Directory Check' );
+			require_once __DIR__ . '/lib/check_directory.php';
+			$state = wi_setup_dir() ? STATE_DIR : STATE_ABORT;
 			break;
 
-		case 'dir':
-			echo "ディレクトリの確認及び作成\n\n";
-			require_once __DIR__ . '/lib/dircheck.php';
-			$state = wi_setup_dir_and_permissions() ? "instinfo" : "abort";
+		case STATE_DIR:
+			wi_echo( 'Directory operation' );
+			require_once __DIR__ . '/lib/check_directory.php';
+			$state = wi_setup_dir_and_permissions() ? STATE_INSTALL_INFO : STATE_ABORT;
 			break;
 
-		case 'instinfo':
-			echo "インストールのための各種情報入力\n\n";
-			require_once __DIR__ . '/lib/instinfo.php';
-			wi_setup();
+		case STATE_INSTALL_INFO:
+			wi_echo( 'Setup' );
+			require_once __DIR__ . '/lib/install_information.php';
+			$state = wi_install() ? STATE_END : STATE_INSTALL_INFO;
 			break;
 
 		default:
-			echo "セットアップに異常が発生しました。\n\n";
-			$state = "abort";
+			wi_echo( '... Errors in setup ...' );
+			$state = STATE_ABORT;
 			break;
 	}
 
 	switch ( $state )
 	{
-		case "abort":
-			echo "セットアップを中止します。\n\n";
-			$endflag = true;
+		case STATE_ABORT:
+			wi_echo( 'Aborted.' );
+			$isTerminate = true;
 			break;
 
-		case "end":
-			echo "セットアップを終了します。\n\n";
-			$endflag = true;
+		case STATE_END:
+			wi_echo( 'Done.' );
+			$isTerminate = true;
 			break;
 	}
 }

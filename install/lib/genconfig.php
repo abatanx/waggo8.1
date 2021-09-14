@@ -5,5 +5,4 @@
  * @license MIT
  */
 
-require_once __DIR__ . '/dircheck.php';
-
+require_once __DIR__ . '/check_directory.php';

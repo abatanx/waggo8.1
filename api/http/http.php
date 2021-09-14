@@ -151,7 +151,7 @@ function wg_remake_url( string $url, array $params = [] ): string|false
 
 	foreach ( [ 'scheme', 'host', 'port', 'user', 'pass', 'path', 'query', 'fragment' ] as $c )
 	{
-		$q[ $c ] = (string) $q[ $c ];
+		$q[ $c ] = (string) ($q[ $c ] ?? '');
 	}
 
 	$q['query'] = wg_array_to_query( wg_query_to_array( $q['query'] ), $params );
