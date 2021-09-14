@@ -51,6 +51,7 @@ function wg_deprecated( bool $is_forward, string $func, string $solver, array $p
  * ログに情報を出力する。
  *
  * @param string $log ログ記録内容
+ *
  * @noinspection PhpUnused
  */
 function wg_log_write_error_log( string $log ): void
@@ -73,16 +74,18 @@ function wg_log_write_error_log( string $log ): void
  * ログに情報を出力する。
  *
  * @param int $logtype 出力するメッセージのタイプ(WGLOG_APP|WGLOG_INFO|WGLOG_WARNING|WGLOG_ERROR|WGLOG_FATAL)
- * @param mixed $fmt,... メッセージ。可変パラメータがない場合は $fmt はそのまま表示される。
+ * @param string $format 書式フォーマット、または出力文字列。
+ * @param mixed ...$args 書式引数。
+ *
  * @noinspection PhpUnused
  */
-function wg_log_write( int $logtype, mixed $fmt ): void
+function wg_log_write( int $logtype, string $format, mixed ...$args ): void
 {
 	if ( WG_LOGFILE == '' )
 	{
 		return;
 	}
-	$msg = func_num_args() <= 2 ? $fmt : vsprintf( $fmt, array_slice( func_get_args(), 2 ) );
+	$msg = count( $args ) === 0 ? $format : vsprintf( $format, $args );
 
 	if ( $logtype == WGLOG_APP ||
 		 ( $logtype == WGLOG_INFO && WG_DEBUG == true ) ||
@@ -124,6 +127,7 @@ function wg_log_write( int $logtype, mixed $fmt ): void
  *
  * @param int $logtype 出力するメッセージのタイプ(WGLOG_APP|WGLOG_INFO|WGLOG_WARNING|WGLOG_ERROR|WGLOG_FATAL)
  * @param mixed $var 出力する変数
+ *
  * @noinspection PhpUnused
  */
 function wg_log_dump( int $logtype, mixed $var ): void
@@ -144,6 +148,7 @@ function wg_log_dump( int $logtype, mixed $var ): void
  * エラーをログファイルに出力し、スクリプトを強制終了する。
  *
  * @param string $msg エラーメッセージ。
+ *
  * @noinspection PhpUnused
  */
 function wg_die( string $msg ): void
