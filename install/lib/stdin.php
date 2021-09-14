@@ -57,5 +57,5 @@ function wi_in_default( string $m, string $default, bool $require ): string
 
 function wi_echo( string $format, mixed ...$args ): void
 {
-	echo ( count( $args ) > 0 ? vsprintf( $format, ...$args ) : $format ) . "\n";
+	echo ( count( $args ) > 0 ? vsprintf( $format, $args ) : $format ) . "\n";
 }

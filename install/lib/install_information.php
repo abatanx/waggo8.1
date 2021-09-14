@@ -9,8 +9,21 @@ require_once __DIR__ . '/check_directory.php';
 require_once __DIR__ . '/install_controller.php';
 require_once __DIR__ . '/detect.php';
 
-function wi_waggo_conf(): string
+function wi_waggo_conf( string $scheme, string $port ): string
 {
+	if ( $port === '80' || $port === '443' )
+	{
+		$urlBase = <<<PHP
+define( 'WGCONF_URLBASE', '$scheme://' . \$_SERVER['SERVER_NAME'] );
+PHP;
+	}
+	else
+	{
+		$urlBase = <<<PHP
+define( 'WGCONF_URLBASE', '$scheme://' . \$_SERVER['SERVER_NAME'] . ':' . \$_SERVER['SERVER_PORT'] );
+PHP;
+	}
+
 	return <<<___END___
 <?php
 /**
@@ -73,7 +86,7 @@ const WGCONF_DBMS_USER					=	'' ;
 const WGCONF_DBMS_PASSWD				=	'' ;
 const WGCONF_DBMS_CA					=	'';
 
-define( 'WGCONF_URLBASE'				,	"http://{\$_SERVER['SERVER_NAME']}" );
+{$urlBase}
 
 const WGCONF_GOOGLEMAPS_X				=	139.767073 ;
 const WGCONF_GOOGLEMAPS_Y				=	35.681304 ;
@@ -176,7 +189,7 @@ function wi_replace_waggo_conf( $filename, $dat )
 					$line = sprintf( "const%s%s%s'%s'; {$editMessage}", $prefix, $key, $equal, wi_add_single_slashes( $dirInfo["application"] ) );
 					break;
 				case 'WG_LOGNAME':
-					$line = sprintf( "const%s%s%s'%s'; {$editMessage}", $prefix, $key, $equal, wi_add_single_slashes( 'waggo.' . $dat["domain"]["domain"] . '.log' ) );
+					$line = sprintf( "const%s%s%s'%s'; {$editMessage}", $prefix, $key, $equal, wi_add_single_slashes( 'waggo.' . $dat["server"]["host"] . '.log' ) );
 					break;
 				case 'WGCONF_DBMS_DB':
 					$line = sprintf( "const%s%s%s'%s'; {$editMessage}", $prefix, $key, $equal, wi_add_single_slashes( $dat["postgresql"]["dbname"] ) );
@@ -254,7 +267,7 @@ function wi_install(): bool
 	printf( "============== Registered installation domains  ==============\n" );
 	foreach ( $infs as $id => $inf )
 	{
-		printf( "  [%d] ... %s\n", $id, $inf[2]["domain"]["domain"] );
+		printf( "  [%d] ... %s:%s\n", $id, $inf[2]["server"]["host"], $inf[2]["server"]["port"], );
 	}
 	printf( "  [0] ... New domain\n" );
 	printf( "--------------------------------------------------------------\n" );
@@ -279,37 +292,40 @@ function wi_install(): bool
 
 	$inf = ( $id == 0 ) ?
 		[
-			'domain'     =>
+			'server' =>
 				[
-					'domain' => '127.0.0.1'
+					'scheme' => 'http',
+					'host'   => '127.0.0.1',
+					'port'   => '8080'
 				],
-			'app'        =>
+
+			'app' =>
 				[
 					'prefix' => 'App',
 					'email'  => 'root@localhost'
 				],
+
 			'executable' =>
 				[
 					'phpcli'  => wi_search_phpcli(),
 					'convert' => wi_search_convert(),
 					'ffmpeg'  => wi_search_ffmpeg()
 				],
-			'pear'       =>
+
+			'pear' =>
 				[
 					'dir' => wi_search_pear()
 				],
+
 			'postgresql' =>
 				[
 					'host'     => 'localhost',
 					'dbname'   => 'waggo',
 					'username' => 'waggo',
-					'password' => 'password'
+					'password' => ''
 				],
-			'app'        =>
-				[
-					'email' => 'root@localhost'
-				],
-			'hash'       =>
+
+			'hash' =>
 				[
 					'general_hashkey'  => wi_create_hash(),
 					'password_hashkey' => wi_create_hash()
@@ -318,18 +334,10 @@ function wi_install(): bool
 
 	// データ入力
 	$settings = [
-		[
-			'domain',
-			'domain',
-			'Domain name for app',
-			'127.0.0.1'
-		],
-		[
-			'app',
-			'prefix',
-			'Controller prefix',
-			'App'
-		],
+		[ 'server', 'host', 'App domain or IP', '127.0.0.1' ],
+		[ 'server', 'scheme', 'App URL scheme', 'http' ],
+		[ 'server', 'port', 'App port', '8080' ],
+		[ 'app', 'prefix', 'Controller prefix', 'App' ],
 		[ 'app', 'email', 'Mail address for app', 'root@localhost' ],
 		[ 'executable', 'phpcli', 'PHP(CLI)', wi_search_phpcli() ],
 		[ 'pear', 'dir', 'PEAR', wi_search_pear() ],
@@ -344,7 +352,8 @@ function wi_install(): bool
 	];
 	foreach ( $settings as $setting )
 	{
-		$def                               = @$inf[ $setting[0] ][ $setting[1] ];
+		$def = @$inf[ $setting[0] ][ $setting[1] ] ?? '';
+
 		$inf[ $setting[0] ][ $setting[1] ] = wi_in_default(
 			"* {$setting[2]}\n" .
 			"          Ex:({$setting[3]})\n" .
@@ -358,7 +367,7 @@ function wi_install(): bool
 		return false;
 	}
 
-	$filename = $dir . "/install." . $inf["domain"]["domain"] . ".dat";
+	$filename = $dir . "/install." . $inf["server"]["host"] . "." . $inf["server"]["port"] . ".dat";
 	$fp = fopen( $filename, "w" ) or die( "Error: Failed to save." );
 	foreach ( $inf as $k => $kv )
 	{
@@ -371,21 +380,30 @@ function wi_install(): bool
 	}
 	fclose( $fp );
 
-	$dirInfo        = wi_install_dir_info();
-	$domain         = $inf['domain']['domain'];
-	$waggoConfName  = $dirInfo['config'] . "/waggo.{$domain}.php";
-	$apacheConfName = $dirInfo['config'] . "/apache-vhosts.{$domain}.conf";
-	$appConfName    = $dirInfo['sys'] . '/config.php';
+	$dirInfo          = wi_install_dir_info();
+	$waggoConfScheme  = $inf['server']['scheme'];
+	$waggoConfHost    = $inf['server']['host'];
+	$waggoConfRawPort = $inf['server']['port'];
+	$waggoConfPort    = $waggoConfRawPort !== '80' ? '.' . $inf['server']['port'] : '';
+	$waggoConfName    = $dirInfo['config'] . "/waggo.{$waggoConfHost}{$waggoConfPort}.php";
+	$apacheConfName   = $dirInfo['config'] . "/apache-vhosts.{$waggoConfHost}.conf";
+	$appConfName      = $dirInfo['sys'] . '/config.php';
 
 	if ( ! file_exists( $waggoConfName ) )
 	{
-		file_put_contents( $waggoConfName, wi_waggo_conf() );
+		file_put_contents( $waggoConfName,
+			wi_waggo_conf(
+				$waggoConfScheme, $waggoConfRawPort
+			)
+		);
 	}
 
-	file_put_contents( $apacheConfName, wi_apache_conf( $domain, $dirInfo["application"], $inf["app"]["email"] ) );
+	file_put_contents( $apacheConfName, wi_apache_conf( $waggoConfHost, $dirInfo["application"], $inf["app"]["email"] ) );
 	if ( ! file_exists( $appConfName ) )
 	{
-		file_put_contents( $appConfName, wi_app_config_conf() );
+		file_put_contents( $appConfName,
+			wi_app_config_conf()
+		);
 	}
 
 	$tpls = array( 'abort.html', 'iroot.html', 'mail.txt', 'null.html', 'pcroot.html', 'pcroot.xml' );
@@ -404,7 +422,7 @@ function wi_install(): bool
 
 	wi_install_create_controller( $inf["app"]["prefix"] );
 
-	//
 	wi_pause( "Saved." );
+
 	return false;
 }

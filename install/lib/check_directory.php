@@ -166,13 +166,14 @@ function wi_setup_dir_and_permissions(): bool
 
 	foreach ( $symlinks as $symlink )
 	{
-		echo sprintf( "Checking Symbolic-link: %s\n", $symlink[0] );
-
 		$dst = $symlink[0];
 		$src = $symlink[1];
+
+		wi_echo( "Checking Symbolic-link: %s -> %s", $src, $dst);
+
 		@symlink( $src, $dst );
 	}
 
+	wi_pause( "Finished for checking/creation." );
 	return true;
-
 }
