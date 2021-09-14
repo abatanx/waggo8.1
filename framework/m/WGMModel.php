@@ -536,7 +536,7 @@ class WGMModel
 
 	protected function posValue( string $pos ): array|null
 	{
-		if ( preg_match( '/\(([\-0-9\.]+),([\-0-9\.]+)\)/', $pos, $m ) )
+		if ( preg_match( '/\(([\-0-9.]+),([\-0-9.]+)\)/', $pos, $m ) )
 		{
 			return array( $m[1], $m[2] );
 		}
