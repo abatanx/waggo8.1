@@ -31,7 +31,7 @@ function wg_inchk_float( float|null &$result, string|null $src, float $min = 0, 
 	{
 		return false;
 	}
-	$result = (float) $src;
+	$result = $src;
 
 	return true;
 }

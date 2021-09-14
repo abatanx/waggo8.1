@@ -5,7 +5,7 @@
  * @license MIT
  */
 
-function detect_pear()
+function wi_search_pear(): string|false
 {
 	$pear_dir  = false;
 	$pear_exec = dirname( $_SERVER['_'] ) . '/pear';
@@ -26,7 +26,7 @@ function detect_pear()
 	return $pear_dir;
 }
 
-function detect_exec( $file )
+function wi_search_command( $file ): string|false
 {
 	$paths = preg_split( '/[:;]/', getenv( "PATH" ) );
 	foreach ( $paths as $path )
@@ -42,19 +42,19 @@ function detect_exec( $file )
 	return false;
 }
 
-function detect_phpcli()
+function wi_search_phpcli(): string|false
 {
 	$t_exec_file = $_SERVER['_'];
 
 	return file_exists( $t_exec_file ) && is_executable( $t_exec_file ) ? $t_exec_file : false;
 }
 
-function detect_convert()
+function wi_search_convert(): string|false
 {
-	return detect_exec( 'convert' );
+	return wi_search_command( 'convert' );
 }
 
-function detect_ffmpeg()
+function wi_search_ffmpeg(): string|false
 {
-	return detect_exec( 'ffmpeg' );
+	return wi_search_command( 'ffmpeg' );
 }

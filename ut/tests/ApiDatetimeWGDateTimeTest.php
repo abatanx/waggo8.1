@@ -7,24 +7,26 @@
 
 use PHPUnit\Framework\TestCase;
 
+if( !defined('WG_UNITTEST') ) define( 'WG_UNITTEST', true );
+
 require __DIR__ . '/../../api/datetime/WGDateTime.php';
 
-class api_datetime_WGDateTimeTest extends TestCase
+class ApiDatetimeWGDateTimeTest extends TestCase
 {
-	public function testSplitDateTime()
+	public function test_splitDateTime()
 	{
 		$r = WGDateTime::splitDateTime( mktime( 12, 34, 56, 1, 2, 2003 ) );
 		$this->assertEquals( [ 2003, 1, 2, 12, 34, 56 ], $r );
 	}
 
-	public function testMakeDateTime()
+	public function test_makeDateTime()
 	{
 		$t = mktime( 12, 34, 56, 1, 2, 2003 );
 		$r = WGDateTime::makeDateTime( [ 2003, 1, 2, 12, 34, 56 ] );
 		$this->assertEquals( $t, $r );
 	}
 
-	public function testConvertMonthNendo()
+	public function test_convertMonthNendo()
 	{
 		$r = WGDateTime::convertMonthToNendoIndex( 4 );
 		$this->assertEquals( 0, $r );
@@ -43,13 +45,13 @@ class api_datetime_WGDateTimeTest extends TestCase
 		}
 	}
 
-	public function testConstructor()
+	public function test_constructor()
 	{
 		$date = new WGDateTime();
 		$this->assertEquals( 0, $date->getUnixTime() );
 	}
 
-	public function testSet()
+	public function test_set()
 	{
 		$d = new WGDateTime();
 
@@ -78,7 +80,7 @@ class api_datetime_WGDateTimeTest extends TestCase
 		$this->assertEquals( '2001-02-02 23:56:10', $d->getYMDHISString() );
 	}
 
-	public function testSetDate()
+	public function test_setDate()
 	{
 		$d = new WGDateTime();
 
@@ -106,7 +108,7 @@ class api_datetime_WGDateTimeTest extends TestCase
 		$this->assertEquals( '2014-12-01 05:06:07', $d->getYMDHISString() );
 	}
 
-	public function testSetTime()
+	public function test_setTime()
 	{
 		$d = new WGDateTime();
 
@@ -134,7 +136,7 @@ class api_datetime_WGDateTimeTest extends TestCase
 		$this->assertEquals( '2012-03-04 23:00:00', $d->getYMDHISString() );
 	}
 
-	public function testSetUnixTime()
+	public function test_setUnixTime()
 	{
 		$d = new WGDateTime();
 
@@ -147,14 +149,14 @@ class api_datetime_WGDateTimeTest extends TestCase
 	/**
 	 * @throws WGDateTimeException
 	 */
-	public function testSetStrToTime()
+	public function test_setStrToTime()
 	{
 		$d = new WGDateTime();
 		$d->setStrToTime( '2012-03-04 05:06:07' );
 		$this->assertEquals( '2012-03-04 05:06:07', $d->getYMDHISString() );
 	}
 
-	public function testSetStrToTimeException()
+	public function test_setStrToTimeException()
 	{
 		$this->expectException( WGDateTimeException::class );
 
@@ -162,7 +164,7 @@ class api_datetime_WGDateTimeTest extends TestCase
 		$d->setStrToTime( 'AAAA' );
 	}
 
-	public function testComponentValue1()
+	public function test_componentValue1()
 	{
 		$d = new WGDateTime();
 		$d->set( 2012, 3, 4, 5, 6, 7 );
@@ -192,7 +194,7 @@ class api_datetime_WGDateTimeTest extends TestCase
 		$this->assertEquals( '2013-04-05 16:17:18', $d->getYMDHISString() );
 	}
 
-	public function testComponentValue2()
+	public function test_componentValue2()
 	{
 		$d = new WGDateTime();
 		$d->set( 2012, 3, 4, 5, 6, 7 );
@@ -222,7 +224,7 @@ class api_datetime_WGDateTimeTest extends TestCase
 		$this->assertEquals( '2013-04-05 16:17:18', $d->getYMDHISString() );
 	}
 
-	public function testComponentValue3()
+	public function test_componentValue3()
 	{
 		$d = new WGDateTime();
 		$d->set( 2012, 3, 4, 5, 6, 7 );
@@ -236,7 +238,7 @@ class api_datetime_WGDateTimeTest extends TestCase
 	/**
 	 * @throws WGDateTimeException
 	 */
-	public function testNendoMonth1()
+	public function test_nendoMonth1()
 	{
 		$d = new WGDateTime();
 		$d->set( 2012, 3, 4, 5, 6, 7 );
@@ -250,7 +252,7 @@ class api_datetime_WGDateTimeTest extends TestCase
 	/**
 	 * @throws WGDateTimeException
 	 */
-	public function testNendoMonth2()
+	public function test_nendoMonth2()
 	{
 		$d = new WGDateTime();
 		$d->set( 2012, 3, 4, 5, 6, 7 );
@@ -264,7 +266,7 @@ class api_datetime_WGDateTimeTest extends TestCase
 	/**
 	 * @throws WGDateTimeException
 	 */
-	public function testNendoMonth3()
+	public function test_nendoMonth3()
 	{
 		$d = new WGDateTime();
 		$d->set( 2012, 3, 4, 5, 6, 7 );
@@ -272,7 +274,7 @@ class api_datetime_WGDateTimeTest extends TestCase
 		$this->assertEquals( 2011, $d->getNendo() );
 	}
 
-	public function testNendoMonthException1()
+	public function test_nendoMonthException1()
 	{
 		$this->expectException( WGDateTimeException::class );
 
@@ -282,7 +284,7 @@ class api_datetime_WGDateTimeTest extends TestCase
 		$d->setNendoMonth( 2015, 0 );
 	}
 
-	public function testNendoMonthException2()
+	public function test_nendoMonthException2()
 	{
 		$this->expectException( WGDateTimeException::class );
 
@@ -292,7 +294,7 @@ class api_datetime_WGDateTimeTest extends TestCase
 		$d->setNendoMonth( 2015, 13 );
 	}
 
-	public function testTruncateYear()
+	public function test_truncateYear()
 	{
 		$d = new WGDateTime();
 		$d->set( 2012, 3, 4, 5, 6, 7 );
@@ -301,7 +303,7 @@ class api_datetime_WGDateTimeTest extends TestCase
 		$this->assertEquals( '2012-01-01 00:00:00', $d->getYMDHISString() );
 	}
 
-	public function testTruncateMonth()
+	public function test_truncateMonth()
 	{
 		$d = new WGDateTime();
 		$d->set( 2012, 3, 4, 5, 6, 7 );
@@ -310,7 +312,7 @@ class api_datetime_WGDateTimeTest extends TestCase
 		$this->assertEquals( '2012-03-01 00:00:00', $d->getYMDHISString() );
 	}
 
-	public function testTruncateDay()
+	public function test_truncateDay()
 	{
 		$d = new WGDateTime();
 		$d->set( 2012, 3, 4, 5, 6, 7 );
@@ -319,7 +321,7 @@ class api_datetime_WGDateTimeTest extends TestCase
 		$this->assertEquals( '2012-03-04 00:00:00', $d->getYMDHISString() );
 	}
 
-	public function testTruncateHour()
+	public function test_truncateHour()
 	{
 		$d = new WGDateTime();
 		$d->set( 2012, 3, 4, 5, 6, 7 );
@@ -328,7 +330,7 @@ class api_datetime_WGDateTimeTest extends TestCase
 		$this->assertEquals( '2012-03-04 05:00:00', $d->getYMDHISString() );
 	}
 
-	public function testTruncateMin()
+	public function test_truncateMin()
 	{
 		$d = new WGDateTime();
 		$d->set( 2012, 3, 4, 5, 6, 7 );
@@ -337,7 +339,7 @@ class api_datetime_WGDateTimeTest extends TestCase
 		$this->assertEquals( '2012-03-04 05:06:00', $d->getYMDHISString() );
 	}
 
-	public function testAddYear()
+	public function test_addYear()
 	{
 		$d = new WGDateTime();
 		$d->set( 2012, 3, 4, 5, 6, 7 );
@@ -349,7 +351,7 @@ class api_datetime_WGDateTimeTest extends TestCase
 		$this->assertEquals( '2011-03-04 05:06:07', $d->getYMDHISString() );
 	}
 
-	public function testAddMonth()
+	public function test_addMonth()
 	{
 		$d = new WGDateTime();
 		$d->set( 2012, 3, 4, 5, 6, 7 );
@@ -367,7 +369,7 @@ class api_datetime_WGDateTimeTest extends TestCase
 		$this->assertEquals( '2012-03-04 05:06:07', $d->getYMDHISString() );
 	}
 
-	public function testAddDay()
+	public function test_addDay()
 	{
 		$d = new WGDateTime();
 		$d->set( 2012, 3, 4, 5, 6, 7 );
@@ -385,7 +387,7 @@ class api_datetime_WGDateTimeTest extends TestCase
 		$this->assertEquals( '2012-03-04 05:06:07', $d->getYMDHISString() );
 	}
 
-	public function testAddHour()
+	public function test_addHour()
 	{
 		$d = new WGDateTime();
 		$d->set( 2012, 3, 4, 5, 6, 7 );
@@ -406,7 +408,7 @@ class api_datetime_WGDateTimeTest extends TestCase
 		$this->assertEquals( '2012-03-03 05:06:07', $d->getYMDHISString() );
 	}
 
-	public function testAddMin()
+	public function test_addMin()
 	{
 		$d = new WGDateTime();
 		$d->set( 2012, 3, 4, 5, 6, 7 );
@@ -427,7 +429,7 @@ class api_datetime_WGDateTimeTest extends TestCase
 		$this->assertEquals( '2012-03-03 05:06:07', $d->getYMDHISString() );
 	}
 
-	public function testAddSec()
+	public function test_addSec()
 	{
 		$d = new WGDateTime();
 		$d->set( 2012, 3, 4, 5, 6, 7 );
@@ -448,7 +450,7 @@ class api_datetime_WGDateTimeTest extends TestCase
 		$this->assertEquals( '2012-03-03 05:06:07', $d->getYMDHISString() );
 	}
 
-	public function testGetDayOfWeek()
+	public function test_getDayOfWeek()
 	{
 		$d = new WGDateTime();
 		$d->set( 2012, 3, 4, 5, 6, 7 );
@@ -458,7 +460,7 @@ class api_datetime_WGDateTimeTest extends TestCase
 		$this->assertEquals(6, $d->getDayOfWeek());
 	}
 
-	public function testGetByFormat()
+	public function test_getByFormat()
 	{
 		$d = new WGDateTime();
 		$d->set( 2012, 3, 4, 5, 6, 7 );
@@ -472,7 +474,7 @@ class api_datetime_WGDateTimeTest extends TestCase
 		$this->assertEquals( '05:06', $d->getHIString() );
 	}
 
-	public function testYMIndex()
+	public function test_YMIndex()
 	{
 		$d = new WGDateTime();
 		$d->set( 2012, 3, 4, 5, 6, 7 );
@@ -483,7 +485,7 @@ class api_datetime_WGDateTimeTest extends TestCase
 		$this->assertEquals( '2015-04-01 00:00:00', $d->getYMDHISString() );
 	}
 
-	public function testCopy1()
+	public function test_copy1()
 	{
 		$d = new WGDateTime();
 		$d->set( 2012, 3, 4, 5, 6, 7 );
@@ -499,7 +501,7 @@ class api_datetime_WGDateTimeTest extends TestCase
 		$this->assertEquals( '2014-03-04 05:06:07', $e->getYMDHISString() );
 	}
 
-	public function testCopy2()
+	public function test_copy2()
 	{
 		$d = new WGDateTime();
 		$d->set( 2012, 3, 4, 5, 6, 7 );
@@ -519,7 +521,7 @@ class api_datetime_WGDateTimeTest extends TestCase
 	/**
 	 * @throws WGDateTimeException
 	 */
-	public function testExpression1()
+	public function test_expression1()
 	{
 		$d = new WGDateTime();
 		$d->set( 2012, 3, 4, 5, 6, 7 );
@@ -540,7 +542,7 @@ class api_datetime_WGDateTimeTest extends TestCase
 	/**
 	 * @throws WGDateTimeException
 	 */
-	public function testExpression2()
+	public function test_expression2()
 	{
 		$d = new WGDateTime();
 		$d->set( 2012, 3, 4, 5, 6, 8 );
@@ -561,7 +563,7 @@ class api_datetime_WGDateTimeTest extends TestCase
 	/**
 	 * @throws WGDateTimeException
 	 */
-	public function testExpression3()
+	public function test_expression3()
 	{
 		$d = new WGDateTime();
 		$d->set( 2012, 3, 4, 5, 6, 7 );
@@ -582,7 +584,7 @@ class api_datetime_WGDateTimeTest extends TestCase
 	/**
 	 * @throws WGDateTimeException
 	 */
-	public function testExpressionException()
+	public function test_expressionException()
 	{
 		$this->expectException( WGDateTimeException::class );
 

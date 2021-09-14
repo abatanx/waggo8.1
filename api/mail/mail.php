@@ -5,6 +5,8 @@
  * @license MIT
  */
 
+if( !file_exists(WGCONF_PEAR . '/Mail.php') ) return false;
+
 require_once WGCONF_PEAR . '/Mail.php' ;
 
 class WGMail

@@ -998,7 +998,7 @@ abstract class WGFController
 	 */
 	protected function render(): self
 	{
-		if ( ! is_null( $this->appCanvas ) )
+		if(!is_null($this->appCanvas))
 		{
 			$this->appCanvas->html["pagecanvas"] = $this->pageCanvas->build();
 			$this->appCanvas->buildAndFlush();

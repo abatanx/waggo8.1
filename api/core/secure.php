@@ -17,11 +17,10 @@ class WGTransition
 {
 	const
 		TRANSKEY = "T",        ///< 画面遷移で利用する$_GET用キー
-		TRANSKEYCALL = "_TC",        ///< WGFController で、他のコントローラーの呼び出しに利用する$_GET用キー
-		TRANSKEYRET = "_TR",        ///< WGFController で、他のコントローラーの呼び出しに対する返り値に利用する$_GET用キー
-		TRANSKEYPAIR = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", ///< 画面遷移確認IDのキーとして利用できる文字列。
-		TRANSKEYLEN = 6,            ///< 画面遷移確認IDのキーとして利用する文字列の長さ。
-		TRANSKEYLOOP = 1;            ///< @deprecated
+		TRANSKEY_CALL = "_TC",        ///< WGFController で、他のコントローラーの呼び出しに利用する$_GET用キー
+		TRANSKEY_RET = "_TR",        ///< WGFController で、他のコントローラーの呼び出しに対する返り値に利用する$_GET用キー
+		TRANSKEY_PAIR = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", ///< 画面遷移確認IDのキーとして利用できる文字列。
+		TRANSKEY_LEN = 6;            ///< 画面遷移確認IDのキーとして利用する文字列の長さ。
 
 	/**
 	 * @var WGFSession
@@ -35,9 +34,9 @@ class WGTransition
 	public function createTransitionId(): string
 	{
 		$r = "";
-		$s = self::TRANSKEYPAIR;
+		$s = self::TRANSKEY_PAIR;
 		$l = strlen( $s );
-		for ( $i = 0; $i < self::TRANSKEYLEN; $i ++ )
+		for ( $i = 0; $i < self::TRANSKEY_LEN; $i ++ )
 		{
 			$r .= $s[ mt_rand( 0, $l - 1 ) ];
 		}
@@ -52,11 +51,11 @@ class WGTransition
 	public function getTransitionId(): string|false
 	{
 		$t = $_GET[ self::TRANSKEY ];
-		if ( strlen( $t ) != self::TRANSKEYLEN )
+		if ( strlen( $t ) != self::TRANSKEY_LEN )
 		{
 			return false;
 		}
-		if ( ! preg_match( '/^[' . self::TRANSKEYPAIR . ']+$/', $t ) )
+		if ( ! preg_match( '/^[' . self::TRANSKEY_PAIR . ']+$/', $t ) )
 		{
 			return false;
 		}
@@ -92,7 +91,7 @@ class WGTransition
 			{
 				case self::TRANSKEY:
 					$isNew = false;
-					$tid    = $v;
+					$tid   = $v;
 					break;
 
 				default:
