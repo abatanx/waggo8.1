@@ -578,7 +578,7 @@ abstract class WGFController
 		}
 		else
 		{
-			wg_log_write( WGLOG_FATAL, get_class($this) . '::models() is not WGMModel and table name string.' );
+			wg_log_write( WGLOG_FATAL, get_class( $this ) . '::models() is not WGMModel and table name string.' );
 		}
 	}
 
@@ -587,7 +587,7 @@ abstract class WGFController
 		$this->beforeModels();
 		if ( ! is_array( $models ) )
 		{
-			wg_log_write( WGLOG_FATAL, get_class($this) . '::models() must be return as array of WGMModel or table name string.' );
+			wg_log_write( WGLOG_FATAL, get_class( $this ) . '::models() must be return as array of WGMModel or table name string.' );
 		}
 		foreach ( $models as $k => $t )
 		{
@@ -604,6 +604,7 @@ abstract class WGFController
 
 	/**
 	 * コントローラーにビューを一括追加する。
+	 *
 	 * @param array $views
 	 *
 	 * @return $this
@@ -614,7 +615,7 @@ abstract class WGFController
 
 		if ( ! is_array( $views ) )
 		{
-			wg_log_write( WGLOG_FATAL, get_class($this) . '::views() must be return as WGV8Object[].' );
+			wg_log_write( WGLOG_FATAL, get_class( $this ) . '::views() must be return as WGV8Object[].' );
 		}
 
 		foreach ( $views as $id => $v )
@@ -629,6 +630,7 @@ abstract class WGFController
 
 	/**
 	 * コネクター情報による、ビューとモデル間のコネクションを初期化する。
+	 *
 	 * @param array $connectors
 	 *
 	 * @return $this
@@ -714,7 +716,7 @@ abstract class WGFController
 			'data'     => serialize( $data )
 		] );
 
-		$gp = [ WGTransition::TRANSKEYCALL => $this->session->getCombinedId() ];
+		$gp = [ WGTransition::TRANSKEY_CALL => $this->session->getCombinedId() ];
 		wg_location( wg_remake_url( $url, $gp ) );
 	}
 
@@ -736,7 +738,7 @@ abstract class WGFController
 			{
 				$ret['data'] = serialize( $data );
 				$this->session->set( '__ret', $ret );
-				$gp = [ WGTransition::TRANSKEYRET => $this->session->getCombinedId() ];
+				$gp = [ WGTransition::TRANSKEY_RET => $this->session->getCombinedId() ];
 				wg_location( wg_remake_url( $call['source'], $gp ) );
 			}
 		}
@@ -750,9 +752,9 @@ abstract class WGFController
 	{
 		$is_reload_required = false;
 
-		if ( isset( $_GET[ WGTransition::TRANSKEYCALL ] ) && strlen( $_GET[ WGTransition::TRANSKEYCALL ] ) == 32 )
+		if ( isset( $_GET[ WGTransition::TRANSKEY_CALL ] ) && strlen( $_GET[ WGTransition::TRANSKEY_CALL ] ) == 32 )
 		{
-			$ci          = $_GET[ WGTransition::TRANSKEYCALL ];
+			$ci          = $_GET[ WGTransition::TRANSKEY_CALL ];
 			$source_sess = WGFSession::restoreByCombinedId( $ci );
 			if ( $source_sess instanceof WGFSession )
 			{
@@ -770,10 +772,10 @@ abstract class WGFController
 				}
 			}
 		}
-		$_GET[ WGTransition::TRANSKEYCALL ] = null;
-		unset( $_GET[ WGTransition::TRANSKEYCALL ] );
+		$_GET[ WGTransition::TRANSKEY_CALL ] = null;
+		unset( $_GET[ WGTransition::TRANSKEY_CALL ] );
 
-		$uri = wg_remake_uri( [ WGTransition::TRANSKEYCALL => null ] );
+		$uri = wg_remake_uri( [ WGTransition::TRANSKEY_CALL => null ] );
 
 		if ( $is_reload_required )
 		{
@@ -791,9 +793,9 @@ abstract class WGFController
 	protected function checkIPMCallback(): void
 	{
 		$is_reload_required = false;
-		if ( isset( $_GET[ WGTransition::TRANSKEYRET ] ) && strlen( $_GET[ WGTransition::TRANSKEYRET ] ) == 32 )
+		if ( isset( $_GET[ WGTransition::TRANSKEY_RET ] ) && strlen( $_GET[ WGTransition::TRANSKEY_RET ] ) == 32 )
 		{
-			$ci        = $_GET[ WGTransition::TRANSKEYRET ];
+			$ci        = $_GET[ WGTransition::TRANSKEY_RET ];
 			$dest_sess = WGFSession::restoreByCombinedId( $ci );
 			if ( $dest_sess instanceof WGFSession )
 			{
@@ -817,10 +819,10 @@ abstract class WGFController
 			}
 		}
 
-		$_GET[ WGTransition::TRANSKEYRET ] = null;
-		unset( $_GET[ WGTransition::TRANSKEYRET ] );
+		$_GET[ WGTransition::TRANSKEY_RET ] = null;
+		unset( $_GET[ WGTransition::TRANSKEY_RET ] );
 
-		$uri = wg_remake_uri( [ WGTransition::TRANSKEYRET => null ] );
+		$uri = wg_remake_uri( [ WGTransition::TRANSKEY_RET => null ] );
 
 		if ( $is_reload_required )
 		{
@@ -998,7 +1000,7 @@ abstract class WGFController
 	 */
 	protected function render(): self
 	{
-		if(!is_null($this->appCanvas))
+		if ( ! is_null( $this->appCanvas ) )
 		{
 			$this->appCanvas->html["pagecanvas"] = $this->pageCanvas->build();
 			$this->appCanvas->buildAndFlush();
