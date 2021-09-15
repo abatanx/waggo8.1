@@ -51,7 +51,7 @@ function __datetime_AD( int $yy, int $mm, int $dd ): int
  */
 function wg_now(): string
 {
-	return date( "Y/m/d H:i:s" );
+	return date( "Y-m-d H:i:s" );
 }
 
 /**
@@ -134,7 +134,7 @@ function wg_finalday( int $yy, int $mm ): int|false
 function wg_update_datetime( array &$dd )
 {
 	$ww              = array( "日", "月", "火", "水", "木", "金", "土" );
-	$dd["date"]      = sprintf( "%04d/%02d/%02d", $dd["yy"], $dd["mm"], $dd["dd"] );
+	$dd["date"]      = sprintf( "%04d-%02d-%02d", $dd["yy"], $dd["mm"], $dd["dd"] );
 	$dd["time"]      = sprintf( "%02d:%02d:%02d", $dd["hh"], $dd["nn"], $dd["ss"] );
 	$dd["timehhnn"]  = sprintf( "%02d:%02d", $dd["hh"], $dd["nn"] );
 	$dd["datetime"]  = "$dd[date] $dd[time]";
@@ -898,7 +898,7 @@ function wg_datetime_rfc822( string $datestring ): string|false
 {
 	$datestring = preg_replace( '/\+\d{4}/', '', $datestring );
 
-	return date( 'Y/m/d H:i:s', strtotime( $datestring ) );
+	return date( 'Y-m-d H:i:s', strtotime( $datestring ) );
 }
 
 /**
@@ -908,12 +908,12 @@ function wg_datetime_rfc822( string $datestring ): string|false
  *
  * @return string|false 変換が成功した場合には日付期間文字列を、そうでない場合には false を返す。
  */
-function wg_datetime_w3cdtf( string $datestring ):string|false
+function wg_datetime_w3cdtf( string $datestring ): string|false
 {
 	$datestring = preg_replace( '/\+\d{2}:\d{2}/', '', $datestring );
 	$datestring = preg_replace( '/T/', ' ', $datestring );
 
-	return date( 'Y/m/d H:i:s', strtotime( $datestring ) );
+	return date( 'Y-m-d H:i:s', strtotime( $datestring ) );
 }
 
 

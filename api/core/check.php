@@ -6,19 +6,20 @@
  */
 
 require_once __DIR__ . '/lib.php';
+require_once __DIR__ . '/../datetime/datetime.php';
 
 /**
  * 入力値が数値(numeric)であるかチェックし、妥当であれば変数にセットする。
  *
- * @param float|null $result チェック後セットされる変数。エラーの場合、0 がセットされる。
- * @param string|null $src 入力値(文字列)。
+ * @param mixed $result チェック後セットされる変数。エラーの場合、0 がセットされる。
+ * @param ?string $src 入力値(文字列)。
  * @param float $min 受け入れる数値の最小値。
  * @param float $max 受け入れる数値の最大値。
  *
  * @return bool 妥当であれば trueを、それ以外であれば false を返す。入力値が null の場合は、必ず false を返す。
  * @noinspection PhpUnused
  */
-function wg_inchk_float( float|null &$result, string|null $src, float $min = 0, float $max = 2147483647 ): bool
+function wg_inchk_float( mixed &$result, string|null $src, float $min = 0, float $max = 2147483647 ): bool
 {
 	$result = 0;
 
@@ -39,15 +40,15 @@ function wg_inchk_float( float|null &$result, string|null $src, float $min = 0, 
 /**
  * 入力値が整数(integer)であるかチェックし、妥当であれば変数にセットする。
  *
- * @param int $result チェック後セットされる変数。エラーの場合、0 がセットされる。
- * @param string|null $src 入力値(文字列)。
+ * @param mixed $result チェック後セットされる変数。エラーの場合、0 がセットされる。
+ * @param ?string $src 入力値(文字列)。
  * @param int $min 受け入れる整数の最小値。
  * @param int $max 受け入れる整数の最大値。
  *
  * @return bool 妥当であれば trueを、それ以外であれば false を返す。$src が null の場合、必ず false を返す。
  * @noinspection PhpUnused
  */
-function wg_inchk_int( int &$result, string|null $src, int $min = 0, int $max = 2147483647 ): bool
+function wg_inchk_int( mixed &$result, ?string $src, int $min = 0, int $max = 2147483647 ): bool
 {
 	$result = 0;
 
@@ -68,15 +69,15 @@ function wg_inchk_int( int &$result, string|null $src, int $min = 0, int $max = 
 /**
  * 入力値が規定範囲内の文字列であるかチェックし、妥当であれば変数にセットする。
  *
- * @param string|null $result チェック後セットされる変数。エラーの場合、"" がセットされる。
- * @param string|null $src 入力値(文字列)。
+ * @param mixed $result チェック後セットされる変数。エラーの場合、"" がセットされる。
+ * @param ?string $src 入力値(文字列)。
  * @param int $min 受け入れる文字列の最小長。
  * @param int $max 受け入れる文字列の最大長。
  *
  * @return bool 妥当であれば trueを、それ以外であれば false を返す。$src が null の場合、必ず false を返す。
  * @noinspection PhpUnused
  */
-function wg_inchk_string( string|null &$result, string|null $src, int $min = 0, int $max = 2147483647 ): bool
+function wg_inchk_string( mixed &$result, ?string $src, int $min = 0, int $max = 2147483647 ): bool
 {
 	$result = '';
 
@@ -96,24 +97,24 @@ function wg_inchk_string( string|null &$result, string|null $src, int $min = 0, 
 
 /**
  * 入力値が日付(YYYY/MM/DD)であるかチェックし、妥当であれば変数にセットする。
- * なお、入力する日付の形式は YYYY[/-]MM[/-]DD 形式による。
+ * なお、入力する日付の形式は YYYY[-/]MM[-/]DD 形式による。
  *
- * @param string|null $result チェック後セットされる変数(YYYY/MM/DD形式)。エラーの場合 false がセットされる。
- * @param string|null $src 入力値(文字列)。
+ * @param mixed $result チェック後セットされる変数(YYYY/MM/DD形式)。エラーの場合 false がセットされる。
+ * @param ?string $src 入力値(文字列)。
  *
  * @return bool 妥当であれば trueを、それ以外であれば false を返す。$src が null の場合、必ず false を返す。
  * @noinspection PhpUnused
  */
-function wg_inchk_ymd( string|null &$result, string|null $src ): bool
+function wg_inchk_ymd( mixed &$result, ?string $src ): bool
 {
-	$result = false;
+	$result = '';
 
 	if ( is_null( $src ) )
 	{
 		return false;
 	}
 
-	if ( ! preg_match( '/^(\d+)[\/\-](\d+)[\/\-](\d+)$/', $src, $m ) )
+	if ( ! preg_match( '/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/', $src, $m ) )
 	{
 		return false;
 	}
@@ -133,25 +134,25 @@ function wg_inchk_ymd( string|null &$result, string|null $src ): bool
 
 /**
  * 入力値が年月(YYYY/MM)であるかチェックし、妥当であれば変数にセットする。
- * なお、入力する日付の形式は YYYY[/-]MM 形式により、1800〜2100年までの数値を受け付ける。
+ * なお、入力する日付の形式は YYYY[-/]MM 形式により、1800〜2100年までの数値を受け付ける。
  *
- * @param string|null $result チェック後セットされる変数(YYYY/MM または YYYY/MM/01形式)。エラーの場合 false がセットされる。
- * @param string|null $src 入力値(文字列)。
+ * @param mixed $result チェック後セットされる変数(YYYY/MM または YYYY/MM/01形式)。エラーの場合 false がセットされる。
+ * @param ?string $src 入力値(文字列)。
  * @param bool $isAsYmd 日として1日(すなわちYYYY/MM/01の形式)に変換して $result に代入するかどうか。
  *
  * @return bool 妥当であれば trueを、それ以外であれば false を返す。$src が null の場合、必ず false を返す。
  * @noinspection PhpUnused
  */
-function wg_inchk_ym( string|null &$result, string|null $src, bool $isAsYmd = true ): bool
+function wg_inchk_ym( mixed &$result, ?string $src, bool $isAsYmd = false ): bool
 {
-	$result = false;
+	$result = '';
 
 	if ( is_null( $src ) )
 	{
 		return false;
 	}
 
-	if ( preg_match( '/^(\d+)[\/\-](\d+)$/', $src, $m ) == 0 )
+	if ( preg_match( '/^(\d{4})[\/\-](\d{1,2})$/', $src, $m ) == 0 )
 	{
 		return false;
 	}
@@ -165,12 +166,12 @@ function wg_inchk_ym( string|null &$result, string|null $src, bool $isAsYmd = tr
 
 	if ( $isAsYmd )
 	{
-		$result = sprintf( "%04d/%02d/01", $yy, $mm );
+		$result = sprintf( "%04d-%02d-01", $yy, $mm );
 	}
 
 	else
 	{
-		$result = sprintf( "%04d/%02d", $yy, $mm );
+		$result = sprintf( "%04d-%02d", $yy, $mm );
 	}
 
 	return true;
@@ -179,8 +180,8 @@ function wg_inchk_ym( string|null &$result, string|null $src, bool $isAsYmd = tr
 /**
  * 入力値を与えられた正規表現(PREG)でチェックし、妥当であれば変数にセットする。
  *
- * @param string|null $result チェック後セットされる変数。エラーの場合、"" がセットされる。
- * @param string|null $src 入力値(文字列)。
+ * @param mixed $result チェック後セットされる変数。エラーの場合、"" がセットされる。
+ * @param ?string $src 入力値(文字列)。
  * @param string $regex 正規表現(preg_match互換)。
  * @param int $min 受け入れる文字列の最小長。
  * @param int $max 受け入れる文字列の最大長。
@@ -188,7 +189,7 @@ function wg_inchk_ym( string|null &$result, string|null $src, bool $isAsYmd = tr
  * @return bool 妥当であれば trueを、それ以外であれば false を返す。$src が null の場合、必ず false を返す。
  * @noinspection PhpUnused
  */
-function wg_inchk_pregex( string|null &$result, string|null $src, string $regex, int $min = 0, int $max = 2147483647 ): bool
+function wg_inchk_preg( mixed &$result, ?string $src, string $regex, int $min = 0, int $max = 2147483647 ): bool
 {
 	$result = '';
 
@@ -215,8 +216,8 @@ function wg_inchk_pregex( string|null &$result, string|null $src, string $regex,
 /**
  * 入力値を与えられた正規表現(PREG)でチェックし、妥当であれば変数にセット及びマッチ配列を取得する。
  *
- * @param string|null $result チェック後セットされる変数。エラーの場合、"" がセットされる。
- * @param string|null $src 入力値(文字列)。
+ * @param mixed $result チェック後セットされる変数。エラーの場合、[] がセットされる。
+ * @param ?string $src 入力値(文字列)。
  * @param string $regex 正規表現(preg_match互換)。
  * @param int $min 受け入れる文字列の最小長。
  * @param int $max 受け入れる文字列の最大長。
@@ -224,10 +225,11 @@ function wg_inchk_pregex( string|null &$result, string|null $src, string $regex,
  * @return bool 妥当であれば trueを、それ以外であれば false を返す。$src が null の場合、必ず false を返す。
  * @noinspection PhpUnused
  */
-function wg_inchk_pregexmatch(
-	string|null &$result, string|null $src, string $regex, int $min = 0, int $max = 2147483647
+function wg_inchk_preg_match(
+	mixed &$result, ?string $src, string $regex,
+	int $min = 0, int $max = 2147483647
 ): bool {
-	$result = '';
+	$result = [];
 
 	if ( is_null( $src ) )
 	{
@@ -252,14 +254,14 @@ function wg_inchk_pregexmatch(
 /**
  * 入力値が数値(numeric)かどうかチェックする。
  *
- * @param string|null $value 入力値(文字列)。
+ * @param mixed $value 入力値(文字列)。
  * @param int $min 受け入れる文字列の最小長。
  * @param int $max 受け入れる文字列の最大長。
  *
  * @return bool 妥当であれば trueを、それ以外であれば false を返す。$value が null の場合、必ず false を返す。
  * @noinspection PhpUnused
  */
-function wg_check_input_number( string|null $value, int $min = 0, int $max = 2147483647 ): bool
+function wg_check_input_number( mixed $value, int $min = 0, int $max = 2147483647 ): bool
 {
 	if ( is_null( $value ) )
 	{
@@ -282,14 +284,14 @@ function wg_check_input_number( string|null $value, int $min = 0, int $max = 214
 /**
  * 入力値が規定の文字列の範囲内の長さかどうかチェックする。
  *
- * @param string|null $value 入力値(文字列)。
+ * @param mixed $value 入力値(文字列)。
  * @param int $min 受け入れる文字列の最小長。
  * @param int $max 受け入れる文字列の最大長。
  *
  * @return bool 妥当であれば trueを、それ以外であれば false を返す。$value が null の場合、必ず false を返す。
  * @noinspection PhpUnused
  */
-function wg_check_input_string( string|null $value, int $min, int $max ): bool
+function wg_check_input_string( mixed $value, int $min, int $max ): bool
 {
 	if ( is_null( $value ) )
 	{
@@ -308,12 +310,12 @@ function wg_check_input_string( string|null $value, int $min, int $max ): bool
 /**
  * 入力値のメールアドレスを @ の前と後に分割し、配列で返す。
  *
- * @param string|null $value 入力値(文字列)。
+ * @param ?string $value 入力値(文字列)。
  *
  * @return array|false 正常な場合は["user"=>@前, "host"=>@後]の配列を、それ以外の場合は false を返す。$value が null の場合、必ず false を返す。
  * @noinspection PhpUnused
  */
-function wg_split_email_by_userhost( string|null $value ): array|false
+function wg_split_email_by_userhost( mixed $value ): array|false
 {
 	if ( is_null( $value ) )
 	{
@@ -334,7 +336,7 @@ function wg_split_email_by_userhost( string|null $value ): array|false
 /**
  * 入力値がIPv4形式アドレスであるかチェックする。
  *
- * @param string|null $ip 入力値(文字列)。
+ * @param ?string $ip 入力値(文字列)。
  *
  * @return bool 妥当であれば trueを、それ以外であれば false を返す。$ip が null の場合、必ず false を返す。
  * @noinspection PhpUnused
@@ -365,12 +367,12 @@ function wg_is_ipv4( string|null $ip ): bool
 /**
  * 入力値が妥当なメールアドレスかどうかチェックする。
  *
- * @param string|null $adr 入力値(メールアドレス形式文字列)。
+ * @param ?string $adr 入力値(メールアドレス形式文字列)。
  *
  * @return bool 妥当であれば trueを、それ以外であれば false を返す。$adr が null の場合、必ず false を返す。
  * @noinspection PhpUnused
  */
-function wg_check_input_email( string|null $adr ): bool
+function wg_check_input_email( ?string $adr ): bool
 {
 	if ( is_null( $adr ) )
 	{
@@ -402,7 +404,7 @@ function wg_check_input_email( string|null $adr ): bool
 /**
  * 入力値が有効なプロトコルなURLであるかチェックする。
  *
- * @param string|null $url 入力値(URL文字列)。
+ * @param ?string $url 入力値(URL文字列)。
  * @param int $min 受け入れる文字列の最小長。
  * @param int $max 受け入れる文字列の最大長。
  * @param string $protocol 受け入れるプロトコル。preg_match に引き渡すため、"https?|ftp|mailto" などの形式で指定する。
@@ -410,7 +412,7 @@ function wg_check_input_email( string|null $adr ): bool
  * @return bool 妥当であれば trueを、それ以外であれば false を返す。$url が null の場合、必ず false を返す。
  * @noinspection PhpUnused
  */
-function wg_check_input_url_protocol( string|null $url, int $min, int $max, string $protocol ): bool
+function wg_check_input_url_protocol( ?string $url, int $min, int $max, string $protocol ): bool
 {
 	if ( is_null( $url ) )
 	{
@@ -454,12 +456,12 @@ function wg_check_input_url_protocol( string|null $url, int $min, int $max, stri
 /**
  * 入力値が自己を示すURLであるかチェックする。リソース表現部のみで構成されたURLであるかをチェックする。
  *
- * @param string|null $url 入力値(文字列)。
+ * @param ?string $url 入力値(文字列)。
  *
  * @return bool 妥当であれば trueを、それ以外であれば false を返す。$url が null の場合、必ず false を返す。
  * @noinspection PhpUnused
  */
-function wg_check_input_selfurl( string|null $url ): bool
+function wg_check_input_selfurl( ?string $url ): bool
 {
 	if ( is_null( $url ) )
 	{
@@ -485,13 +487,13 @@ function wg_toank( string $data ): string
 /**
  * 入力値がカナに変換可能な文字であるかチェックし、妥当であれば変数にセットする。
  *
- * @param string|null $result チェック後セットされる変数。エラーの場合、"" がセットされる。
- * @param string|null $src 入力値(文字列)。
+ * @param mixed $result チェック後セットされる変数。エラーの場合、"" がセットされる。
+ * @param ?string $src 入力値(文字列)。
  *
  * @return bool 妥当であれば trueを、それ以外であれば false を返す。$src が null の場合、必ず false を返す。
  * @noinspection PhpUnused
  */
-function wg_inchk_kana( string|null &$result, string|null $src ): bool
+function wg_inchk_kana( mixed &$result, ?string $src ): bool
 {
 	if ( is_null( $src ) )
 	{
@@ -513,13 +515,13 @@ function wg_inchk_kana( string|null &$result, string|null $src ): bool
 /**
  * ひらがな版
  *
- * @param string|null $result チェック後セットされる変数。エラーの場合、"" がセットされる。
- * @param string|null $src 入力値(文字列)。
+ * @param mixed $result チェック後セットされる変数。エラーの場合、"" がセットされる。
+ * @param ?string $src 入力値(文字列)。
  *
  * @return bool 妥当であれば trueを、それ以外であれば false を返す。$src が null の場合、必ず false を返す。
  * @noinspection PhpUnused
  */
-function wg_inchk_hiragana( string|null &$result, string|null $src ): bool
+function wg_inchk_hiragana( mixed &$result, ?string $src ): bool
 {
 	if ( is_null( $src ) )
 	{

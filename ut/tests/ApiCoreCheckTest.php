@@ -230,11 +230,11 @@ class ApiCoreCheckTest extends TestCase
 		$this->assertEquals( '', $r );
 
 		$in = null;
-		$this->assertEquals( true, wg_inchk_string( $r, $in ) );
+		$this->assertEquals( false, wg_inchk_string( $r, $in ) );
 		$this->assertEquals( '', $r );
 
 		$in = [];
-		$this->assertEquals( true, wg_inchk_string( $r, $in['test'] ?? null ) );
+		$this->assertEquals( false, wg_inchk_string( $r, $in['test'] ?? null ) );
 		$this->assertEquals( '', $r );
 
 		$in = '';
@@ -407,12 +407,12 @@ class ApiCoreCheckTest extends TestCase
 
 		$re = '/^$/';
 		$in = null;
-		$this->assertEquals( true, wg_inchk_preg( $r, $in, $re ) );
+		$this->assertEquals( false, wg_inchk_preg( $r, $in, $re ) );
 		$this->assertEquals( '', $r );
 
 		$re = '/^$/';
 		$in = [];
-		$this->assertEquals( true, wg_inchk_preg( $r, $in['test'] ?? null, $re ) );
+		$this->assertEquals( false, wg_inchk_preg( $r, $in['test'] ?? null, $re ) );
 		$this->assertEquals( '', $r );
 
 		$re = '/^$/';
@@ -460,13 +460,13 @@ class ApiCoreCheckTest extends TestCase
 
 		$re = '/^()$/';
 		$in = null;
-		$this->assertEquals( true, wg_inchk_preg_match( $r, $in, $re ) );
-		$this->assertEquals( [ '', '' ], $r );
+		$this->assertEquals( false, wg_inchk_preg_match( $r, $in, $re ) );
+		$this->assertEquals( [], $r );
 
 		$re = '/^()$/';
 		$in = [];
-		$this->assertEquals( true, wg_inchk_preg_match( $r, $in['test'] ?? null, $re ) );
-		$this->assertEquals( [ '', '' ], $r );
+		$this->assertEquals( false, wg_inchk_preg_match( $r, $in['test'] ?? null, $re ) );
+		$this->assertEquals( [], $r );
 
 		$re = '/^()$/';
 		$in = '';
@@ -476,44 +476,44 @@ class ApiCoreCheckTest extends TestCase
 
 	public function test_wg_check_input_number()
 	{
-		$this->assertEquals( false, wg_check_is_number( '0', 1, 2 ) );
-		$this->assertEquals( true, wg_check_is_number( '1', 1, 2 ) );
-		$this->assertEquals( true, wg_check_is_number( '2', 1, 2 ) );
-		$this->assertEquals( false, wg_check_is_number( '3', 1, 2 ) );
+		$this->assertEquals( false, wg_check_input_number( '0', 1, 2 ) );
+		$this->assertEquals( true, wg_check_input_number( '1', 1, 2 ) );
+		$this->assertEquals( true, wg_check_input_number( '2', 1, 2 ) );
+		$this->assertEquals( false, wg_check_input_number( '3', 1, 2 ) );
 
-		$this->assertEquals( false, wg_check_is_number( ' 0', 1, 2 ) );
-		$this->assertEquals( true, wg_check_is_number( ' 1', 1, 2 ) );
-		$this->assertEquals( true, wg_check_is_number( ' 2', 1, 2 ) );
-		$this->assertEquals( false, wg_check_is_number( ' 3', 1, 2 ) );
+		$this->assertEquals( false, wg_check_input_number( ' 0', 1, 2 ) );
+		$this->assertEquals( true, wg_check_input_number( ' 1', 1, 2 ) );
+		$this->assertEquals( true, wg_check_input_number( ' 2', 1, 2 ) );
+		$this->assertEquals( false, wg_check_input_number( ' 3', 1, 2 ) );
 
-		$this->assertEquals( false, wg_check_is_number( '0 ', 1, 2 ) );
-		$this->assertEquals( true, wg_check_is_number( '1 ', 1, 2 ) );
-		$this->assertEquals( true, wg_check_is_number( '2 ', 1, 2 ) );
-		$this->assertEquals( false, wg_check_is_number( '3 ', 1, 2 ) );
+		$this->assertEquals( false, wg_check_input_number( '0 ', 1, 2 ) );
+		$this->assertEquals( true, wg_check_input_number( '1 ', 1, 2 ) );
+		$this->assertEquals( true, wg_check_input_number( '2 ', 1, 2 ) );
+		$this->assertEquals( false, wg_check_input_number( '3 ', 1, 2 ) );
 
-		$this->assertEquals( false, wg_check_is_number( ' 0 ', 1, 2 ) );
-		$this->assertEquals( true, wg_check_is_number( ' 1 ', 1, 2 ) );
-		$this->assertEquals( true, wg_check_is_number( ' 2 ', 1, 2 ) );
-		$this->assertEquals( false, wg_check_is_number( ' 3 ', 1, 2 ) );
+		$this->assertEquals( false, wg_check_input_number( ' 0 ', 1, 2 ) );
+		$this->assertEquals( true, wg_check_input_number( ' 1 ', 1, 2 ) );
+		$this->assertEquals( true, wg_check_input_number( ' 2 ', 1, 2 ) );
+		$this->assertEquals( false, wg_check_input_number( ' 3 ', 1, 2 ) );
 
-		$this->assertEquals( false, wg_check_is_number( '0e0', 1, 2 ) );
-		$this->assertEquals( true, wg_check_is_number( '1e0', 1, 2 ) );
-		$this->assertEquals( true, wg_check_is_number( '2e0', 1, 2 ) );
-		$this->assertEquals( false, wg_check_is_number( '3e0', 1, 2 ) );
+		$this->assertEquals( false, wg_check_input_number( '0e0', 1, 2 ) );
+		$this->assertEquals( true, wg_check_input_number( '1e0', 1, 2 ) );
+		$this->assertEquals( true, wg_check_input_number( '2e0', 1, 2 ) );
+		$this->assertEquals( false, wg_check_input_number( '3e0', 1, 2 ) );
 
-		$this->assertEquals( false, wg_check_is_number( '-2e0', - 1, 1 ) );
-		$this->assertEquals( true, wg_check_is_number( '-1e0', - 1, 1 ) );
-		$this->assertEquals( true, wg_check_is_number( '0', - 1, 1 ) );
-		$this->assertEquals( true, wg_check_is_number( '1e0', - 1, 1 ) );
-		$this->assertEquals( false, wg_check_is_number( '2e0', - 1, 1 ) );
+		$this->assertEquals( false, wg_check_input_number( '-2e0', - 1, 1 ) );
+		$this->assertEquals( true, wg_check_input_number( '-1e0', - 1, 1 ) );
+		$this->assertEquals( true, wg_check_input_number( '0', - 1, 1 ) );
+		$this->assertEquals( true, wg_check_input_number( '1e0', - 1, 1 ) );
+		$this->assertEquals( false, wg_check_input_number( '2e0', - 1, 1 ) );
 	}
 
 	public function test_wg_check_input_string()
 	{
-		$this->assertEquals( false, wg_check_is_string( '', 1, 2 ) );
-		$this->assertEquals( true, wg_check_is_string( 'A', 1, 2 ) );
-		$this->assertEquals( true, wg_check_is_string( 'AA', 1, 2 ) );
-		$this->assertEquals( false, wg_check_is_string( 'AAA', 1, 2 ) );
+		$this->assertEquals( false, wg_check_input_string( '', 1, 2 ) );
+		$this->assertEquals( true, wg_check_input_string( 'A', 1, 2 ) );
+		$this->assertEquals( true, wg_check_input_string( 'AA', 1, 2 ) );
+		$this->assertEquals( false, wg_check_input_string( 'AAA', 1, 2 ) );
 	}
 
 
