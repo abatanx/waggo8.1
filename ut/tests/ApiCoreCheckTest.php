@@ -9,82 +9,82 @@ use PHPUnit\Framework\TestCase;
 
 if( !defined('WG_UNITTEST') ) define( 'WG_UNITTEST', true );
 
-require __DIR__ . '/../../api/core/check.php';
+require_once __DIR__ . '/../../api/core/check.php';
 
 class ApiCoreCheckTest extends TestCase
 {
-	public function test_wg_inchk_number()
+	public function test_wg_inchk_float()
 	{
 		$in = '0';
-		$this->assertEquals( true, wg_inchk_number( $r, $in ) );
+		$this->assertEquals( true, wg_inchk_float( $r, $in ) );
 		$this->assertEquals( 0, $r );
 
 		$in = '6';
-		$this->assertEquals( true, wg_inchk_number( $r, $in ) );
+		$this->assertEquals( true, wg_inchk_float( $r, $in ) );
 		$this->assertEquals( 6, $r );
 
 		$in = '0666';
-		$this->assertEquals( true, wg_inchk_number( $r, $in ) );
+		$this->assertEquals( true, wg_inchk_float( $r, $in ) );
 		$this->assertEquals( 666, $r );
 
 		$in = '3.14';
-		$this->assertEquals( true, wg_inchk_number( $r, $in ) );
+		$this->assertEquals( true, wg_inchk_float( $r, $in ) );
 		$this->assertEquals( 3.14, $r );
 
 		$in = '-3.14';
-		$this->assertEquals( false, wg_inchk_number( $r, $in ) );
+		$this->assertEquals( false, wg_inchk_float( $r, $in ) );
 		$this->assertEquals( 0, $r );
 
 		$in = '3.14';
-		$this->assertEquals( true, wg_inchk_number( $r, $in, - 100, 100 ) );
+		$this->assertEquals( true, wg_inchk_float( $r, $in, - 100, 100 ) );
 		$this->assertEquals( 3.14, $r );
 
 		$in = '-3.14';
-		$this->assertEquals( true, wg_inchk_number( $r, $in, - 100, 100 ) );
+		$this->assertEquals( true, wg_inchk_float( $r, $in, - 100, 100 ) );
 		$this->assertEquals( - 3.14, $r );
 
 		$in = '3.14e1';
-		$this->assertEquals( true, wg_inchk_number( $r, $in, - 100, 100 ) );
+		$this->assertEquals( true, wg_inchk_float( $r, $in, - 100, 100 ) );
 		$this->assertEquals( 31.4, $r );
 
 		$in = '-3.14e1';
-		$this->assertEquals( true, wg_inchk_number( $r, $in, - 100, 100 ) );
+		$this->assertEquals( true, wg_inchk_float( $r, $in, - 100, 100 ) );
 		$this->assertEquals( - 31.4, $r );
 
 		$in = '100';
-		$this->assertEquals( true, wg_inchk_number( $r, $in, - 100, 100 ) );
+		$this->assertEquals( true, wg_inchk_float( $r, $in, - 100, 100 ) );
 		$this->assertEquals( 100, $r );
 
 		$in = '-100';
-		$this->assertEquals( true, wg_inchk_number( $r, $in, - 100, 100 ) );
+		$this->assertEquals( true, wg_inchk_float( $r, $in, - 100, 100 ) );
 		$this->assertEquals( - 100, $r );
 
 		$in = '100.1';
-		$this->assertEquals( false, wg_inchk_number( $r, $in, - 100, 100 ) );
+		$this->assertEquals( false, wg_inchk_float( $r, $in, - 100, 100 ) );
 		$this->assertEquals( 0, $r );
 
 		$in = '-100.1';
-		$this->assertEquals( false, wg_inchk_number( $r, $in, - 100, 100 ) );
+		$this->assertEquals( false, wg_inchk_float( $r, $in, - 100, 100 ) );
 		$this->assertEquals( 0, $r );
 
 		$in = false;
-		$this->assertEquals( false, wg_inchk_number( $r, $in ) );
+		$this->assertEquals( false, wg_inchk_float( $r, $in ) );
 		$this->assertEquals( 0, $r );
 
 		$in = null;
-		$this->assertEquals( false, wg_inchk_number( $r, $in ) );
+		$this->assertEquals( false, wg_inchk_float( $r, $in ) );
 		$this->assertEquals( 0, $r );
 
 		$in = [];
-		$this->assertEquals( false, wg_inchk_number( $r, $in['test'] ?? null ) );
+		$this->assertEquals( false, wg_inchk_float( $r, $in['test'] ?? null ) );
 		$this->assertEquals( 0, $r );
 
 		$in = '';
-		$this->assertEquals( false, wg_inchk_number( $r, $in ) );
+		$this->assertEquals( false, wg_inchk_float( $r, $in ) );
 		$this->assertEquals( 0, $r );
 
 		$in = 'AAA';
-		$this->assertEquals( false, wg_inchk_number( $r, $in ) );
+		$this->assertEquals( false, wg_inchk_float( $r, $in ) );
 		$this->assertEquals( 0, $r );
 	}
 

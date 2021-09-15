@@ -9,8 +9,8 @@ use PHPUnit\Framework\TestCase;
 
 if( !defined('WG_UNITTEST') ) define( 'WG_UNITTEST', true );
 
-require __DIR__ . '/../../waggo.php';
-require __DIR__ . '/../../framework/c/WGFSession.php';
+require_once __DIR__ . '/../../waggo.php';
+require_once __DIR__ . '/../../framework/c/WGFSession.php';
 
 class FrameworkControllerWGFSessionTest extends TestCase
 {

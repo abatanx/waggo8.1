@@ -324,31 +324,97 @@ class WGDBMSPostgreSQL extends WGDBMS
 	}
 
 	/**
-	 * 書式付きSQL発行用に、日付時刻を文字列に変換する
+	 * 書式付きSQL発行用に、日付を文字列に変換する
 	 *
-	 * @param mixed $date 日付時刻文字列(PostgreSQLでの日付関数表記可)
+	 * @param mixed $date 日付文字列(PostgreSQLでの日付関数表記可)
 	 * @param bool $isAllowNull true の時、$d が null/false/'' の場合は、'NULL' を返す
 	 *
 	 * @return string 変換後の文字列。日付関数表記以外の場合、両端に引用符が付与されるだけです。
 	 */
-	static public function T( mixed $date, bool $isAllowNull = true ): string
+	static public function TD( mixed $date, bool $isAllowNull = true ): string
 	{
 		if ( ! is_null( $date ) )
 		{
 			$date = (string) $date;
 		}
 
-		if ( $isAllowNull && is_null( $date ) )
+		if ( is_null($date) )
 		{
-			return 'NULL';
+			return $isAllowNull ? 'NULL' : self::S('0001-01-01');
 		}
-		else if ( preg_match( '/^(current|localtime|epoch|-?infinity|invalid|now|today|tomorrow|yesterday|zulu|allballs|z)/i', $date ) )
+		else if ( preg_match( '/^(epoch|-?infinity|today|tomorrow|yesterday)/i', $date ) )
+		{
+			return self::S($date);
+		}
+		else if ( preg_match( '/^(current|localtime|now)/i', $date ) )
 		{
 			return $date;
 		}
 		else
 		{
 			return self::S( $date );
+		}
+	}
+
+	/**
+	 * 書式付きSQL発行用に、時刻を文字列に変換する
+	 *
+	 * @param mixed $time 時刻文字列(PostgreSQLでの日付関数表記可)
+	 * @param bool $isAllowNull true の時、$d が null/false/'' の場合は、'NULL' を返す
+	 *
+	 * @return string 変換後の文字列。日付関数表記以外の場合、両端に引用符が付与されるだけです。
+	 */
+	static public function TT( mixed $time, bool $isAllowNull = true ): string
+	{
+		if ( ! is_null( $time ) )
+		{
+			$time = (string) $time;
+		}
+
+		if ( is_null($time) )
+		{
+			return $isAllowNull ? 'NULL' : self::S('00:00:00');
+		}
+		else if ( preg_match( '/^(current|localtime|now)/i', $time ) )
+		{
+			return $time;
+		}
+		else
+		{
+			return self::S( $time );
+		}
+	}
+
+	/**
+	 * 書式付きSQL発行用に、タイムスタンプを文字列に変換する
+	 *
+	 * @param mixed $timestamp 時刻文字列(PostgreSQLでの日付関数表記可)
+	 * @param bool $isAllowNull true の時、$d が null/false/'' の場合は、'NULL' を返す
+	 *
+	 * @return string 変換後の文字列。日付関数表記以外の場合、両端に引用符が付与されるだけです。
+	 */
+	static public function TS( mixed $timestamp, bool $isAllowNull = true ): string
+	{
+		if ( ! is_null( $timestamp ) )
+		{
+			$timestamp = (string) $timestamp;
+		}
+
+		if ( is_null($timestamp) )
+		{
+			return $isAllowNull ? 'NULL' : self::S('0001-01-01 00:00:00');
+		}
+		else if ( preg_match( '/^(epoch|-?infinity|today|tomorrow|yesterday)/i', $timestamp) )
+		{
+			return self::S($timestamp);
+		}
+		else if ( preg_match( '/^(current|localtime|now)/i', $timestamp ) )
+		{
+			return $timestamp;
+		}
+		else
+		{
+			return self::S( $timestamp );
 		}
 	}
 
@@ -367,7 +433,7 @@ class WGDBMSPostgreSQL extends WGDBMS
 			$num = (float) $num;
 		}
 
-		return $isAllowNull && is_null( $num ) ? 'NULL' : (string) $num;
+		return $isAllowNull && is_null( $num ) ? 'NULL' : (string) ( (float) $num );
 	}
 
 	/**

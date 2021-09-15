@@ -185,77 +185,105 @@ function _ESC( string $str ): string
 /**
  * 書式付きSQL発行用に、文字列を引用符付き文字列に変換する。
  *
- * @param string $str 文字列。
- * @param boolean $allow_nl Trueの場合NULL値を利用する。
+ * @param mixed $str 文字列。
+ * @param boolean $isAllowNull Trueの場合NULL値を利用する。
  *
  * @return string 変換後の文字列。NULL以外の場合はクォート後両端に引用符が付加されます。
  */
-function _S( $str, $allow_nl = true )
+function _S( mixed $str, bool $isAllowNull = true ): string
 {
-	return ( $d = _QC() ) ? $d->S( $str, $allow_nl ) : die();
+	return ( $d = _QC() ) ? $d->S( $str, $isAllowNull ) : die();
 }
 
 /**
  * 書式付きSQL発行用に、論理値を文字列に変換する。
  *
- * @param boolean $bool 論理値。
- * @param boolean $allow_nl Trueの場合NULL値を利用する。
+ * @param mixed $bool 論理値。
+ * @param boolean $isAllowNull Trueの場合NULL値を利用する。
  *
  * @return string 変換後の文字列。true, false, null が返されます。
  */
-function _B( $bool, $allow_nl = true )
+function _B( mixed $bool, bool $isAllowNull = true ): string
 {
-	return ( $d = _QC() ) ? $d->B( $bool, $allow_nl ) : die();
+	return ( $d = _QC() ) ? $d->B( $bool, $isAllowNull ) : die();
 }
 
 /**
  * 書式付きSQL発行用に、数値を文字列に変換する。
  *
- * @param int $num 数値。
- * @param boolean $allow_nl Trueの場合NULL値を利用する。
+ * @param mixed $num 数値。
+ * @param boolean $isAllowNull Trueの場合NULL値を利用する。
  *
  * @return string 変換後の文字列。
  */
-function _N( $num, $allow_nl = true )
+function _N( mixed $num, bool $isAllowNull = true )
 {
-	return ( $d = _QC() ) ? $d->N( $num, $allow_nl ) : die();
+	return ( $d = _QC() ) ? $d->N( $num, $isAllowNull ) : die();
 }
 
 /**
  * 書式付きSQL発行用に、浮動小数点数を文字列に変換する。
  *
- * @param double $num 浮動小数点数。
- * @param boolean $allow_nl Trueの場合NULL値を利用する。
+ * @param mixed $num 浮動小数点数。
+ * @param boolean $isAllowNull Trueの場合NULL値を利用する。
  *
  * @return string 変換後の文字列。
  */
-function _D( $num, $allow_nl = true )
+function _D( mixed $num, bool $isAllowNull = true ): string
 {
-	return ( $d = _QC() ) ? $d->D( $num, $allow_nl ) : die();
+	return ( $d = _QC() ) ? $d->D( $num, $isAllowNull ) : die();
 }
 
 /**
  * 書式付きSQL発行用に、日付時刻を文字列に変換する。
  *
- * @param string $t 日付時刻文字列。PostgreSQLでの日付関数表記も可能です。
- * @param boolean $allow_nl Trueの場合NULL値を利用する。
+ * @param mixed $t 日付時刻文字列。PostgreSQLでの日付関数表記も可能です。
+ * @param boolean $isAllowNull Trueの場合NULL値を利用する。
  *
  * @return string 変換後の文字列。日付関数表記以外の場合、両端に引用符が付与されるだけです。
  */
-function _T( $t, $allow_nl = true )
+function _TD( mixed $t, bool $isAllowNull = true ): string
 {
-	return ( $d = _QC() ) ? $d->T( $t, $allow_nl ) : die();
+	return ( $d = _QC() ) ? $d->TD( $t, $isAllowNull ) : die();
+}
+
+/**
+ * 書式付きSQL発行用に、日付時刻を文字列に変換する。
+ *
+ * @param mixed $t 日付時刻文字列。PostgreSQLでの日付関数表記も可能です。
+ * @param boolean $isAllowNull Trueの場合NULL値を利用する。
+ *
+ * @return string 変換後の文字列。日付関数表記以外の場合、両端に引用符が付与されるだけです。
+ */
+function _TT( mixed $t, bool $isAllowNull = true ): string
+{
+	return ( $d = _QC() ) ? $d->TT( $t, $isAllowNull ) : die();
+}
+
+/**
+ * 書式付きSQL発行用に、日付時刻を文字列に変換する。
+ *
+ * @param mixed $t 日付時刻文字列。PostgreSQLでの日付関数表記も可能です。
+ * @param boolean $isAllowNull Trueの場合NULL値を利用する。
+ *
+ * @return string 変換後の文字列。日付関数表記以外の場合、両端に引用符が付与されるだけです。
+ */
+function _TS( mixed $t, bool $isAllowNull = true ): string
+{
+	return ( $d = _QC() ) ? $d->TS( $t, $isAllowNull ) : die();
 }
 
 /**
  * 書式付きSQL発行用に、バイナリデータを文字列に変換する。
  *
- * @param $raw
- * @param bool $allow_nl
+ * @param mixed $raw バイナリデータ本体。
+ * @param bool $isAllowNull Trueの場合NULL値を利用する。
+ *
+ * @return string 変換後の文字列。
  */
-function _BLOB( $raw, $allow_nl = true )
+function _BLOB( mixed $raw, bool $isAllowNull = true ): string
 {
-	return ( $d = _QC() ) ? $d->BLOB( $raw, $allow_nl ) : die();
+	return ( $d = _QC() ) ? $d->BLOB( $raw, $isAllowNull ) : die();
 }
 
 /**
@@ -270,68 +298,68 @@ function _U()
 /**
  * トランザクションを開始します。
  */
-function _QBEGIN()
+function _QBEGIN(): void
 {
-	return ( $d = _QC() ) ? $d->BEGIN() : false;
+	( $d = _QC() ) ? $d->BEGIN() : die();
 }
 
 /**
  * トランザクションをロールバックします。
  */
-function _QROLLBACK()
+function _QROLLBACK(): void
 {
-	return ( $d = _QC() ) ? $d->ROLLBACK() : false;
+	( $d = _QC() ) ? $d->ROLLBACK() : die();
 }
 
 /**
  * トランザクションをコミットします。
  */
-function _QCOMMIT()
+function _QCOMMIT(): void
 {
-	return ( $d = _QC() ) ? $d->COMMIT() : false;
+	( $d = _QC() ) ? $d->COMMIT() : die();
 }
 
 /**
  * トランザクションを終了します。
  * 実質的には COMMIT されることと同等です。
  */
-function _QEND()
+function _QEND(): void
 {
-	return ( $d = _QC() ) ? $d->END() : false;
+	( $d = _QC() ) ? $d->END() : die();
 }
 
 /**
  * DBMSが MySQL であるかチェックする。
- * @return boolean MySQLの場合、true。
+ * @return boolean MySQLの場合 true を返す。
  */
-function wg_is_dbms_mysql()
+function wg_is_dbms_mysql(): bool
 {
 	return in_array( strtolower( WGCONF_DBMS_TYPE ), [ 'mysql' ] );
 }
 
 /**
  * DBMSが mariadb であるかチェックする。
- * @return boolean mariadb の場合、true。
+ * @return boolean mariadb の場合 true を返す。
  */
-function wg_is_dbms_mariadb()
+function wg_is_dbms_mariadb(): bool
 {
 	return in_array( strtolower( WGCONF_DBMS_TYPE ), [ 'maria', 'mariadb' ] );
 }
 
 /**
  * DBMSが PostgreSQL であるかチェックする。
- * @return boolean PostgreSQL の場合、true。
+ * @return boolean PostgreSQL の場合 true を返す。
  */
-function wg_is_dbms_postgresql()
+function wg_is_dbms_postgresql(): bool
 {
 	return in_array( strtolower( WGCONF_DBMS_TYPE ), [ 'pgsql', 'postgres', 'postgresql' ] );
 }
 
 /**
  * mariadb で nextval などのシーケンス利用できるバージョンであるかチェックする。
- * @return boolean mariadb 10.3 以降である場合、true。
+ * @return boolean mariadb 10.3 以降である場合 true を返す。
  */
-function wg_is_supported_sequence_mariadb()
+function wg_is_supported_sequence_mariadb(): bool
 {
 	if ( wg_is_dbms_mariadb() )
 	{

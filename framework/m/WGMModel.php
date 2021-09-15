@@ -22,7 +22,7 @@ $WGMModelID = [];
  */
 class WGMModel
 {
-	const N = 0, S = 1, B = 2, T = 3, D = 4;
+	const N = 0, S = 1, B = 2, TD = 3, TT = 4, TS = 5, D = 6;
 	const JNULL = 0, JINNER = 1, JLEFT = 2, JRIGHT = 3;
 
 	public WGDBMS $dbms;
@@ -105,23 +105,25 @@ class WGMModel
 		$this->dbmsProperty = new stdClass();
 		if ( $this->dbms instanceof WGDBMSPostgreSQL )
 		{
-			$this->dbmsProperty->N = '/^(int|smallint|bigint)/';
-			$this->dbmsProperty->T = '/^(date|timestamp)/';
-			$this->dbmsProperty->S = '/^(char|text|time|varchar|json)/';
-			$this->dbmsProperty->D = '/^(double|real|numeric)/';
-			$this->dbmsProperty->B = '/^bool/';
-			$this->dbmsProperty->P = '/^point/';
+			$this->dbmsProperty->N  = '/^(int|smallint|bigint)/';
+			$this->dbmsProperty->TD = '/^(date)/';
+			$this->dbmsProperty->TT = '/^(time)/';
+			$this->dbmsProperty->TS = '/^(timestamp)/';
+			$this->dbmsProperty->S  = '/^(char|text|varchar|json)/';
+			$this->dbmsProperty->D  = '/^(double|real|numeric)/';
+			$this->dbmsProperty->B  = '/^bool/';
 
 			$this->dbmsProperty->BOOL_TRUE = 't';
 		}
 		else if ( $this->dbms instanceof WGDBMSMySQL )
 		{
-			$this->dbmsProperty->N = '/^(int|smallint)/';
-			$this->dbmsProperty->T = '/^(date|timestamp)/';
-			$this->dbmsProperty->S = '/^(char|text|time|varchar|json)/';
-			$this->dbmsProperty->D = '/^(double|real|numeric)/';
-			$this->dbmsProperty->B = '/^tinyint\(1\)/';
-			$this->dbmsProperty->P = '/^point/';
+			$this->dbmsProperty->N  = '/^(int|smallint)/';
+			$this->dbmsProperty->TD = '/^(date)/';
+			$this->dbmsProperty->TT = '/^(time)/';
+			$this->dbmsProperty->TS = '/^(timestamp)/';
+			$this->dbmsProperty->S  = '/^(char|text|varchar|json)/';
+			$this->dbmsProperty->D  = '/^(double|real|numeric)/';
+			$this->dbmsProperty->B  = '/^tinyint\(1\)/';
 
 			$this->dbmsProperty->BOOL_TRUE = '1';
 		}
@@ -186,9 +188,17 @@ class WGMModel
 		{
 			return self::N;
 		}
-		else if ( preg_match( $this->dbmsProperty->T, $fieldType ) )
+		else if ( preg_match( $this->dbmsProperty->TS, $fieldType ) )
 		{
-			return self::T;
+			return self::TS;
+		}
+		else if ( preg_match( $this->dbmsProperty->TT, $fieldType ) )
+		{
+			return self::TT;
+		}
+		else if ( preg_match( $this->dbmsProperty->TD, $fieldType ) )
+		{
+			return self::TD;
 		}
 		else if ( preg_match( $this->dbmsProperty->S, $fieldType ) )
 		{
@@ -538,8 +548,16 @@ class WGMModel
 				$v = ( $direction === 'DB' ) ? $this->dbms->B( $value, $isAllowNULL ) :
 					( is_null( $value ) && $isAllowNULL ? null : ( (string) $value === $this->dbmsProperty->BOOL_TRUE ) );
 				break;
-			case self::T:
-				$v = ( $direction === 'DB' ) ? $this->dbms->T( $value, $isAllowNULL ) :
+			case self::TD:
+				$v = ( $direction === 'DB' ) ? $this->dbms->TD( $value, $isAllowNULL ) :
+					( is_null( $value ) && $isAllowNULL ? null : (string) $value );
+				break;
+			case self::TT:
+				$v = ( $direction === 'DB' ) ? $this->dbms->TT( $value, $isAllowNULL ) :
+					( is_null( $value ) && $isAllowNULL ? null : (string) $value );
+				break;
+			case self::TS:
+				$v = ( $direction === 'DB' ) ? $this->dbms->TS( $value, $isAllowNULL ) :
 					( is_null( $value ) && $isAllowNULL ? null : (string) $value );
 				break;
 			case self::D:
@@ -574,8 +592,12 @@ class WGMModel
 			case self::B:
 			case self::D:
 				return ( $v1 === $v2 );
-			case self::T:
-				return ( wg_timediff_second( $v1, $v2 ) === 0 );
+			case self::TD:
+				return ( wg_timediff_second( $v1 ?? '0001-01-01', $v2 ?? '0001-01-01' ) === 0 );
+			case self::TT:
+				return ( wg_timediff_second( $v1 ?? '00:00:00', $v2 ?? '00:00:00' ) === 0 );
+			case self::TS:
+				return ( wg_timediff_second( $v1 ?? '0001-01-01 00:00:00', $v2 ?? '0001-01-01 00:00:00' ) === 0 );
 		}
 		$this->logFatal( 'Unrecognized field type, \'%s\'.', $keyField );
 	}
@@ -610,7 +632,7 @@ class WGMModel
 		}
 		else
 		{
-			return $this->vars[ $keyField ];
+			return $this->vars[ $keyField ] ?? null;
 		}
 	}
 

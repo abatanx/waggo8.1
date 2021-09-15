@@ -11,12 +11,15 @@ const WGLOG_WARNING = 2;    ///< 警告タイプのログメッセージであ�
 const WGLOG_ERROR   = 3;    ///< エラータイプのログメッセージである。
 const WGLOG_FATAL   = 9;    ///< 致命的エラータイプのログメッセージである。
 
+
+global $wg_log_write_colors;
 $wg_log_write_colors = [
 	mt_rand( 1, 7 ),
 	mt_rand( 1, 7 ),
 	mt_rand( 1, 7 )
 ];
 
+global $wg_log_write_types;
 $wg_log_write_types = [
 	WGLOG_APP     => "APP",
 	WGLOG_INFO    => "INFO",

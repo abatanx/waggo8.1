@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 if( !defined('WG_UNITTEST') ) define( 'WG_UNITTEST', true );
 
-require __DIR__ . '/../../api/http/http.php';
+require_once __DIR__ . '/../../api/http/http.php';
 
 class ApiHttpHttpTest extends TestCase
 {
