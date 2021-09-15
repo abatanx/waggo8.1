@@ -28,7 +28,7 @@ function wg_get_usercd()
  */
 function wg_is_user( $usercd )
 {
-	$v = _QQ( "SELECT true FROM base WHERE usercd=%s AND enable=true AND deny=false;", _N( $usercd ) );
+	$v = _QQ( "SELECT true FROM base WHERE usercd=%s AND enabled=true AND deny=false;", _N( $usercd ) );
 
 	return ( $v ) ? true : false;
 }
