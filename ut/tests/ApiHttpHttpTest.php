@@ -15,7 +15,7 @@ class ApiHttpHttpTest extends TestCase
 {
 	public function test_wg_remake_url()
     {
-        foreach (["", null, true, false, 1, 0000, 'http://example.com:8000/', '/', '../', 'https://example.com:8000/'] as $testCase) {
+        foreach (["", 'http://example.com:8000/', '/', '../', 'https://example.com:8000/'] as $testCase) {
             $u = wg_remake_url($testCase . '?a=100&b=200', ['a' => 150]);
             $this->assertEquals($testCase . '?a=150&b=200', $u);
 
@@ -35,10 +35,10 @@ class ApiHttpHttpTest extends TestCase
             $this->assertEquals($testCase . '?b=200', $u);
 
             $u = wg_remake_url($testCase . '?a=100&b=200', ['a' => true]);
-            $this->assertEquals($testCase . '?a=1&b=200', $u); // a=1 になる
+            $this->assertEquals($testCase . '?a=1&b=200', $u);
 
             $u = wg_remake_url($testCase . '?a=100&b=200', ['a' => false]);
-            $this->assertEquals($testCase . '?a=&b=200', $u); // a= になる
+            $this->assertEquals($testCase . '?a&b=200', $u);
 
             $u = wg_remake_url($testCase . '?a=100&b=200', ['e' => 500]);
             $this->assertEquals($testCase . '?a=100&b=200&e=500', $u);

@@ -86,7 +86,7 @@ function wg_array_to_query( array $original, array $replace = [] ): string
 	foreach ( $replace as $k => $v )
 	{
 		$k = (string) $k;
-		if ( $v === '' || is_null( $v ) )
+		if ( is_null( $v ) )
 		{
 			unset( $original[ $k ] );
 		}

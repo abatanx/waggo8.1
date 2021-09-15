@@ -10,10 +10,10 @@ use PHPUnit\Framework\TestCase;
 
 if( !defined('WG_UNITTEST') ) define( 'WG_UNITTEST', true );
 
-require __DIR__ . '/../unittest-config.php';
-require __DIR__ . '/../../api/core/lib.php';
-require __DIR__ . '/../../api/user/users.php';
-require __DIR__ . '/../../api/dbms/interface.php';
+require_once __DIR__ . '/../unittest-config.php';
+require_once __DIR__ . '/../../api/core/lib.php';
+require_once __DIR__ . '/../../api/user/users.php';
+require_once __DIR__ . '/../../api/dbms/interface.php';
 
 /**
 1. セッションの扱いは？ $_SESSION["_sUID"] は勝手に設定してよい？ -> 文字列を設定する。
