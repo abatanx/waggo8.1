@@ -272,124 +272,127 @@ class WGDBMSPostgreSQL extends WGDBMS
 	/**
 	 * 書式付きSQL発行用に、数値を文字列に変換する
 	 *
-	 * @param ?int $num 数値
-	 * @param bool $isAllowNull true の時、$num が null の場合は、'null' を返す
+	 * @param mixed $num 数値
+	 * @param bool $isAllowNull true の時、$num が null の場合は、'NULL' を返す
 	 *
 	 * @return string 変換後の文字列
 	 */
-	static public function N( ?int $num, bool $isAllowNull = true ): string
+	static public function N( mixed $num, bool $isAllowNull = true ): string
 	{
-		return $isAllowNull && is_null( $num ) ? 'null' : (string) ( (int) $num );
+		if ( ! is_null( $num ) )
+		{
+			$num = (int) $num;
+		}
+
+		return $isAllowNull && is_null( $num ) ? 'NULL' : (string) ( (int) $num );
 	}
 
 	/**
 	 * 書式付きSQL発行用に、文字列を引用符付き文字列に変換する
 	 *
-	 * @param ?string $str 文字列
-	 * @param bool $isAllowNull true の時、$str が null の場合は、'null' を返す
+	 * @param mixed|null $str 文字列
+	 * @param bool $isAllowNull true の時、$str が null の場合は、'NULL' を返す
 	 *
 	 * @return string 変換後の文字列(null 以外の場合、クォート後両端に引用符が付加される)
 	 */
-	static public function S( ?string $str, bool $isAllowNull = true ): string
+	static public function S( mixed $str, bool $isAllowNull = true ): string
 	{
-		return $isAllowNull && is_null( $str ) ? 'null' : ( "'" . self::ESC( $str ) . "'" );
+		if ( ! is_null( $str ) )
+		{
+			$str = (string) $str;
+		}
+
+		return $isAllowNull && is_null( $str ) ? 'NULL' : ( "'" . self::ESC( (string) $str ) . "'" );
 	}
 
 	/**
 	 * 書式付きSQL発行用に、論理値を文字列に変換する
 	 *
-	 * @param ?bool $bool 論理値
-	 * @param bool $isAllowNull true の時、$bool が null の場合は、'null' を返す
+	 * @param mixed $bool 論理値
+	 * @param bool $isAllowNull true の時、$bool が null の場合は、'NULL' を返す
 	 *
 	 * @return string 変換後の文字列
 	 */
-	static public function B( ?bool $bool, bool $isAllowNull = true ): string
+	static public function B( mixed $bool, bool $isAllowNull = true ): string
 	{
-		return $isAllowNull && is_null( $bool ) ? 'null' : ( $bool ? 'true' : 'false' );
+		if ( ! is_null( $bool ) )
+		{
+			$bool = (bool) $bool;
+		}
+
+		return $isAllowNull && is_null( $bool ) ? 'NULL' : ( $bool ? 'TRUE' : 'FALSE' );
 	}
 
 	/**
 	 * 書式付きSQL発行用に、日付時刻を文字列に変換する
 	 *
-	 * @param ?string $d 日付時刻文字列(PostgreSQLでの日付関数表記可)
-	 * @param bool $isAllowNull true の時、$d が null/false/'' の場合は、'null' を返す
+	 * @param mixed $date 日付時刻文字列(PostgreSQLでの日付関数表記可)
+	 * @param bool $isAllowNull true の時、$d が null/false/'' の場合は、'NULL' を返す
 	 *
 	 * @return string 変換後の文字列。日付関数表記以外の場合、両端に引用符が付与されるだけです。
 	 */
-	static public function T( ?string $d, bool $isAllowNull = true ): string
+	static public function T( mixed $date, bool $isAllowNull = true ): string
 	{
-		if ( $isAllowNull && $d == false )
+		if ( ! is_null( $date ) )
 		{
-			return 'null';
+			$date = (string) $date;
 		}
-		else if ( preg_match( "/^(current|localtime|epoch|-?infinity|invalid|now|today|tomorrow|yesterday|zulu|allballs|z)/i", $d ) )
+
+		if ( $isAllowNull && is_null( $date ) )
 		{
-			return $d;
+			return 'NULL';
+		}
+		else if ( preg_match( '/^(current|localtime|epoch|-?infinity|invalid|now|today|tomorrow|yesterday|zulu|allballs|z)/i', $date ) )
+		{
+			return $date;
 		}
 		else
 		{
-			return self::S( $d );
+			return self::S( $date );
 		}
 	}
 
 	/**
 	 * 書式付きSQL発行用に、浮動小数点数を文字列に変換する
 	 *
-	 * @param ?float $num 浮動小数点数
-	 * @param bool $isAllowNull true の時、$num が null の場合は、'null' を返す
+	 * @param mixed $num 浮動小数点数
+	 * @param bool $isAllowNull true の時、$num が null の場合は、'NULL' を返す
 	 *
 	 * @return string 変換後の文字列
 	 */
-	static public function D( ?float $num, bool $isAllowNull = true ): string
+	static public function D( mixed $num, bool $isAllowNull = true ): string
 	{
-		return $isAllowNull && is_null( $num ) ? 'null' : (string) ( (float) $num );
-	}
-
-	/**
-	 * 書式付きSQL発行用に、位置の浮動小数点配列を文字列に変換する
-	 *
-	 * @param ?array $pos 座標配列 [x,y] [lng,lat] など
-	 * @param bool $isAllowNull true の時、$pos が null の場合は、'null' を返す
-	 *
-	 * @return string 変換後の文字列(null 以外の場合は、'(%f,%f)' の形式に変換される)
-	 */
-	static public function P( ?array $pos, bool $isAllowNull = true ): string
-	{
-		if ( $isAllowNull && ! is_array( $pos ) )
+		if ( ! is_null( $num ) )
 		{
-			return 'null';
+			$num = (float) $num;
 		}
-		else
-		{
-			list( $x, $y ) = is_array( $pos ) ? $pos : [ 0, 0 ];
 
-			return sprintf( "'(%f,%f)'", $x, $y );
-		}
+		return $isAllowNull && is_null( $num ) ? 'NULL' : (string) $num;
 	}
 
 	/**
 	 * 書式付きSQL発行用に、バイナリデータを16進文字列に変換する
 	 *
-	 * @param ?string $raw バイナリデータ
-	 * @param bool $isAllowNull true の時、$raw が null の場合は、'null' を返す
+	 * @param mixed $blob バイナリデータ
+	 * @param bool $isAllowNull true の時、$raw が null の場合は、'NULL' を返す
 	 *
 	 * @return string
 	 */
-	static public function BLOB( ?string $raw, bool $isAllowNull = true ): string
+	static public function BLOB( mixed $blob, bool $isAllowNull = true ): string
 	{
-		return $isAllowNull && is_null( $raw ) ? 'null' : sprintf( "'%s'", pg_escape_bytea( $raw ) );
+		return $isAllowNull && is_null( $blob ) ? 'NULL' : sprintf( "'%s'", pg_escape_bytea( $blob ) );
 	}
 
 	/**
 	 * SQLから返されたデータが同じかどうか比較する
 	 *
-	 * @param ?string $a 比較対象文字列１
-	 * @param ?string $b 比較対象文字列２
+	 * @param mixed $a 比較対象文字列１
+	 * @param mixed $b 比較対象文字列２
 	 * @param ?string $type NULLの場合はあいまい比較、stringの場合は文字列比較、datetimeの場合は日付時刻比較、boolの場合は論理値比較を行う
 	 *
 	 * @return bool 比較対象の片方がNULLの場合必ず true が、それ以外の場合は一致していれば true を、それ以外の場合は false を返す
 	 */
-	static public function CMP( ?string $a, ?string $b, ?string $type = null ): bool
+	static public function CMP( mixed $a, mixed $b, ?string $type = null ): bool
 	{
 		if ( is_null( $a ) && is_null( $b ) )
 		{
@@ -399,7 +402,7 @@ class WGDBMSPostgreSQL extends WGDBMS
 		switch ( $type )
 		{
 			case 'string':
-				return ( (string) $a == (string) $b );
+				return ( (string) $a === (string) $b );
 
 			case 'datetime':
 				$a = strtotime( $a );

@@ -248,19 +248,6 @@ function _T( $t, $allow_nl = true )
 }
 
 /**
- * 書式付きSQL発行用に、位置の浮動小数点配列を文字列に変換する。
- *
- * @param array $pos 浮動小数点配列。Array(X座標、Y座標)で与えられる配列です。
- * @param boolean $allow_nl Trueの場合NULL値を利用する。
- *
- * @return string 変換後の文字列。NULL値以外の場合は、'(%f,%f)' の形式に変換されます。
- */
-function _P( $pos, $allow_nl = true )
-{
-	return ( $d = _QC() ) ? $d->P( $pos, $allow_nl ) : die();
-}
-
-/**
  * 書式付きSQL発行用に、バイナリデータを文字列に変換する。
  *
  * @param $raw

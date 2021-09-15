@@ -267,7 +267,7 @@ function wi_install(): bool
 	printf( "============== Registered installation domains  ==============\n" );
 	foreach ( $infs as $id => $inf )
 	{
-		printf( "  [%d] ... %s:%s\n", $id, $inf[2]["server"]["host"], $inf[2]["server"]["port"], );
+		printf( "  [%d] ... %s:%s\n", $id, $inf[2]["server"]["host"] ?? '', $inf[2]["server"]["port"] ?? '' );
 	}
 	printf( "  [0] ... New domain\n" );
 	printf( "--------------------------------------------------------------\n" );
@@ -334,21 +334,21 @@ function wi_install(): bool
 
 	// データ入力
 	$settings = [
-		[ 'server', 'host', 'App domain or IP', '127.0.0.1' ],
-		[ 'server', 'scheme', 'App URL scheme', 'http' ],
-		[ 'server', 'port', 'App port', '8080' ],
-		[ 'app', 'prefix', 'Controller prefix', 'App' ],
-		[ 'app', 'email', 'Mail address for app', 'root@localhost' ],
-		[ 'executable', 'phpcli', 'PHP(CLI)', wi_search_phpcli() ],
-		[ 'pear', 'dir', 'PEAR', wi_search_pear() ],
-		[ 'executable', 'convert', 'convert(ImageMagick)', wi_search_convert() ],
-		[ 'executable', 'ffmpeg', 'ffmpeg', wi_search_ffmpeg() ],
-		[ 'postgresql', 'host', 'Database host', 'localhost' ],
-		[ 'postgresql', 'dbname', 'Database name', 'waggo' ],
-		[ 'postgresql', 'username', 'Database user-name', 'waggo' ],
-		[ 'postgresql', 'password', 'Database password', 'password' ],
-		[ 'hash', 'general_hashkey', 'Hash key for general purpose', 'Auto generated' ],
-		[ 'hash', 'password_hashkey', 'Hash key for password', 'Auto generated' ]
+		[ 'server', 'host', 'App domain or IP', '127.0.0.1', true ],
+		[ 'server', 'scheme', 'App URL scheme', 'http', true ],
+		[ 'server', 'port', 'App port', '8080', true ],
+		[ 'app', 'prefix', 'Controller prefix', 'App', true ],
+		[ 'app', 'email', 'Mail address for app', 'root@localhost', true ],
+		[ 'executable', 'phpcli', 'PHP(CLI)', wi_search_phpcli(), true ],
+		[ 'pear', 'dir', 'PEAR', wi_search_pear(), true ],
+		[ 'executable', 'convert', 'convert(ImageMagick)', wi_search_convert(), false ],
+		[ 'executable', 'ffmpeg', 'ffmpeg', wi_search_ffmpeg(), false ],
+		[ 'postgresql', 'host', 'Database host', 'localhost', true ],
+		[ 'postgresql', 'dbname', 'Database name', 'waggo', true ],
+		[ 'postgresql', 'username', 'Database user-name', 'waggo', true ],
+		[ 'postgresql', 'password', 'Database password', 'password', false ],
+		[ 'hash', 'general_hashkey', 'Hash key for general purpose', 'Auto generated', true ],
+		[ 'hash', 'password_hashkey', 'Hash key for password', 'Auto generated', true ]
 	];
 	foreach ( $settings as $setting )
 	{

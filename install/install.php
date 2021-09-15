@@ -36,31 +36,31 @@ ___END___;
 	switch ( $state )
 	{
 		case STATE_LICENSE:
-			wi_echo( 'License' );
+			wi_echo(ECHO_SPACING,  'License' );
 			require_once __DIR__ . '/lib/license.php';
 			$state = wi_license_agreement() ? STATE_DIR_CHECK : STATE_ABORT;
 			break;
 
 		case STATE_DIR_CHECK:
-			wi_echo( 'Directory Check' );
+			wi_echo(ECHO_SPACING,  'Directory Check' );
 			require_once __DIR__ . '/lib/check_directory.php';
 			$state = wi_setup_dir() ? STATE_DIR : STATE_ABORT;
 			break;
 
 		case STATE_DIR:
-			wi_echo( 'Directory operation' );
+			wi_echo(ECHO_SPACING,  'Directory operation' );
 			require_once __DIR__ . '/lib/check_directory.php';
 			$state = wi_setup_dir_and_permissions() ? STATE_INSTALL_INFO : STATE_ABORT;
 			break;
 
 		case STATE_INSTALL_INFO:
-			wi_echo( 'Setup' );
+			wi_echo(ECHO_SPACING,  'Setup' );
 			require_once __DIR__ . '/lib/install_information.php';
 			$state = wi_install() ? STATE_END : STATE_INSTALL_INFO;
 			break;
 
 		default:
-			wi_echo( '... Errors in setup ...' );
+			wi_echo(ECHO_SPACING,  '... Errors in setup ...' );
 			$state = STATE_ABORT;
 			break;
 	}
@@ -68,12 +68,12 @@ ___END___;
 	switch ( $state )
 	{
 		case STATE_ABORT:
-			wi_echo( 'Aborted.' );
+			wi_echo(ECHO_NORMAL,  'Aborted.' );
 			$isTerminate = true;
 			break;
 
 		case STATE_END:
-			wi_echo( 'Done.' );
+			wi_echo(ECHO_NORMAL,  'Done.' );
 			$isTerminate = true;
 			break;
 	}

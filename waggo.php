@@ -102,6 +102,8 @@ require_once __DIR__ . '/api/datetime/datetime.php';
 
 wg_log_write( WGLOG_INFO, "[[ Loaded   framework APIs ]]" );
 
-require_once __DIR__ . '/../config.php' ;
-
-wg_log_write( WGLOG_INFO, "[[ Loaded application APIs ]]" );
+if( !defined('WG_UNITTEST') )
+{
+	require_once __DIR__ . '/../config.php' ;
+	wg_log_write( WGLOG_INFO, "[[ Loaded application APIs ]]" );
+}

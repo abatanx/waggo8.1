@@ -354,28 +354,6 @@ class WGDBMSMySQL extends WGDBMS
 	}
 
 	/**
-	 * 書式付きSQL発行用に、位置の浮動小数点配列を文字列に変換する
-	 *
-	 * @param ?array $pos 座標配列 [x,y] [lng,lat] など
-	 * @param bool $isAllowNull true の時、$pos が null の場合は、'null' を返す
-	 *
-	 * @return string 変換後の文字列(null 以外の場合は、'(%f,%f)' の形式に変換される)
-	 */
-	static public function P( ?array $pos, bool $isAllowNull = true ): string
-	{
-		if ( $isAllowNull && ! is_array( $pos ) )
-		{
-			return 'null';
-		}
-		else
-		{
-			list( $x, $y ) = is_array( $pos ) ? $pos : [ 0, 0 ];
-
-			return sprintf( "'(%f,%f)'", $x, $y );
-		}
-	}
-
-	/**
 	 * 書式付きSQL発行用に、バイナリデータを16進文字列に変換する
 	 *
 	 * @param ?string $raw バイナリデータ

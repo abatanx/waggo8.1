@@ -36,7 +36,7 @@ function wi_setup_dir(): bool
 {
 	$dirInfo = wi_install_dir_info();
 
-	wi_echo( <<<___END___
+	wi_echo(ECHO_NORMAL,  <<<___END___
 
 +--<application>                                -> {$dirInfo['application']}
      | ({$dirInfo['appname']})
@@ -86,20 +86,20 @@ ___END___
 
 	if ( ! preg_match( '/\/sys$/', $dirInfo['sys'] ) )
 	{
-		wi_echo( "Error: Place <application>/sys/waggo8 ." );
-		wi_echo( " % mkdir hogehoge" );
-		wi_echo( " % cd hogehoge" );
-		wi_echo( " % mkdir sys" );
-		wi_echo( " % cd sys" );
-		wi_echo( " % tar xvfz ~/Downloads/waggo8.00.tar.gz" );
+		wi_echo(ECHO_NORMAL,  "Error: Place <application>/sys/waggo8 ." );
+		wi_echo(ECHO_NORMAL,  " % mkdir hogehoge" );
+		wi_echo(ECHO_NORMAL,  " % cd hogehoge" );
+		wi_echo(ECHO_NORMAL,  " % mkdir sys" );
+		wi_echo(ECHO_NORMAL,  " % cd sys" );
+		wi_echo(ECHO_NORMAL,  " % tar xvfz ~/Downloads/waggo8.00.tar.gz" );
 		$hasError = true;
 	}
 
 	if ( ! preg_match( '/\/sys\/waggo8$/', $dirInfo['waggo'] ) )
 	{
-		wi_echo( "Error: Place <application>/sys/waggo8 ." );
-		wi_echo( " % tar xvfz ~/Downloads/waggo8.00.tar.gz" );
-		wi_echo( " % mv waggo8.00 waggo8" );
+		wi_echo(ECHO_NORMAL,  "Error: Place <application>/sys/waggo8 ." );
+		wi_echo(ECHO_NORMAL,  " % tar xvfz ~/Downloads/waggo8.00.tar.gz" );
+		wi_echo(ECHO_NORMAL,  " % mv waggo8.00 waggo8" );
 		$hasError = true;
 	}
 
@@ -108,7 +108,7 @@ ___END___
 		return false;
 	}
 
-	wi_echo( "\n\n" );
+	wi_echo(ECHO_NORMAL,  "\n\n" );
 
 	return wi_read( 'Continue ? (Yes/No) -> ', [ 'Yes', 'No' ] ) === 'Yes';
 }
@@ -169,11 +169,11 @@ function wi_setup_dir_and_permissions(): bool
 		$dst = $symlink[0];
 		$src = $symlink[1];
 
-		wi_echo( "Checking Symbolic-link: %s -> %s", $src, $dst);
+		wi_echo(ECHO_NORMAL,  "Checking Symbolic-link: %s -> %s", $src, $dst);
 
 		@symlink( $src, $dst );
 	}
 
-	wi_pause( "Finished for checking/creation." );
+	wi_pause( "Finished to check the directory." );
 	return true;
 }

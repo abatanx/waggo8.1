@@ -5,6 +5,10 @@
  * @license MIT
  */
 
+const
+ECHO_NORMAL  = 0,
+ECHO_SPACING = 1;
+
 function wi_cls(): void
 {
 	echo "\x1b[2J\x1b[1;1H";
@@ -31,7 +35,7 @@ function wi_read( string $m, array $a = [] ): string
 
 function wi_pause( string $m )
 {
-	echo $m;
+	wi_echo( ECHO_SPACING, $m );
 	wi_stdin();
 }
 
@@ -55,7 +59,22 @@ function wi_in_default( string $m, string $default, bool $require ): string
 	return $r;
 }
 
-function wi_echo( string $format, mixed ...$args ): void
+function wi_echo( int $type, string $format, mixed ...$args ): void
 {
-	echo ( count( $args ) > 0 ? vsprintf( $format, $args ) : $format ) . "\n";
+	$echo = function ( string $format, array $args ): string {
+		return ( count( $args ) > 0 ? vsprintf( $format, $args ) : $format );
+	};
+
+	switch ( $type )
+	{
+		case ECHO_SPACING:
+			$e = $echo( $format, $args );
+			echo "\n" . str_repeat( '-', strlen( $e ) + 2 ) . "\n";
+			echo ' ' . $e;
+			echo "\n" . str_repeat( '-', strlen( $e ) + 2 ) . "\n\n";
+			break;
+		case ECHO_NORMAL:
+		default:
+			echo $echo( $format, $args ) . "\n";
+	}
 }

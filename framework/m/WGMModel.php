@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 require_once __DIR__ . '/../../waggo.php';
 require_once __DIR__ . '/../v8/WGV8Object.php';
+require_once __DIR__ . '/WGMModelField.php';
 require_once __DIR__ . '/WGMModelGetKeys.php';
 require_once __DIR__ . '/WGMModelFilter.php';
 require_once __DIR__ . '/WGMVarsObject.php';
@@ -21,41 +22,46 @@ $WGMModelID = [];
  */
 class WGMModel
 {
-	const N = 0, S = 1, B = 2, T = 3, D = 4, P = 5;
+	const N = 0, S = 1, B = 2, T = 3, D = 4;
 	const JNULL = 0, JINNER = 1, JLEFT = 2, JRIGHT = 3;
+
+	public WGDBMS $dbms;
 
 	public array $uniqueIds;
 	public array $avars, $vars;
+
+	/**
+	 * @var WGMModelField[]
+	 */
 	public array $fields;
-	public WGDBMS $dbms;
 
 	protected bool $isModelDebug;
 	public array $assign;
 	public string $tableName;
 	public string $aliasName;
-	public array $backvars, $initymds, $updymds;
+	public array $backvars, $initYmdKeys, $updYmdKeys;
 	public int $recs;
 
-	protected WGMModelFilter $defaultfilter;
+	protected WGMModelFilter $defaultFilter;
 	protected array $conditions;
 
-	protected WGV8BasicPagination $pager;
+	protected WGV8BasicPagination|null $pager;
 	protected array $joins;
 
-	protected stdClass $dbmsProps;
+	protected stdClass $dbmsProperty;
 
 	protected array $orderByArray;
 	protected int $orderOrder;
-	protected string $offsetKeyword, $limitKeyword;
+	protected string|null $offsetKeyword, $limitKeyword;
 
-	public function __construct( $tablename, $dbms = null )
+	public function __construct( string $tableName, WGDBMS|null $dbms = null )
 	{
 		global $WGMModelID;
 		$this->isModelDebug = WG_MODELDEBUG;
 
 		$this->uniqueIds = [];
 
-		$kid = $tablename[0];
+		$kid = $tableName[0];
 		if ( empty( $WGMModelID[ $kid ] ) )
 		{
 			$WGMModelID[ $kid ] = 1;
@@ -69,51 +75,55 @@ class WGMModel
 		$this->aliasName = $kid . $id;
 		$this->dbms      = ( is_null( $dbms ) ) ? _QC() : $dbms;
 
-		$this->initDBMSConf();
+		$this->initDBMSProperty();
 
-		$this->defaultfilter = new WGMModelFILTER();
+		$this->defaultFilter = new WGMModelFILTER();
 
-		$this->tableName    = $tablename;
+		$this->tableName    = $tableName;
 		$this->fields       = [];
 		$this->assign       = [];
 		$this->vars         = [];
 		$this->avars        = [];
 		$this->backvars     = [];
 		$this->joins        = [];
-		$this->recs         = 0;
 		$this->conditions   = [];
-		$this->initymds     = [];
-		$this->updymds      = [];
+		$this->initYmdKeys  = [];
+		$this->updYmdKeys   = [];
 		$this->orderByArray = [];
 		$this->orderOrder   = PHP_INT_MAX;
+		$this->recs         = 0;
+		$this->pager        = null;
 
-		$this->initFields( $tablename );
+		$this->offsetKeyword = null;
+		$this->limitKeyword  = null;
+
+		$this->initFields( $tableName );
 	}
 
-	protected function initDBMSConf()
+	protected function initDBMSProperty()
 	{
-		$this->dbmsProps = new stdClass();
+		$this->dbmsProperty = new stdClass();
 		if ( $this->dbms instanceof WGDBMSPostgreSQL )
 		{
-			$this->dbmsProps->N = '/^(int|smallint|bigint)/';
-			$this->dbmsProps->T = '/^(date|timestamp)/';
-			$this->dbmsProps->S = '/^(char|text|time|varchar|json)/';
-			$this->dbmsProps->D = '/^(double|real|numeric)/';
-			$this->dbmsProps->B = '/^bool/';
-			$this->dbmsProps->P = '/^point/';
+			$this->dbmsProperty->N = '/^(int|smallint|bigint)/';
+			$this->dbmsProperty->T = '/^(date|timestamp)/';
+			$this->dbmsProperty->S = '/^(char|text|time|varchar|json)/';
+			$this->dbmsProperty->D = '/^(double|real|numeric)/';
+			$this->dbmsProperty->B = '/^bool/';
+			$this->dbmsProperty->P = '/^point/';
 
-			$this->dbmsProps->BOOL_TRUE = 't';
+			$this->dbmsProperty->BOOL_TRUE = 't';
 		}
 		else if ( $this->dbms instanceof WGDBMSMySQL )
 		{
-			$this->dbmsProps->N = '/^(int|smallint)/';
-			$this->dbmsProps->T = '/^(date|timestamp)/';
-			$this->dbmsProps->S = '/^(char|text|time|varchar|json)/';
-			$this->dbmsProps->D = '/^(double|real|numeric)/';
-			$this->dbmsProps->B = '/^tinyint\(1\)/';
-			$this->dbmsProps->P = '/^point/';
+			$this->dbmsProperty->N = '/^(int|smallint)/';
+			$this->dbmsProperty->T = '/^(date|timestamp)/';
+			$this->dbmsProperty->S = '/^(char|text|time|varchar|json)/';
+			$this->dbmsProperty->D = '/^(double|real|numeric)/';
+			$this->dbmsProperty->B = '/^tinyint\(1\)/';
+			$this->dbmsProperty->P = '/^point/';
 
-			$this->dbmsProps->BOOL_TRUE = '1';
+			$this->dbmsProperty->BOOL_TRUE = '1';
 		}
 		else
 		{
@@ -172,29 +182,25 @@ class WGMModel
 
 	protected function getFieldTypeFromFormat( string $fieldType ): int|false
 	{
-		if ( preg_match( $this->dbmsProps->N, $fieldType ) )
+		if ( preg_match( $this->dbmsProperty->N, $fieldType ) )
 		{
 			return self::N;
 		}
-		else if ( preg_match( $this->dbmsProps->T, $fieldType ) )
+		else if ( preg_match( $this->dbmsProperty->T, $fieldType ) )
 		{
 			return self::T;
 		}
-		else if ( preg_match( $this->dbmsProps->S, $fieldType ) )
+		else if ( preg_match( $this->dbmsProperty->S, $fieldType ) )
 		{
 			return self::S;
 		}
-		else if ( preg_match( $this->dbmsProps->D, $fieldType ) )
+		else if ( preg_match( $this->dbmsProperty->D, $fieldType ) )
 		{
 			return self::D;
 		}
-		else if ( preg_match( $this->dbmsProps->B, $fieldType ) )
+		else if ( preg_match( $this->dbmsProperty->B, $fieldType ) )
 		{
 			return self::B;
-		}
-		else if ( preg_match( $this->dbmsProps->P, $fieldType ) )
-		{
-			return self::P;
 		}
 		else
 		{
@@ -203,7 +209,7 @@ class WGMModel
 	}
 
 	/** @noinspection PhpInconsistentReturnPointsInspection */
-	protected function getOID( string $tablename ): array
+	protected function getOID( string $tableName ): array
 	{
 		if ( $this->dbms instanceof WGDBMSPostgreSQL )
 		{
@@ -212,13 +218,13 @@ class WGMModel
 					'SELECT c.oid,n.nspname,c.relname FROM pg_catalog.pg_class c ' .
 					'LEFT JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace ' .
 					'WHERE pg_catalog.pg_table_is_visible(c.oid) ' .
-					'AND c.relname=%s;', $this->dbms->S( $tablename ) );
+					'AND c.relname=%s;', $this->dbms->S( $tableName ) );
 
 			return [ $oid, $nspname, $relname ];
 		}
 		else if ( $this->dbms instanceof WGDBMSMySQL )
 		{
-			return [ $tablename, $tablename, $tablename ];
+			return [ $tableName, $tableName, $tableName ];
 		}
 		else
 		{
@@ -226,11 +232,11 @@ class WGMModel
 		}
 	}
 
-	protected function initFields( string $tablename ): void
+	protected function initFields( string $tableName ): void
 	{
 		if ( $this->dbms instanceof WGDBMSPostgreSQL )
 		{
-			list( $oid, , ) = $this->getOID( $tablename );
+			list( $oid, , ) = $this->getOID( $tableName );
 			$this->dbms->Q(
 				'SELECT a.attname,pg_catalog.format_type(a.atttypid,a.atttypmod),a.attnotnull ' .
 				'FROM pg_catalog.pg_attribute a ' .
@@ -246,18 +252,16 @@ class WGMModel
 					$this->logFatal( 'Unrecognized field type, %s on PostgreSQL/WGMModel', $format_type );
 				}
 
-				$this->fields[ $name ] = [
-					$type,
-					$format_type,
-					( $notnull == 't' ),
-					$this->getAlias() . '.' . $name
-				];
+				$this->fields[ $name ] =
+					new WGMModelField(
+						$type, $format_type, ( $notnull === 't' ), $name
+					);
 				$this->logInfo( 'Fields[%s] = [Type:%s] [Format:%s] [NotNull:%s] [Func:%s]', $name, $type, $format_type, $notnull, $name );
 			}
 		}
 		else if ( $this->dbms instanceof WGDBMSMySQL )
 		{
-			$this->dbms->Q( 'DESCRIBE %s', $tablename );
+			$this->dbms->Q( 'DESCRIBE %s', $tableName );
 
 			foreach ( $this->dbms->FALL() as $f )
 			{
@@ -268,11 +272,8 @@ class WGMModel
 					$this->logFatal( 'Unrecognized field type, %s on MySQL/WGMModel', $format_type );
 				}
 
-				$this->fields[ $name ] = array(
-					$type,
-					$format_type,
-					( $null === 'YES' ),
-					$this->getAlias() . '.' . $name
+				$this->fields[ $name ] = new WGMModelField(
+					$type, $format_type, ( $null === 'YES' ), $name
 				);
 				$this->logInfo( 'Fields[%s] = [Type:%s] [Format:%s] [Null:%s] [Func:%s]', $name, $type, $format_type, $null, $name );
 			}
@@ -284,11 +285,11 @@ class WGMModel
 	}
 
 	/** @noinspection PhpInconsistentReturnPointsInspection */
-	protected function initFieldsPrimaryKey( string $tablename ): array|false
+	protected function initFieldsPrimaryKey( string $tableName ): array|false
 	{
 		if ( $this->dbms instanceof WGDBMSPostgreSQL )
 		{
-			list( $oid, , ) = $this->getOID( $tablename );
+			list( $oid, , ) = $this->getOID( $tableName );
 			list( $pk ) = $this->dbms->QQ(
 				'SELECT c2.relname ' .
 				'FROM pg_catalog.pg_class c, pg_catalog.pg_class c2, pg_catalog.pg_index i ' .
@@ -317,7 +318,7 @@ class WGMModel
 		else if ( $this->dbms instanceof WGDBMSMySQL )
 		{
 			$pks = [];
-			$this->dbms->Q( 'DESCRIBE %s', $tablename );
+			$this->dbms->Q( 'DESCRIBE %s', $tableName );
 			foreach ( $this->dbms->FALL() as $f )
 			{
 				list( $name, , , $key, , ) = $f;
@@ -342,7 +343,7 @@ class WGMModel
 		{
 			$this->logFatal( 'Unrecognized field type, %s', $formatType );
 		}
-		$this->fields[ $keyField ] = array( $type, $formatType, false, $this->expansion( $func ) );
+		$this->fields[ $keyField ] = new WGMModelField( $type, $formatType, false, $this->expansion( $func ) );
 	}
 
 	public function getTable(): string
@@ -355,24 +356,36 @@ class WGMModel
 		return $this->aliasName;
 	}
 
+	public function setAlias( string $aliasName ): self
+	{
+		$this->aliasName = $aliasName;
+
+		return $this;
+	}
+
 	public function getFields(): array
 	{
 		return array_keys( $this->fields );
 	}
 
-	public function getFieldType( $keyField ): string|false
+	public function getFieldType( string $keyField ): int|false
 	{
-		return ! empty( $this->fields[ $keyField ][0] ) ? $this->fields[ $keyField ][0] : false;
+		return ! empty( $this->fields[ $keyField ]->getType() ) ? $this->fields[ $keyField ]->getType() : false;
 	}
 
-	public function getFieldFormat( $keyField ): string|false
+	public function getFieldFormat( string $keyField ): string|false
 	{
-		return ! empty( $this->fields[ $keyField ][1] ) ? $this->fields[ $keyField ][1] : false;
+		return ! empty( $this->fields[ $keyField ]->getFormatType() ) ? $this->fields[ $keyField ]->getFormatType() : false;
 	}
 
-	public function IsAllowNullField( $keyField ): bool
+	public function IsNotNullField( string $keyField ): bool
 	{
-		return ! empty( $this->fields[ $keyField ][2] ) ? $this->fields[ $keyField ][2] : false;
+		return $this->fields[ $keyField ]->isNotNull();
+	}
+
+	public function IsAllowNullField( string $keyField ): bool
+	{
+		return ! $this->fields[ $keyField ]->isNotNull();
 	}
 
 	public function getPrimaryKeys(): array|false
@@ -442,8 +455,8 @@ class WGMModel
 		{
 			$this->logFatal( 'setAutoTimestamp is not an array' );
 		}
-		$this->initymds = $initymds;
-		$this->updymds  = $updymds;
+		$this->initYmdKeys = $initymds;
+		$this->updYmdKeys  = $updymds;
 
 		return $this;
 	}
@@ -468,7 +481,7 @@ class WGMModel
 		}
 
 		$this->assign[ $keyField ]['viewobj'] = $view;
-		$this->assign[ $keyField ]['filter']  = ( $modelFilter instanceof WGMModelFILTER ) ? $modelFilter : $this->defaultfilter;
+		$this->assign[ $keyField ]['filter']  = ( $modelFilter instanceof WGMModelFILTER ) ? $modelFilter : $this->defaultFilter;
 
 		return $this;
 	}
@@ -482,20 +495,9 @@ class WGMModel
 
 	protected function checkNullField( string $keyField, string|null $v ): self
 	{
-		if ( $this->fields[ $keyField ][2] && ( strtolower( $v ) === 'null' || is_null( $v ) ) )
+		if ( $this->fields[ $keyField ]->isNotNull() && ( strtolower( $v ) === 'null' || is_null( $v ) ) )
 		{
 			$this->logFatal( "Field '$keyField' does not allow NULL." );
-		}
-
-		return $this;
-	}
-
-	protected function checkNull( array $d, $isAllFields = false ): self
-	{
-		$scan = ( $isAllFields ) ? $this->fields : $d;
-		foreach ( $scan as $k => $v )
-		{
-			$this->checkNullField( $k, $v );
 		}
 
 		return $this;
@@ -505,7 +507,7 @@ class WGMModel
 	{
 		if ( preg_match( '/\(([\-0-9.]+),([\-0-9.]+)\)/', $pos, $m ) )
 		{
-			return array( $m[1], $m[2] );
+			return [ $m[1], $m[2] ];
 		}
 		else
 		{
@@ -520,27 +522,29 @@ class WGMModel
 			$this->logFatal( 'Internal error on fieldValue.' );
 		}
 
-		$anl = ! $this->fields[ $keyField ][2];
-		$v   = null;
-		switch ( $this->fields[ $keyField ][0] )
+		$isAllowNULL = ! $this->fields[ $keyField ]->isNotNull();
+		$v           = null;
+		switch ( $this->fields[ $keyField ]->getType() )
 		{
 			case self::N:
-				$v = ( $direction === 'DB' ) ? $this->dbms->N( $value, $anl ) : (int) $value;
+				$v = ( $direction === 'DB' ) ? $this->dbms->N( $value, $isAllowNULL ) :
+					( is_null( $value ) && $isAllowNULL ? null : (int) $value );
 				break;
 			case self::S:
-				$v = ( $direction === 'DB' ) ? $this->dbms->S( $value, $anl ) : $value;
+				$v = ( $direction === 'DB' ) ? $this->dbms->S( $value, $isAllowNULL ) :
+					( is_null( $value ) && $isAllowNULL ? null : (string) $value );
 				break;
 			case self::B:
-				$v = ( $direction === 'DB' ) ? $this->dbms->B( $value, $anl ) : ( $value == $this->dbmsProps->BOOL_TRUE );
+				$v = ( $direction === 'DB' ) ? $this->dbms->B( $value, $isAllowNULL ) :
+					( is_null( $value ) && $isAllowNULL ? null : ( (string) $value === $this->dbmsProperty->BOOL_TRUE ) );
 				break;
 			case self::T:
-				$v = ( $direction === 'DB' ) ? $this->dbms->T( $value, $anl ) : $value;
+				$v = ( $direction === 'DB' ) ? $this->dbms->T( $value, $isAllowNULL ) :
+					( is_null( $value ) && $isAllowNULL ? null : (string) $value );
 				break;
 			case self::D:
-				$v = ( $direction === 'DB' ) ? $this->dbms->D( $value, $anl ) : (double) $value;
-				break;
-			case self::P:
-				$v = ( $direction === 'DB' ) ? $this->dbms->P( $value, $anl ) : $this->posValue( $value );
+				$v = ( $direction === 'DB' ) ? $this->dbms->D( $value, $isAllowNULL ) :
+					( is_null( $value ) && $isAllowNULL ? null : (float) $value );
 				break;
 			default:
 				$this->logFatal( 'Field \'%s\' conversion failed.', $keyField );
@@ -551,7 +555,7 @@ class WGMModel
 			$keyField, $value, $direction,
 			$v );
 
-		if ( $direction === 'DB' && $this->fields[ $keyField ][2] && $v === 'null' )
+		if ( $direction === 'DB' && $this->fields[ $keyField ]->isNotNull() && $v === 'null' )
 		{
 			$this->logFatal( 'Field \'%s\' does not allow NULL.', $keyField );
 		}
@@ -562,7 +566,7 @@ class WGMModel
 	/** @noinspection PhpInconsistentReturnPointsInspection */
 	protected function compareField( string $keyField, mixed $v1, mixed $v2 ): bool
 	{
-		switch ( $this->fields[ $keyField ][0] )
+		switch ( $this->fields[ $keyField ]->getType() )
 		{
 			case self::N:
 				return ( $v1 == $v2 );
@@ -572,8 +576,6 @@ class WGMModel
 				return ( $v1 === $v2 );
 			case self::T:
 				return ( wg_timediff_second( $v1, $v2 ) === 0 );
-			case self::P:
-				return ( $v1[0] == $v2[0] && $v1[1] == $v2[1] );
 		}
 		$this->logFatal( 'Unrecognized field type, \'%s\'.', $keyField );
 	}
@@ -650,9 +652,9 @@ class WGMModel
 	public function getFieldVars( string $dataField ): array
 	{
 		$result = [];
-		foreach ( $this->avars as $av )
+		foreach ( $this->avars as $vars )
 		{
-			$result[] = $av[ $dataField ];
+			$result[] = $vars[ $dataField ];
 		}
 
 		return $result;
@@ -669,9 +671,9 @@ class WGMModel
 	public function getSelectVars( string $keyField, string $dataField ): array
 	{
 		$result = [];
-		foreach ( $this->avars as $av )
+		foreach ( $this->avars as $vars )
 		{
-			$result[ $av[ $keyField ] ] = $av[ $dataField ];
+			$result[ $vars[ $keyField ] ] = $vars[ $dataField ];
 		}
 
 		return $result;
@@ -872,7 +874,10 @@ class WGMModel
 		$fields = [];
 		foreach ( $this->getFields() as $f )
 		{
-			$fields[] = array( $this->getAlias() . '.' . $f, $this->fields[ $f ][3] );
+			$fields[] = [
+				$this->fields[ $f ]->getNameAppendingPrefix( $this->getAlias() ),
+				$this->fields[ $f ]->getNameAppendingPrefix( $this->getAlias() )
+			];
 		}
 		foreach ( $this->joins as $jm )
 		{
@@ -1040,7 +1045,7 @@ class WGMModel
 		$wheres = $this->whereCondExpression( $keys );
 		$wheres = count( $wheres ) > 0 ? ' WHERE ' . implode( ' AND ', $wheres ) : '';
 
-		return array( implode( ',', $fields ), $tables, $wheres, $orderby, $this->offsetKeyword, $this->limitKeyword );
+		return [ implode( ',', $fields ), $tables, $wheres, $orderby, $this->offsetKeyword, $this->limitKeyword ];
 	}
 
 	/**
@@ -1072,27 +1077,34 @@ class WGMModel
 		$this->dbms->E( $q );
 		$this->recs = $this->dbms->RECS();
 
-		$m = $this->getJoinModels();
+		$joinedModels = $this->getJoinModels();
 
 		$n = 0;
 		while ( $f = $this->dbms->F() )
 		{
-			foreach ( $m as $jm )
+			foreach ( $joinedModels as $joinedModel )
 			{
-				foreach ( $jm->getFields() as $k )
+				foreach ( $joinedModel->getFields() as $k )
 				{
-					$jm->avars[ $n ][ $k ] = $jm->fieldValue( $k, $f[ $jm->aliasName . $k ], 'PHP' );
+					$joinedModel->avars[ $n ][ $k ] = $joinedModel->fieldValue( $k, $f[ $joinedModel->aliasName . '.' . $k ], 'PHP' );
 				}
 			}
 			$n ++;
 		}
-		foreach ( $m as $jm )
+		foreach ( $joinedModels as $joinedModel )
 		{
-			if ( isset( $jm->avars[0] ) )
+			if ( isset( $joinedModel->avars[0] ) )
 			{
-				foreach ( $jm->getFields() as $k )
+				foreach ( $joinedModel->getFields() as $k )
 				{
-					$jm->setAssignedValue( $k, $jm->avars[0][ $k ] );
+					$joinedModel->setAssignedValue( $k, $joinedModel->avars[0][ $k ] );
+				}
+			}
+			else
+			{
+				foreach ( $joinedModel->getFields() as $k )
+				{
+					$joinedModel->setAssignedValue( $k, null );
 				}
 			}
 		}
@@ -1150,7 +1162,7 @@ class WGMModel
 		{
 			$dd[ $k ] = $this->getAssignedValue( $k );
 		}
-		foreach ( array_merge( $this->initymds, $this->updymds ) as $ff )
+		foreach ( array_merge( $this->initYmdKeys, $this->updYmdKeys ) as $ff )
 		{
 			$dd[ $ff ] = 'CURRENT_TIMESTAMP';
 		}
@@ -1242,7 +1254,7 @@ class WGMModel
 			{
 				$dd[ $k ] = $this->getAssignedValue( $k );
 			}
-			foreach ( array_merge( $this->initymds, $this->updymds ) as $ff )
+			foreach ( array_merge( $this->initYmdKeys, $this->updYmdKeys ) as $ff )
 			{
 				$dd[ $ff ] = 'CURRENT_TIMESTAMP';
 			}
@@ -1290,11 +1302,11 @@ class WGMModel
 				}
 			}
 
-			foreach ( $this->initymds as $ff )
+			foreach ( $this->initYmdKeys as $ff )
 			{
 				unset( $dd[ $ff ] );
 			}
-			foreach ( $this->updymds as $ff )
+			foreach ( $this->updYmdKeys as $ff )
 			{
 				$dd[ $ff ] = 'CURRENT_TIMESTAMP';
 			}
