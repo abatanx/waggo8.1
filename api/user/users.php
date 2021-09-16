@@ -16,7 +16,7 @@ function wg_is_login()
  */
 function wg_get_usercd()
 {
-	return ( wg_is_login() ) ? $_SESSION["_sUID"] : 0;
+	return ( wg_is_login() ) ? intval($_SESSION["_sUID"]) : 0;
 }
 
 /**
