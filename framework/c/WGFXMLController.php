@@ -58,7 +58,7 @@ class WGFXMLController extends WGFController
 		$this->runJS( "window.location='{$url}';", self::RUNJS_ONPRELOAD );
 	}
 
-	protected function render():self
+	protected function render(): self
 	{
 		if ( ! is_null( $this->pageCanvas->getTemplate() ) )
 		{
@@ -69,6 +69,8 @@ class WGFXMLController extends WGFController
 
 		header( "Content-Type: text/xml" );
 		echo '<?xml version="1.0" encoding="UTF-8" ?>' . "\n";
-		return $this->appCanvas->buildAndFlush();
+		$this->appCanvas->buildAndFlush();
+
+		return $this;
 	}
 }
