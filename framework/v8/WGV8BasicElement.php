@@ -23,7 +23,7 @@ class WGV8BasicElement extends WGV8Basic
 
 		if ( $this->isLock() || $c->getInputType() == $c::SHOWHTML )
 		{
-			$c->runJS( "\$('#{$id}').attr({disabled:'disabled'});", $x );
+			$c->runJS( "\$('#$id').attr({disabled:'disabled'});", $x );
 		}
 
 		return $this;

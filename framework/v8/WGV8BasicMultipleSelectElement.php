@@ -9,7 +9,7 @@ require_once __DIR__ . '/WGV8Object.php';
 
 class WGV8BasicMultipleSelectElement extends WGV8BasicSelectElement
 {
-	public function setValue( $v )
+	public function setValue( mixed $v ): self
 	{
 		if ( $v === false || is_null( $v ) )
 		{
@@ -23,9 +23,11 @@ class WGV8BasicMultipleSelectElement extends WGV8BasicSelectElement
 		{
 			parent::setValue( $v );
 		}
+
+		return $this;
 	}
 
-	public function getValue()
+	public function getValue(): mixed
 	{
 		$v = parent::getValue();
 		if ( $v === false || is_null( $v ) )
@@ -42,7 +44,7 @@ class WGV8BasicMultipleSelectElement extends WGV8BasicSelectElement
 		}
 	}
 
-	public function postCopy()
+	public function postCopy():self
 	{
 		if ( isset( $_POST[ $this->getKey() ] ) )
 		{
@@ -90,7 +92,7 @@ class WGV8BasicMultipleSelectElement extends WGV8BasicSelectElement
 		return $this;
 	}
 
-	public function publish()
+	public function publish():array
 	{
 		$checkes = array_map( function ( $v ) {
 			return (string) $v;

@@ -14,14 +14,14 @@ class WGV8Object
 	 */
 	public WGV8Params $params;
 
-	protected string|null $id;
-	protected string|null $key;
+	protected ?string $id;
+	protected ?string $key;
 	protected bool $enable, $lock, $focus;
 	protected mixed $extra;
-	protected WGG|null $gauntlet;
+	protected ?WGG $gauntlet;
 
-	public WGFController|null $controller;
-	public WGFSession|null $session;
+	public ?WGFController $controller;
+	public ?WGFSession $session;
 
 	/**
 	 * WGV8Object constructor.
@@ -65,14 +65,14 @@ class WGV8Object
 		return $this;
 	}
 
-	public function initSession( WGFSession|null $session ): self
+	public function initSession( ?WGFSession $session ): self
 	{
 		$this->session = $session;
 
 		return $this;
 	}
 
-	public function initController( WGFController|null $controller ): self
+	public function initController( ?WGFController $controller ): self
 	{
 		$this->controller = $controller;
 
@@ -287,11 +287,11 @@ class WGV8Object
 	}
 
 	/**
-	 * @param WGG|null $gauntlet
+	 * @param ?WGG $gauntlet
 	 *
 	 * @return $this
 	 */
-	public function execGauntlet( WGG|null $gauntlet ): self
+	public function execGauntlet( ?WGG $gauntlet ): self
 	{
 		$this->unsetError();
 		if ( is_null( $gauntlet ) )
@@ -325,7 +325,7 @@ class WGV8Object
 		return $this;
 	}
 
-	public function setGauntlet( WGG|null $g ): self
+	public function setGauntlet( ?WGG $g ): self
 	{
 		$this->gauntlet = $g;
 

@@ -16,7 +16,7 @@ class WGV8BasicCheckElement extends WGV8BasicElement
 		if ( isset( $_POST[ $this->getKey() ] ) )
 		{
 			$v = strtolower( $_POST[ $this->getKey() ] );
-			if ( $v == false || $v === '' || $v === 'off' || $v === 'false' || $v === '0' )
+			if ( $v === '' || $v === 'off' || $v === 'false' || $v === '0' )
 			{
 				$this->setValue( false );
 			}
@@ -39,7 +39,7 @@ class WGV8BasicCheckElement extends WGV8BasicElement
 
 		if ( $this->isLock() || $c->getInputType() == $c::SHOWHTML )
 		{
-			$c->runJS( "\$('#{$id}, #{$id}-init').attr({disabled:'disabled'});", $x );
+			$c->runJS( "\$('#$id, #$id-init').attr({disabled:'disabled'});", $x );
 		}
 
 		return $this;

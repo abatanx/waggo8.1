@@ -9,11 +9,8 @@ require_once __DIR__ . '/WGV8Object.php';
 
 class WGV8BasicRadioElement extends WGV8BasicElement
 {
-	public function controller( $c )
+	public function controller( WGFController $c ): self
 	{
-		/**
-		 * @var WGFController $c
-		 */
 		parent::controller( $c );
 
 		$nm = htmlspecialchars( $this->getName() );
@@ -24,9 +21,11 @@ class WGV8BasicRadioElement extends WGV8BasicElement
 			$c->runJS( "\$('input[name=\"{$nm}\"').attr({disabled:'disabled'});", $x );
 		}
 		$c->runJS( "\$('input[name=\"{$nm}\"]').val([" . json_encode( $this->getValue() ) . "]);", $x );
+
+		return $this;
 	}
 
-	public function publish()
+	public function publish(): array
 	{
 		$a = $this->getValue() != false ? [ 'checked#' . htmlspecialchars( $this->getValue() ) => 'checked' ] : [];
 

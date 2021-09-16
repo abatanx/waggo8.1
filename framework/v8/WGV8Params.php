@@ -7,67 +7,79 @@
 
 class WGV8Params
 {
-	public $params, $errstyle;
+	public array $params;
+	public string $errorStyle;
 
 	public function __construct()
 	{
-		$this->params   = [];
-		$this->errstyle = "";
+		$this->params     = [];
+		$this->errorStyle = '';
 	}
 
-	public function add( $kv )
+	public function add( array $keyValueList ): self
 	{
-		foreach ( $kv as $k => $v )
+		foreach ( $keyValueList as $k => $v )
 		{
 			$this->params[ $k ] = $v;
 		}
+
+		return $this;
 	}
 
-	public function clear()
+	public function clear(): self
 	{
 		$this->params = [];
+
+		return $this;
 	}
 
-	public function delete( $k )
+	public function delete( string $key ): self
 	{
-		unset( $this->params[ $k ] );
+		unset( $this->params[ $key ] );
+
+		return $this;
 	}
 
-	public function get( $k )
+	public function get( string $key ): mixed
 	{
-		return $this->params[ $k ];
+		return $this->params[ $key ];
 	}
 
-	public function setErrorStyle( $e )
+	public function setErrorStyle( string $errorStyle ): self
 	{
-		$this->errstyle = $e;
+		$this->errorStyle = $errorStyle;
+
+		return $this;
 	}
 
-	public function clearErrorStyle()
+	public function clearErrorStyle(): self
 	{
-		$this->errstyle = "";
+		$this->errorStyle = '';
+
+		return $this;
 	}
 
-	public function toString()
+	public function toString(): string
 	{
 		$tmp = $this->params;
-		if ( isset( $tmp["style"] ) )
+		if ( isset( $tmp['style'] ) )
 		{
-			$tmp["style"] .= $this->errstyle;
-		}    // errだけ別枠。
-		if ( empty( $tmp["style"] ) )
-		{
-			unset( $tmp["style"] );
+			$tmp['style'] .= $this->errorStyle;
 		}
-		$str = "";
 
+		if ( empty( $tmp['style'] ) )
+		{
+			unset( $tmp['style'] );
+		}
+
+		$str = '';
 		foreach ( $tmp as $k => $v )
 		{
 			$str .= empty( $v ) ?
-				sprintf( "%s ", htmlspecialchars( $k ) ) :
-				sprintf( "%s=\"%s\" ", htmlspecialchars( $k ), addcslashes( $v, '"' ) );
+				sprintf( '%s ', htmlspecialchars( $k ) ) :
+				sprintf( '%s="%s" ', htmlspecialchars( $k ), addcslashes( $v, '"' ) );
 		}
 
-		return ( trim( $str ) == "" ) ? "" : ( " " . trim( $str ) );
+		return ( trim( $str ) == '' ) ? '' : ( ' ' . trim( $str ) );
 	}
 }

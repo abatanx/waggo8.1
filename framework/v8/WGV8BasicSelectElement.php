@@ -9,8 +9,8 @@ require_once __DIR__ . '/WGV8Object.php';
 
 class WGV8BasicSelectElement extends WGV8BasicElement
 {
-	protected $options;
-	protected $isPostCheck;
+	protected array $options;
+	protected bool $isPostCheck;
 
 	public function __construct()
 	{
@@ -19,26 +19,26 @@ class WGV8BasicSelectElement extends WGV8BasicElement
 		$this->isPostCheck = true;
 	}
 
-	public function setOptions( $options )
+	public function setOptions( array $options ): self
 	{
 		$this->options = $options;
 
 		return $this;
 	}
 
-	public function setPostCheck( $flag )
+	public function setPostCheck( bool $flag ): self
 	{
 		$this->isPostCheck = $flag;
 
 		return $this;
 	}
 
-	public function isPostCheck()
+	public function isPostCheck(): bool
 	{
 		return $this->isPostCheck;
 	}
 
-	public function postCopy()
+	public function postCopy(): self
 	{
 		if ( isset( $_POST[ $this->getKey() ] ) )
 		{
@@ -71,11 +71,8 @@ class WGV8BasicSelectElement extends WGV8BasicElement
 		return $this;
 	}
 
-	public function controller( $c )
+	public function controller( WGFController $c ): self
 	{
-		/**
-		 * @var WGFController $c
-		 */
 		parent::controller( $c );
 
 		$id = htmlspecialchars( $this->getId() );
@@ -85,9 +82,11 @@ class WGV8BasicSelectElement extends WGV8BasicElement
 		{
 			$c->runJS( "\$('#{$id}').attr({disabled:'disabled'});", $x );
 		}
+
+		return $this;
 	}
 
-	public function publish()
+	public function publish(): array
 	{
 		$opt = [];
 		foreach ( $this->options as $k => $v )
