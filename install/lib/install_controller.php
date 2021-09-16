@@ -7,6 +7,19 @@
 
 require_once __DIR__ . '/check_directory.php';
 
+function wi_create_htaccess():string
+{
+	return <<<___END___
+AllowOverride None
+Require all granted
+<FilesMatch "^[_.]|~$|#$">
+	Require all denied
+</FilesMatch>
+
+___END___;
+}
+
+
 function wi_create_pccontroller( string $prefix ): string
 {
 	return <<<___END___
@@ -77,6 +90,7 @@ function wi_install_create_controller( $prefix )
 	$dirInfo = wi_install_dir_info();
 
 	$files = [
+		[ $dirInfo['pub'] . ".htaccess", wi_create_htaccess() ],
 		[ $dirInfo['inc'] . "/{$prefix}PCController.php", wi_create_pccontroller( $prefix ) ],
 		[ $dirInfo['inc'] . "/{$prefix}XMLController.php", wi_create_xmlcontroller( $prefix ) ],
 		[ $dirInfo['inc'] . "/{$prefix}JSONController.php", wi_create_jsoncontroller( $prefix ) ],
@@ -88,7 +102,12 @@ function wi_install_create_controller( $prefix )
 		clearstatcache();
 		if ( ! file_exists( $file[0] ) )
 		{
+			wi_echo( ECHO_NORMAL, "Creating: %s", $file[0]);
 			file_put_contents( $file[0], $file[1] );
+		}
+		else
+		{
+			wi_echo( ECHO_NORMAL, "Skipped to create: %s (already exists)", $file[0]);
 		}
 		clearstatcache();
 	}
