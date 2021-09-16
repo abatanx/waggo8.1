@@ -9,26 +9,29 @@ require_once __DIR__ . '/WGG.php';
 
 class WGGEmpty extends WGG
 {
-	public static function _()
+	public static function _(): self
 	{
 		return new static();
 	}
 
-	public function makeErrorMessage()
+	public function makeErrorMessage(): string
 	{
-		return sprintf("内容が空ではありません。");
+		return '内容が空ではありません。';
 	}
 
-	public function validate(&$data)
+	public function validate( mixed &$data ): bool
 	{
-		if( strlen($data) === 0 )
+		if ( strlen( $data ) === 0 )
 		{
 			return true;
 		}
 		else
 		{
-			if( !$this->isBranch() )
-				$this->addError($this->makeErrorMessage());
+			if ( ! $this->isBranch() )
+			{
+				$this->addError( $this->makeErrorMessage() );
+			}
+
 			return false;
 		}
 	}

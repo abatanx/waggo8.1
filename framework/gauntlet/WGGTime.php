@@ -14,21 +14,24 @@ class WGGTime extends WGG
 		return new static();
 	}
 
-	public function makeErrorMessage()
+	public function makeErrorMessage(): string
 	{
-		return sprintf("有効な時間を入力してください。");
+		return sprintf( "有効な時間を入力してください。" );
 	}
 
-	public function validate(&$data)
+	public function validate( &$data ): bool
 	{
-		if( wg_datetime_checktime($data) )
+		if ( wg_datetime_checktime( $data ) )
 		{
 			return true;
 		}
 		else
 		{
-			if( !$this->isBranch() )
-				$this->setError($this->makeErrorMessage());
+			if ( ! $this->isBranch() )
+			{
+				$this->setError( $this->makeErrorMessage() );
+			}
+
 			return false;
 		}
 	}

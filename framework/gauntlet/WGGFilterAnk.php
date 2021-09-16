@@ -9,32 +9,33 @@ require_once __DIR__ . '/WGG.php';
 
 class WGGFilterAnk extends WGG
 {
-	private $convertKanaParam;
+	private string $convertKanaParam;
 
-	public static function _($convertKanaParam="KVas")
+	public static function _( string $convertKanaParam = "KVas" ): self
 	{
-		return new static($convertKanaParam);
+		return new static( $convertKanaParam );
 	}
 
-	public function __construct($convertKanaParam="KVas")
+	public function __construct( string $convertKanaParam = "KVas" )
 	{
 		parent::__construct();
 		$this->convertKanaParam = $convertKanaParam;
 	}
 
-	public function makeErrorMessage()
+	public function makeErrorMessage(): string
 	{
 		return '';
 	}
 
-	public function isFilter()
+	public function isFilter(): bool
 	{
 		return true;
 	}
 
-	public function validate(&$data)
+	public function validate( &$data ): bool
 	{
-		$data = mb_convert_kana($data, $this->convertKanaParam);
+		$data = mb_convert_kana( $data, $this->convertKanaParam );
+
 		return true;
 	}
 }
