@@ -25,19 +25,21 @@ class WGFJSONController extends WGFController
 		$this->jsonDepth  = 512;
 	}
 
-	public function isScriptBasedController()
+	public function isScriptBasedController(): bool
 	{
 		return false;
 	}
 
-	public function runJS($javascript,$event)
+	public function runJS( string $javascript, string $event): string
 	{
 		$this->abort('WGFJSONController does not support runJS method.');
+        return "";
 	}
 
-	public function runParts($selector,$url,$event)
+	public function runParts( string $selector, string $url, string $event ): string
 	{
 		$this->abort('WGFJSONController does not support runParts method.');
+        return "";
 	}
 
 	/**
@@ -60,15 +62,16 @@ class WGFJSONController extends WGFController
 		$this->abort($msg);
 	}
 
-	protected function abort($msg=false)
+	protected function abort($msg=false): void
 	{
 		$this->renderJSON($msg);
 		exit;
 	}
 
-	protected function render()
+	protected function render(): self
 	{
 		$this->renderJSON($this->jsonCanvas);
+        return $this;
 	}
 
 	protected function renderAndExit()
