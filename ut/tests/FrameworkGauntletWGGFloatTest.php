@@ -12,13 +12,13 @@ if ( ! defined( 'WG_UNITTEST' ) )
 	define( 'WG_UNITTEST', true );
 }
 
-require_once __DIR__ . '/../../framework/gauntlet/WGGInt.php';
+require_once __DIR__ . '/../../framework/gauntlet/WGGFloat.php';
 
-class FrameworkGauntletWGGIntTest extends TestCase
+class FrameworkGauntletWGGFloatTest extends TestCase
 {
-	public function test_wgg_int()
+	public function test_wgg_float()
 	{
-		$testClass = WGGInt::class;
+		$testClass = WGGFloat::class;
 
 		$v = '';
 		$this->assertFalse( $testClass::_()->validate( $v ) );
@@ -26,14 +26,23 @@ class FrameworkGauntletWGGIntTest extends TestCase
 		$v = 'value';
 		$this->assertFalse( $testClass::_()->validate( $v ) );
 
-		$v = 100;
+		$v = 0;
 		$this->assertTrue( $testClass::_()->validate( $v ) );
 
-		$v = -100;
+		$v = 1;
+		$this->assertTrue( $testClass::_()->validate( $v ) );
+
+		$v = 0.2;
+		$this->assertTrue( $testClass::_()->validate( $v ) );
+
+		$v = -1.00001;
 		$this->assertFalse( $testClass::_()->validate( $v ) );
 
 		$v = 99.9876;
 		$this->assertFalse( $testClass::_()->validate( $v ) );
+
+		$v = '1e0';
+		$this->assertTrue( $testClass::_()->validate( $v ) );
 
 		$v = null;
 		$this->assertFalse( $testClass::_()->validate( $v ) );

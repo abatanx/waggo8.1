@@ -7,16 +7,16 @@
 
 require_once __DIR__ . '/WGG.php';
 
-class WGGInt extends WGG
+class WGGFloat extends WGG
 {
-	protected int $min = 0, $max = PHP_INT_MAX;
+	protected float $min = - 1.0, $max = 1.0;
 
-	public static function _( int $min = 0, int $max = PHP_INT_MAX ): self
+	public static function _( float $min = - 1.0, float $max = 1.0 ): self
 	{
 		return new static( $min, $max );
 	}
 
-	public function __construct( int $min = 0, int $max = PHP_INT_MAX )
+	public function __construct( float $min = - 1.0, float $max = 1.0 )
 	{
 		parent::__construct();
 		$this->min = $min;
@@ -25,17 +25,20 @@ class WGGInt extends WGG
 
 	public function makeErrorMessage(): string
 	{
-		return sprintf( "%d〜%d の数値で入力してください。", $this->min, $this->max );
+		return sprintf( "%f〜%f の数値で入力してください。", $this->min, $this->max );
 	}
 
 	public function validate( mixed &$data ): bool
 	{
-		if ( preg_match( '/^\-?[0-9]+$/', $this->toValidationString( $data ), $match ) )
+		$v = $this->toValidationString( $data );
+
+		if ( is_numeric( $v ) )
 		{
-			$n = (int) $match[0];
+			$n = (float) $v;
 			if ( $n >= $this->min && $n <= $this->max )
 			{
 				$data = $n;
+
 				return true;
 			}
 			else

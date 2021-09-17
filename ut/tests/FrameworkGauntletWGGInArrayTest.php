@@ -37,7 +37,7 @@ class FrameworkGauntletWGGInArrayTest extends TestCase
         $this->assertTrue( $testClass::_($valid_array)->validate($v) );
 
         $v = 123;
-        $this->assertFalse( $testClass::_($valid_array)->validate($v) );
+        $this->assertTrue( $testClass::_($valid_array)->validate($v) );
 
         $v = '123';
         $this->assertTrue( $testClass::_($valid_array)->validate($v) );
