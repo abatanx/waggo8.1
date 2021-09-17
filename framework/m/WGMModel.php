@@ -1040,25 +1040,23 @@ class WGMModel
 	 */
 	protected function makeQuery( array $keys ): array
 	{
-		// フィールド結合
+		// Entry all fields
 		$fields = [];
 		foreach ( $this->getJoinExternalFields() as $f )
 		{
 			$fields[] = $f[1] . ' AS "' . $f[0] . '"';
 		}
 
-		// テーブル結合
+		// Entry all joined tables
 		$tables = $this->getJoinTables( $this->getTable() . ' AS ' . $this->getAlias() );
 		$orders = $this->getJoinOrders( [] );
-		$ford   = [];
 		usort( $orders, function ( $a, $b ) {
 			return $a[0] == $b[0] ? 0 : ( $a[0] < $b[0] ? - 1 : 1 );
 		} );
-		foreach ( $orders as $v )
-		{
-			$ford += $v[1];
-		}
-		$orderby = count( $ford ) > 0 ? ' ORDER BY ' . implode( ',', $ford ) : '';
+
+		$fieldOrders = [];
+		foreach( $orders as $o ) $fieldOrders[] = $o[1];
+		$orderby = count( $fieldOrders ) > 0 ? ' ORDER BY ' . implode( ',', $fieldOrders ) : '';
 
 		$this->recs  = 0;
 		$this->avars = [];
