@@ -83,6 +83,28 @@ SQL
         $this->assertEquals(false, wg_is_admin(true));
         $this->assertEquals(false, wg_is_admin(null));
 
+        $_SERVER['REMOTE_ADDR'] = true;
+        $_SERVER['HTTP_X_CLIENT_IP'] = "0.0.0.0,1.2.3.4,5.6.7.8,192.168.0.0.1";
+        wg_set_login(0);
+        $this->assertFalse( wg_is_login()) ;
+        $this->assertEquals(0, wg_get_usercd()) ;
+        $this->assertEquals(false,wg_is_admin());
+
+        wg_set_login(10);
+        $this->assertTrue( wg_is_login()) ;
+        $this->assertEquals(10, wg_get_usercd()) ;
+        $this->assertEquals(false,wg_is_admin());
+
+        wg_set_login(50);
+        $this->assertTrue( wg_is_login()) ;
+        $this->assertEquals(50, wg_get_usercd()) ;
+        $this->assertEquals(true,wg_is_admin());
+
+        wg_unset_login();
+        $this->assertfalse( wg_is_login()) ;
+        $this->assertNotEquals(50, wg_get_usercd()) ;
+        $this->assertEquals(false,wg_is_admin());
+
 		_E( <<<SQL
 DROP VIEW IF EXISTS base_normal;
 DROP TABLE IF EXISTS base; --終了するときにtableは消す
