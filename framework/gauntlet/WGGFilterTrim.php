@@ -9,14 +9,14 @@ require_once __DIR__ . '/WGG.php';
 
 class WGGFilterTrim extends WGG
 {
-	private $trimZenkakuSpace;
+	private bool $trimZenkakuSpace;
 
-	public static function _($trimZenkakuSpace=false)
+	public static function _( bool $trimZenkakuSpace = false ): self
 	{
-		return new static($trimZenkakuSpace);
+		return new static( $trimZenkakuSpace );
 	}
 
-	public function __construct($trimZenkakuSpace=false)
+	public function __construct( bool $trimZenkakuSpace = false )
 	{
 		parent::__construct();
 		$this->trimZenkakuSpace = $trimZenkakuSpace;
@@ -32,10 +32,16 @@ class WGGFilterTrim extends WGG
 		return true;
 	}
 
-	public function validate(&$data)
+	public function validate( &$data )
 	{
-		if( !$this->trimZenkakuSpace )	$data = trim($data);
-		else 							$data = trim($data, " \t\n\r\0\x0B　");
+		if ( ! $this->trimZenkakuSpace )
+		{
+			$data = trim( $data );
+		}
+		else
+		{
+			$data = trim( $data, " \t\n\r\0\x0B　" );
+		}
 
 		return true;
 	}

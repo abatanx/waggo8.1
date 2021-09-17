@@ -7,66 +7,76 @@
 
 class WGV8BasicPaginationState
 {
-	const
-		STATE_INVISIBLE = 0,        // 表示されない
-		STATE_DISABLE = 1,        // 表示はされるが、押せない
-		STATE_ENABLE = 2,        // 表示され、押せる（非選択）
-		STATE_ACTIVE = 3;        // 表示され、押せない（選択中）
+	const STATE_INVISIBLE = 0, STATE_DISABLE = 1, STATE_ENABLE = 2, STATE_ACTIVE = 3;
 
-	private $state;
-	private $number;
-	private $caption;
-	private $js;
+	private int $state;
+	private string $number;
+	private string $caption;
+	private string $js;
 
 	public function __construct()
 	{
 		$this->state   = self::STATE_INVISIBLE;
-		$this->number  = "";
-		$this->caption = "";
-		$this->js      = "";
+		$this->number  = '';
+		$this->caption = '';
+		$this->js      = '';
 	}
 
-	public function setNumber( $number )
+	public function setNumber( $number ): self
 	{
 		$this->number = $number;
+
+		return $this;
 	}
 
-	public function setCaption( $caption )
+	public function setCaption( $caption ): self
 	{
 		$this->caption = $caption;
+
+		return $this;
 	}
 
-	public function isVisible()
+	public function isVisible(): bool
 	{
 		return $this->state !== self::STATE_INVISIBLE;
 	}
 
-	public function setInvisible()
+	public function setInvisible(): self
 	{
 		$this->state = self::STATE_INVISIBLE;
+
+		return $this;
 	}
 
-	public function setDisable()
+	public function setDisable(): self
 	{
 		$this->state = self::STATE_DISABLE;
+
+		return $this;
 	}
 
-	public function setEnable()
+	public function setEnable(): self
 	{
 		$this->state = self::STATE_ENABLE;
+
+		return $this;
 	}
 
-	public function setActive()
+	public function setActive(): self
 	{
 		$this->state = self::STATE_ACTIVE;
+
+		return $this;
 	}
 
-	public function setJS( $js )
+	public function setJS( $js ): self
 	{
 		$this->js = $js;
+
+		return $this;
 	}
 
-	private function innerCaption()
+	private function innerCaption(): string
 	{
 		$q = [];
 		if ( $this->number != "" )
@@ -81,7 +91,7 @@ class WGV8BasicPaginationState
 		return implode( " ", $q );
 	}
 
-	public function makeLI()
+	public function makeLI(): string
 	{
 		switch ( $this->state )
 		{
@@ -98,7 +108,7 @@ class WGV8BasicPaginationState
 		}
 	}
 
-	public function makeButton()
+	public function makeButton(): string
 	{
 		switch ( $this->state )
 		{
@@ -118,26 +128,23 @@ class WGV8BasicPaginationState
 
 class WGV8BasicPagination extends WGV8Object
 {
-	private
+	private int
 		$limit = 0,
 		$count = 0,
 		$total = 0,
 		$page = 0,
 		$length = 3;
 
-	protected
-		$limitList;
+	protected array $limitList;
 
-	protected
-		$pageKey,
-		$limitKey;
+	protected string $pageKey, $limitKey;
 
-	public function __construct( $limit, $pagekey = "wgpp", $limitkey = "wgpl" )
+	public function __construct( $limit, $pagekey = 'wgpp', $limitkey = 'wgpl' )
 	{
 		parent::__construct();
 		if ( ! is_numeric( $limit ) )
 		{
-			die( "WGV8BasicPagination, Invalid limit parameter, '{$limit}'.\n" );
+			die( "WGV8BasicPagination, Invalid limit parameter, '$limit'.\n" );
 		}
 
 		foreach ( $this->pagingLineNums() as $n )
@@ -148,8 +155,8 @@ class WGV8BasicPagination extends WGV8Object
 		$this->pageKey  = $pagekey;
 		$this->limitKey = $limitkey;
 
-		$this->page  = ( ! @wg_inchk_int( $this->page, $_GET[ $this->pageKey ], 1 ) ) ? 1 : $this->page;
-		$this->limit = ( ! @wg_inchk_int( $this->limit, $_GET[ $this->limitKey ], 1 ) ) ? $limit : $this->limit;
+		$this->page  = ( ! wg_inchk_int( $this->page, @$_GET[ $this->pageKey ], 1 ) ) ? 1 : $this->page;
+		$this->limit = ( ! wg_inchk_int( $this->limit, @$_GET[ $this->limitKey ], 1 ) ) ? $limit : $this->limit;
 
 		if ( ! in_array( $this->limit, array_keys( $this->limitList ) ) )
 		{
@@ -157,38 +164,37 @@ class WGV8BasicPagination extends WGV8Object
 		}
 	}
 
-	public function pagingLineNums()
+	public function pagingLineNums(): array
 	{
 		return [ 10, 50, 100, 500 ];
 	}
 
-	public function js( $page, $remakeopts = "" )
+	public function js( int $page, array $options = [] ): string
 	{
-		$u = wg_remake_uri( [ $this->pageKey => $page, $this->limitKey => $this->limit ] );
+		$url = wg_remake_uri( [ $this->pageKey => $page, $this->limitKey => $this->limit ] );
+		$opts = json_encode($options, JSON_FORCE_OBJECT);
 
-		return "WG8.get('#'+$(this).closest('.wg-form').attr('id'),WG8.remakeURI('{$u}',{{$remakeopts}}));";
+		return "WG8.get('#'+$(this).closest('.wg-form').attr('id'),WG8.remakeURI('$url',$opts));";
 	}
 
-	public function setPagerLength( $len )
+	public function setPagerLength( $len ): self
 	{
 		$this->length = $len;
+
+		return $this;
 	}
 
-	public function offset()
+	public function offset(): int
 	{
-		$offset = ( $this->page - 1 ) * $this->limit;
-
-		return $offset;
+		return ( $this->page - 1 ) * $this->limit;
 	}
 
-	public function limit()
+	public function limit(): int
 	{
-		$limit = $this->limit;
-
-		return $limit;
+		return $this->limit;
 	}
 
-	public function setTotal( $total )
+	public function setTotal( $total ): self
 	{
 		$this->total = $total;
 
@@ -202,64 +208,66 @@ class WGV8BasicPagination extends WGV8Object
 		{
 			$this->page = $mp;
 		}
+
+		return $this;
 	}
 
-	public function getPage()
+	public function getPage(): int
 	{
 		return $this->page;
 	}
 
-	public function isFirstPage()
+	public function isFirstPage(): bool
 	{
 		return ( $this->page <= 1 );
 	}
 
-	public function isLastPage()
+	public function isLastPage(): bool
 	{
 		$mp = (int) ( ( $this->total - 1 ) / $this->limit ) + 1;
 
 		return ( $this->page >= $mp );
 	}
 
-	public function count()
+	public function count(): int
 	{
 		$this->count ++;
 
 		return $this->limit * ( $this->page - 1 ) + $this->count;
 	}
 
-	public function countRevert()
+	public function countRevert(): int
 	{
 		$this->count ++;
 
 		return $this->total - ( $this->limit * ( $this->page - 1 ) + $this->count ) + 1;
 	}
 
-	protected function firstCaption()
+	protected function firstCaption(): string
 	{
-		return "";
+		return '';
 	}
 
-	protected function lastCaption()
+	protected function lastCaption(): string
 	{
-		return "";
+		return '';
 	}
 
-	protected function allCaption()
+	protected function allCaption(): string
 	{
-		return "";
+		return '';
 	}
 
-	public function formHtml()
+	public function formHtml(): string
 	{
 		return $this->showHtml();
 	}
 
-	public function showHtml()
+	public function showHtml(): string
 	{
 		if ( $this->total == 0 )
 		{
-			return "";
+			return '';
 		}
 
 		$max_page = (int) ( ( $this->total - 1 ) / $this->limit ) + 1;
@@ -399,7 +407,9 @@ class WGV8BasicPagination extends WGV8Object
 			$li[]   = sprintf(
 				'<li role="presentation" class="%s"><a role="menuitem" tabindex="-1" href="javascript:void(0)" data-value="%s" data-caption="%s" onclick="%s">%s</a></li>',
 				$active,
-				htmlspecialchars( $k ), htmlspecialchars( $c ), $this->js( 1, "{$this->limitKey}:{$k}" ),
+				htmlspecialchars( $k ),
+				htmlspecialchars( $c ),
+				$this->js( 1, $this->limitKey . ':' . $k ),
 				htmlspecialchars( $c )
 			);
 		}
@@ -408,11 +418,11 @@ class WGV8BasicPagination extends WGV8Object
 
 		if ( $this->total > 0 )
 		{
-			$totalcap = sprintf( '<span class="badge">%s件</span>', number_format( $this->total ) );
+			$totalCaption = sprintf( '<span class="badge">%s件</span>', number_format( $this->total ) );
 		}
 		else
 		{
-			$totalcap = '<span class="badge">データなし</span>';
+			$totalCaption = '<span class="badge">データなし</span>';
 		}
 
 		/**
@@ -420,22 +430,22 @@ class WGV8BasicPagination extends WGV8Object
 		 */
 		$id = $this->getId();
 
-		return <<<___END___
+		return <<<HTML
 <nav>
 	<div class="form-group">
 		<div class="form-inline">
 			<div id="{$id}_pagination_ul">
-				<div class="btn-group">{$body}</div>
+				<div class="btn-group">$body</div>
 			</div>
 			
 			<div id="{$id}_pagination_dropdown" class="dropdown">
 				<button class="btn btn-default" type="button" id="{$id}_toggle" data-toggle="dropdown">
-					<span id="{$id}_caption">{$cap}</span> <span class="caret"></span>
+					<span id="{$id}_caption">$cap</span> <span class="caret"></span>
 				</button>
 				<ul id="{$id}_ul" class="dropdown-menu" role="menu" aria-labelledby="{$id}_toggle">
-			{$lis}
+			$lis
 				</ul>
-				{$totalcap}
+				$totalCaption
 			</div>
 			
 		</div>
@@ -443,6 +453,6 @@ class WGV8BasicPagination extends WGV8Object
 </nav>
 <style>#{$id}_pagination_ul,#{$id}_pagination_dropdown { display:inline-block; }</style>
 
-___END___;
+HTML;
 	}
 }

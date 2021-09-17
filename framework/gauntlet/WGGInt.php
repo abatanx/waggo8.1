@@ -9,48 +9,54 @@ require_once __DIR__ . '/WGG.php';
 
 class WGGInt extends WGG
 {
-	protected $min,$max;
+	protected int $min, $max;
 
-	public static function _($min=0,$max=255)
+	public static function _( $min = 0, $max = 255 ): self
 	{
-		return new static($min,$max);
+		return new static( $min, $max );
 	}
 
-	public function __construct($min=0,$max=2147483647)
+	public function __construct( $min = 0, $max = 2147483647 )
 	{
 		parent::__construct();
 		$this->min = $min;
 		$this->max = $max;
 	}
 
-	public function makeErrorMessage()
+	public function makeErrorMessage(): string
 	{
-		return sprintf("%d〜%d の数値で入力してください。", $this->min, $this->max);
+		return sprintf( "%d〜%d の数値で入力してください。", $this->min, $this->max );
 	}
 
-	public function validate(&$data)
+	public function validate( mixed &$data ): bool
 	{
-		if( preg_match('/^\-?[0-9]+$/',$data) )
+		if ( preg_match( '/^\-?[0-9]+$/', $data ) )
 		{
-			$n = (int)$data;
-			if( $n >= $this->min && $n <= $this->max )
+			$n = (int) $data;
+			if ( $n >= $this->min && $n <= $this->max )
 			{
 				$data = $n;
+
 				return true;
 			}
 			else
 			{
-				if( !$this->isBranch() )
-					$this->setError($this->makeErrorMessage());
+				if ( ! $this->isBranch() )
+				{
+					$this->setError( $this->makeErrorMessage() );
+				}
+
 				return false;
 			}
 		}
 		else
 		{
-			if( !$this->isBranch() )
-				$this->setError($this->makeErrorMessage());
+			if ( ! $this->isBranch() )
+			{
+				$this->setError( $this->makeErrorMessage() );
+			}
+
 			return false;
 		}
 	}
 }
-

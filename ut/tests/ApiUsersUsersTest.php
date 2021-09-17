@@ -26,17 +26,17 @@ class ApiUsersUsersTest extends TestCase
 {
 	public function test_wg_is_myself()
 	{
+        $_SESSION["_sUID"] = "1234"; // #_SESSION 側がおかしな値の場合は考える？？
 
-		$_SESSION["_sUID"] = "abcd1234"; // #_SESSION 側がおかしな値の場合は考える？？
-
-		$this->assertEquals( true, wg_is_myself( 'abcd1234' ) );
-		$this->assertNotEquals( true, wg_is_myself( '1234abcd' ) );
-		$this->assertNotEquals( true, wg_is_myself( 'abcd1234 ' ) );
-		$this->assertNotEquals( true, wg_is_myself( true ) );
-		$this->assertNotEquals( true, wg_is_myself( false ) );
-		$this->assertNotEquals( true, wg_is_myself( null ) );
-		$this->assertNotEquals( true, wg_is_myself( 1 ) );
-		$this->assertNotEquals( true, wg_is_myself( 0 ) );
+        $this->assertEquals( true, wg_is_myself( 1234 ) );
+        $this->assertNotEquals( true, wg_is_myself( '1234' ) );
+        $this->assertNotEquals( true, wg_is_myself( '1234abcd' ) );
+        $this->assertNotEquals( true, wg_is_myself( 12345 ) );
+        $this->assertNotEquals( true, wg_is_myself( true ) );
+        $this->assertNotEquals( true, wg_is_myself( false ) );
+        $this->assertNotEquals( true, wg_is_myself( null ) );
+        $this->assertNotEquals( true, wg_is_myself( 1 ) );
+        $this->assertNotEquals( true, wg_is_myself( 0 ) );
 	}
 
 	public function test_wg_is_user()

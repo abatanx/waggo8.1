@@ -9,26 +9,29 @@ require_once __DIR__ . '/WGG.php';
 
 class WGGNotFalse extends WGG
 {
-	public static function _()
+	public static function _(): self
 	{
 		return new static();
 	}
 
-	public function makeErrorMessage()
+	public function makeErrorMessage(): string
 	{
-		return sprintf("内容がありません。");
+		return '内容がありません。';
 	}
 
-	public function validate(&$data)
+	public function validate( mixed &$data ): bool
 	{
-		if( $data !== false )
+		if ( $data !== false )
 		{
 			return true;
 		}
 		else
 		{
-			if( !$this->isBranch() )
-				$this->addError($this->makeErrorMessage());
+			if ( ! $this->isBranch() )
+			{
+				$this->addError( $this->makeErrorMessage() );
+			}
+
 			return false;
 		}
 	}

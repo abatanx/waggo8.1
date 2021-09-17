@@ -9,26 +9,29 @@ require_once __DIR__ . '/WGG.php';
 
 class WGGDate extends WGG
 {
-	public static function _()
+	public static function _(): self
 	{
 		return new static();
 	}
 
-	public function makeErrorMessage()
+	public function makeErrorMessage(): string
 	{
-		return sprintf("有効な日付を入力してください。");
+		return '有効な日付を入力してください。';
 	}
 
-	public function validate(&$data)
+	public function validate( mixed &$data ): bool
 	{
-		if( wg_datetime_checkdate($data) )
+		if ( wg_datetime_checkdate( $data ) )
 		{
 			return true;
 		}
 		else
 		{
-			if( !$this->isBranch() )
-				$this->setError($this->makeErrorMessage());
+			if ( ! $this->isBranch() )
+			{
+				$this->setError( $this->makeErrorMessage() );
+			}
+
 			return false;
 		}
 	}

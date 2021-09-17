@@ -9,34 +9,37 @@ require_once __DIR__ . '/WGG.php';
 
 class WGGInArray extends WGG
 {
-	protected $valid_array;
+	protected array $validArray;
 
-	public static function _($valid_array)
+	public static function _( array $valid_array ): self
 	{
-		return new static($valid_array);
+		return new static( $valid_array );
 	}
 
-	public function __construct($valid_array)
+	public function __construct( array $valid_array )
 	{
 		parent::__construct();
-		$this->valid_array = $valid_array;
+		$this->validArray = $valid_array;
 	}
 
-	public function makeErrorMessage()
+	public function makeErrorMessage(): string
 	{
-		return sprintf("入力を確認してください。");
+		return '入力を確認してください。';
 	}
 
-	public function validate(&$data)
+	public function validate( mixed &$data ): bool
 	{
-		if( in_array($data, $this->valid_array) )
+		if ( in_array( $data, $this->validArray ) )
 		{
 			return true;
 		}
 		else
 		{
-			if( !$this->isBranch() )
-				$this->setError($this->makeErrorMessage());
+			if ( ! $this->isBranch() )
+			{
+				$this->setError( $this->makeErrorMessage() );
+			}
+
 			return false;
 		}
 	}

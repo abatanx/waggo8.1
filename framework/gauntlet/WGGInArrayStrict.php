@@ -9,19 +9,24 @@ require_once __DIR__ . '/WGG.php';
 
 class WGGInArrayStrict extends WGGInArray
 {
-	public function validate(&$data)
+	public function validate( mixed &$data ): bool
 	{
 		$d = strval( $data );
-		$a = array_map(function($v) { return strval($v); }, $this->valid_array);
+		$a = array_map( function ( $v ) {
+			return strval( $v );
+		}, $this->validArray );
 
-		if( in_array($d, $a, true) )
+		if ( in_array( $d, $a, true ) )
 		{
 			return true;
 		}
 		else
 		{
-			if( !$this->isBranch() )
-				$this->setError($this->makeErrorMessage());
+			if ( ! $this->isBranch() )
+			{
+				$this->setError( $this->makeErrorMessage() );
+			}
+
 			return false;
 		}
 	}
