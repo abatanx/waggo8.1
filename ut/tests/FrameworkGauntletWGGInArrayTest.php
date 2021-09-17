@@ -12,13 +12,14 @@ if ( ! defined( 'WG_UNITTEST' ) )
 	define( 'WG_UNITTEST', true );
 }
 
+require_once __DIR__ . '/../unittest-config.php';
 require_once __DIR__ . '/../../framework/gauntlet/WGGInArray.php';
 
 class FrameworkGauntletWGGInArrayTest extends TestCase
 {
 	public function test_wgg_in_array()
 	{
-        $valid_array = ['ab', 'cd', 'ef', 'gh', 'あいう', 'アイウ', '日本語', 123, 123.001 ];
+        $valid_array = ['ab', 'cd', 'ef', 'gh', 'あいう', 'アイウ', '日本語', 123, 123.001, '0' ];
         $valid_array_two = [
             'ID' =>  1,
             'name' =>  'Peter',
@@ -50,6 +51,9 @@ class FrameworkGauntletWGGInArrayTest extends TestCase
         $v = '日本語';
         $this->assertTrue( $testClass::_($valid_array)->validate($v) );
 
+        $v = 123;
+        $this->assertTrue( $testClass::_($valid_array)->validate($v) );
+
         $v = '123';
         $this->assertTrue( $testClass::_($valid_array)->validate($v) );
 
@@ -73,5 +77,8 @@ class FrameworkGauntletWGGInArrayTest extends TestCase
 
         $v = 'ID';
         $this->assertFalse( $testClass::_($valid_array_two)->validate($v) );
+
+        $v = '0';
+        $this->assertTrue( $testClass::_($valid_array)->validate($v) );
 	}
 }

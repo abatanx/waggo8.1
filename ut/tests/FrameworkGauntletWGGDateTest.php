@@ -12,6 +12,7 @@ if ( ! defined( 'WG_UNITTEST' ) )
 	define( 'WG_UNITTEST', true );
 }
 
+require_once __DIR__ . '/../unittest-config.php';
 require_once __DIR__ . '/../../framework/gauntlet/WGGDate.php';
 require_once __DIR__ . '/../../api/datetime/datetime.php';
 require_once __DIR__ . '/../../api/datetime/WGDateTime.php';
@@ -26,12 +27,6 @@ class FrameworkGauntletWGGDateTest extends TestCase
 		$this->assertFalse( $testClass::_()->validate($v) );
 
 		$v =  'value';
-		$this->assertFalse( $testClass::_()->validate($v) );
-
-		$v =  true;
-		$this->assertFalse( $testClass::_()->validate($v) );
-
-		$v =  false;
 		$this->assertFalse( $testClass::_()->validate($v) );
 
 		$v =  999;
