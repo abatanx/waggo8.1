@@ -15,12 +15,12 @@ if ( ! defined( 'WG_UNITTEST' ) )
 
 require_once __DIR__ . '/../unittest-config.php';
 require_once __DIR__ . '/../../api/core/lib.php';
+require_once __DIR__ . '/../../api/core/secure.php';
 require_once __DIR__ . '/../../api/user/users.php';
 require_once __DIR__ . '/../../api/dbms/interface.php';
 
 /**
  * 1. セッションの扱いは？ $_SESSION["_sUID"] は勝手に設定してよい？ -> 文字列を設定する。
- * 2. DBとのつながりは？DBは存在する？ -> DBは現時点で使わないと思われる。
  **/
 class ApiUsersUsersTest extends TestCase
 {
@@ -41,6 +41,7 @@ class ApiUsersUsersTest extends TestCase
 
 	public function test_wg_is_user()
 	{
+        $_SESSION["_sUID"] = 0;
 		// tableをつくる base は waggo8/api/initdata/sql/data/core_template.sql より参照した。
 		_E( <<<SQL
 DROP VIEW IF EXISTS base_normal;
@@ -59,7 +60,10 @@ CREATE TABLE base (
 ALTER TABLE base ADD PRIMARY KEY (usercd);
 CREATE VIEW base_normal AS SELECT * FROM base WHERE enabled=true AND deny=false;
 CREATE UNIQUE INDEX base_pkey1 ON base (login);
-INSERT INTO base(usercd,login,password,name,enabled,deny,security,initymd,updymd) VALUES(0,'','','Guest',true,false,0,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
+INSERT INTO base(usercd,login,password,name,enabled,deny,security,initymd,updymd) VALUES(0,0,'','Guest',true,false,0,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
+INSERT INTO base(usercd,login,password,name,enabled,deny,security,initymd,updymd) VALUES(10,10,'','Guest',true,false,10,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
+INSERT INTO base(usercd,login,password,name,enabled,deny,security,initymd,updymd) VALUES(40,40,'','Guest',true,false,40,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
+INSERT INTO base(usercd,login,password,name,enabled,deny,security,initymd,updymd) VALUES(50,50,'','Guest',true,false,50,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
 SQL
 		);
 
@@ -70,6 +74,14 @@ SQL
 		$this->assertEquals( true, wg_is_user( false ) );
 		$this->assertEquals( false, wg_is_user( true ) );
 		$this->assertEquals( false, wg_is_user( null ) );
+
+        $this->assertEquals(false, wg_is_admin(0));
+        $this->assertEquals(false, wg_is_admin(10));
+        $this->assertEquals(false, wg_is_admin(40));
+        $this->assertEquals(true, wg_is_admin(50));
+        $this->assertEquals(false, wg_is_admin(false));
+        $this->assertEquals(false, wg_is_admin(true));
+        $this->assertEquals(false, wg_is_admin(null));
 
 		_E( <<<SQL
 DROP VIEW IF EXISTS base_normal;
