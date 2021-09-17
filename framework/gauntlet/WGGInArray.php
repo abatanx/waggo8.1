@@ -29,8 +29,12 @@ class WGGInArray extends WGG
 
 	public function validate( mixed &$data ): bool
 	{
-		if ( in_array( $data, $this->validArray ) )
+		$v = $this->toValidationString( $data );
+
+		if ( in_array( $v, $this->validArray ) )
 		{
+			$data = $v;
+
 			return true;
 		}
 		else

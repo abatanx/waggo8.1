@@ -27,20 +27,22 @@ class WGGFilterTrim extends WGG
 		return '';
 	}
 
-    public function isFilter(): bool
-    {
-        return true;
-    }
+	public function isFilter(): bool
+	{
+		return true;
+	}
 
 	public function validate( &$data ): bool
 	{
+		$v = $this->toValidationString( $data );
+
 		if ( ! $this->trimZenkakuSpace )
 		{
-			$data = trim( $data );
+			$data = trim( $v );
 		}
 		else
 		{
-			$data = trim( $data, " \t\n\r\0\x0B　" );
+			$data = trim( $v, " \t\n\r\0\x0B　" );
 		}
 
 		return true;

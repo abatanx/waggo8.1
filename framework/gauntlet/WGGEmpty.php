@@ -21,8 +21,10 @@ class WGGEmpty extends WGG
 
 	public function validate( mixed &$data ): bool
 	{
-		if ( strlen( $data ) === 0 )
+		$v = $this->toValidationString( $data );
+		if ( strlen( $v ) === 0 )
 		{
+			$data = $v;
 			return true;
 		}
 		else

@@ -37,7 +37,7 @@ abstract class WGG
 	 * @return string 変換後
 	 * @noinspection PhpInconsistentReturnPointsInspection
 	 */
-	public function castString( mixed $value ): string
+	public function toValidationString( mixed $value ): string
 	{
 		if ( is_null( $value ) )
 		{

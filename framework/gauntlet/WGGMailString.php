@@ -21,8 +21,11 @@ class WGGMailString extends WGG
 
 	public function validate( &$data ): bool
 	{
-		if ( wg_check_input_email( $data ) )
+		$v = $this->toValidationString( $data );
+
+		if ( wg_check_input_email( $v ) )
 		{
+			$data = $v;
 			return true;
 		}
 		else

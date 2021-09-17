@@ -30,10 +30,14 @@ class WGGString extends WGG
 
 	public function validate( mixed &$data ): bool
 	{
-		$l = mb_strlen( $data );
+		$v = $this->toValidationString( $data );
+
+		$l = mb_strlen( $v );
 
 		if ( $l >= $this->min && $l <= $this->max )
 		{
+			$data = $v;
+
 			return true;
 		}
 		else

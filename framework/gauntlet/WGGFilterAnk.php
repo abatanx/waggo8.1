@@ -34,7 +34,9 @@ class WGGFilterAnk extends WGG
 
 	public function validate( &$data ): bool
 	{
-		$data = mb_convert_kana( $data, $this->convertKanaParam );
+		$v = $this->toValidationString( $data );
+
+		$data = mb_convert_kana( $v, $this->convertKanaParam );
 
 		return true;
 	}

@@ -29,8 +29,12 @@ class WGGReg extends WGG
 
 	public function validate( &$data ): bool
 	{
-		if ( preg_match( $this->regex, $data ) )
+		$v = $this->toValidationString( $data );
+
+		if ( preg_match( $this->regex, $v ) )
 		{
+			$data = $v;
+
 			return true;
 		}
 		else

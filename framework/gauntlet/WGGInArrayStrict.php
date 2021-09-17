@@ -11,13 +11,16 @@ class WGGInArrayStrict extends WGGInArray
 {
 	public function validate( mixed &$data ): bool
 	{
-		$d = strval( $data );
+		$v = $this->toValidationString( $data );
+
 		$a = array_map( function ( $v ) {
 			return strval( $v );
 		}, $this->validArray );
 
-		if ( in_array( $d, $a, true ) )
+		if ( in_array( $v, $a, true ) )
 		{
+			$data = $v;
+
 			return true;
 		}
 		else

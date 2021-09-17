@@ -16,13 +16,17 @@ class WGGTime extends WGG
 
 	public function makeErrorMessage(): string
 	{
-		return sprintf( "有効な時間を入力してください。" );
+		return '有効な時間を入力してください。';
 	}
 
 	public function validate( &$data ): bool
 	{
-		if ( wg_datetime_checktime( $data ) )
+		$v = $this->toValidationString();
+
+		if ( wg_datetime_checktime( $v ) )
 		{
+			$data = $v;
+
 			return true;
 		}
 		else

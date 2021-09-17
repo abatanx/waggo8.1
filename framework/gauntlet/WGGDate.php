@@ -21,8 +21,10 @@ class WGGDate extends WGG
 
 	public function validate( mixed &$data ): bool
 	{
-		if ( wg_datetime_checkdate( $data ) )
+		$v = $this->toValidationString($data);
+		if ( wg_datetime_checkdate( $v ) )
 		{
+			$data = $v;
 			return true;
 		}
 		else
