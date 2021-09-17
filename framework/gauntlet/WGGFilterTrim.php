@@ -22,17 +22,17 @@ class WGGFilterTrim extends WGG
 		$this->trimZenkakuSpace = $trimZenkakuSpace;
 	}
 
-	public function makeErrorMessage()
+	public function makeErrorMessage(): string
 	{
 		return '';
 	}
 
-	public function isFilter()
-	{
-		return true;
-	}
+    public function isFilter(): bool
+    {
+        return true;
+    }
 
-	public function validate( &$data )
+	public function validate( &$data ): bool
 	{
 		if ( ! $this->trimZenkakuSpace )
 		{
