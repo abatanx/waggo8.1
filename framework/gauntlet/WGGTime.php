@@ -21,7 +21,7 @@ class WGGTime extends WGG
 
 	public function validate( &$data ): bool
 	{
-		$v = $this->toValidationString();
+		$v = $this->toValidationString( $data );
 
 		if ( wg_datetime_checktime( $v ) )
 		{
