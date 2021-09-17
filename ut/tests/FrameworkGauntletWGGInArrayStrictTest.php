@@ -20,7 +20,7 @@ class FrameworkGauntletWGGInArrayStrictTest extends TestCase
 {
 	public function test_wgg_in_array_strict()
 	{
-        $valid_array = ['', 'ab', 'cd', 'ef', 'gh', 'あいう', 'アイウ', '日本語', 123, 123.001, '0'];
+        $valid_array = ['', 'ab', 'cd', 'ef', 'gh', 'あいう', 'アイウ', '日本語', 123, 123.001, 0];
         $valid_array_two = [
             'ID' =>  1,
             'name' =>  'Peter',
@@ -77,6 +77,6 @@ class FrameworkGauntletWGGInArrayStrictTest extends TestCase
         $this->assertFalse( $testClass::_($valid_array_two)->validate($v) );
 
         $v = '0';
-        $this->assertTrue( $testClass::_($valid_array_two)->validate($v) );
+        $this->assertTrue( $testClass::_($valid_array)->validate($v) );
 	}
 }
