@@ -12,6 +12,7 @@ if ( ! defined( 'WG_UNITTEST' ) )
 	define( 'WG_UNITTEST', true );
 }
 
+require_once __DIR__ . '/../unittest-config.php';
 require_once __DIR__ . '/../../framework/gauntlet/WGGEmpty.php';
 
 class FrameworkGauntletWGGEmptyTest extends TestCase
