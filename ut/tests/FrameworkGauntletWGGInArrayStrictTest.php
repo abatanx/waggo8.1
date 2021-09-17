@@ -13,21 +13,26 @@ if ( ! defined( 'WG_UNITTEST' ) )
 }
 
 require_once __DIR__ . '/../../framework/gauntlet/WGGInArray.php';
+require_once __DIR__ . '/../../framework/gauntlet/WGGInArrayStrict.php';
 
-class FrameworkGauntletWGGInArrayTest extends TestCase
+
+class FrameworkGauntletWGGInArrayStrictTest extends TestCase
 {
-	public function test_wgg_in_array()
+	public function test_wgg_in_array_strict()
 	{
-        $valid_array = ['ab', 'cd', 'ef', 'gh', 'あいう', 'アイウ', '日本語', 123, 123.001 ];
+        $valid_array = ['', 'ab', 'cd', 'ef', 'gh', 'あいう', 'アイウ', '日本語', 123, 123.001, '0'];
         $valid_array_two = [
             'ID' =>  1,
             'name' =>  'Peter',
         ];
 
-		$testClass = WGGInArray::class;
+        $testClass = WGGInArrayStrict::class;
 
         $v = '';
-        $this->assertFalse( $testClass::_($valid_array)->validate($v) );
+        $this->assertTrue( $testClass::_($valid_array)->validate($v) );
+
+        $v = null;
+        $this->assertTrue( $testClass::_($valid_array)->validate($v) );
 
         $v = 'a';
         $this->assertFalse( $testClass::_($valid_array)->validate($v) );
@@ -62,9 +67,6 @@ class FrameworkGauntletWGGInArrayTest extends TestCase
         $v = 123.002;
         $this->assertFalse( $testClass::_($valid_array)->validate($v) );
 
-        $v = null;
-        $this->assertFalse( $testClass::_($valid_array)->validate($v) );
-
         $v = 'Peter';
         $this->assertTrue( $testClass::_($valid_array_two)->validate($v) );
 
@@ -73,5 +75,8 @@ class FrameworkGauntletWGGInArrayTest extends TestCase
 
         $v = 'ID';
         $this->assertFalse( $testClass::_($valid_array_two)->validate($v) );
+
+        $v = '0';
+        $this->assertTrue( $testClass::_($valid_array_two)->validate($v) );
 	}
 }
