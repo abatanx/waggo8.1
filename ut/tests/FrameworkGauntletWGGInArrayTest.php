@@ -12,85 +12,51 @@ if ( ! defined( 'WG_UNITTEST' ) )
 	define( 'WG_UNITTEST', true );
 }
 
-require_once __DIR__ . '/../../framework/gauntlet/WGGFilterTrim.php';
+require_once __DIR__ . '/../../framework/gauntlet/WGGInArray.php';
 
-class FrameworkGauntletWGGFilterTrimTest extends TestCase
+class FrameworkGauntletWGGInArrayTest extends TestCase
 {
-	public function test_wgg_filter_trim()
+	public function test_wgg_in_array()
 	{
-		$testClass = WGGFilterTrim::class;
-        $trimZenkakuSpace = true;
+        $valid_array = ['ab', 'cd', 'ef', 'gh', 'あいう', 'かきく', 123, 'アイウ' ];
+		$testClass = WGGInArray::class;
 
-		$v =  '';
-		$this->assertTrue( $testClass::_()->validate($v) );
-        $this->assertTrue( $testClass::_($trimZenkakuSpace)->validate($v) );
+        $v = '';
+        $this->assertFalse( $testClass::_($valid_array)->validate($v) );
 
-        $v =  ' ';
-        $this->assertTrue( $testClass::_()->validate($v) );
-        $this->assertTrue( $testClass::_($trimZenkakuSpace)->validate($v) );
+        $v = 'a';
+        $this->assertFalse( $testClass::_($valid_array)->validate($v) );
 
-		$v =  'value';
-		$this->assertTrue( $testClass::_()->validate($v) );
-        $this->assertTrue( $testClass::_($trimZenkakuSpace)->validate($v) );
+        $v = 'ab';
+        $this->assertTrue( $testClass::_($valid_array)->validate($v) );
 
-        $v =  'あいうえお';
-        $this->assertTrue( $testClass::_()->validate($v) );
-        $this->assertTrue( $testClass::_($trimZenkakuSpace)->validate($v) );
+        $v = 'ab ';
+        $this->assertFalse( $testClass::_($valid_array)->validate($v) );
 
-        $v =  'アイウエオ';
-        $this->assertTrue( $testClass::_()->validate($v) );
-        $this->assertTrue( $testClass::_($trimZenkakuSpace)->validate($v) );
+        $v = 'あいう';
+        $this->assertTrue( $testClass::_($valid_array)->validate($v) );
 
-        $v =  'ｱ';
-        $this->assertTrue( $testClass::_()->validate($v) );
-        $this->assertTrue( $testClass::_($trimZenkakuSpace)->validate($v) );
+        $v = 123;
+        $this->assertFalse( $testClass::_($valid_array)->validate($v) );
 
-        $v =  'ｱ　い';
-        $this->assertTrue( $testClass::_()->validate($v) );
-        $this->assertTrue( $testClass::_($trimZenkakuSpace)->validate($v) );
+        $v = '123';
+        $this->assertTrue( $testClass::_($valid_array)->validate($v) );
 
-        $v =  '日本';
-        $this->assertTrue( $testClass::_()->validate($v) );
-        $this->assertTrue( $testClass::_($trimZenkakuSpace)->validate($v) );
+        $v = 'ｱｲｳ';
+        $this->assertFalse( $testClass::_($valid_array)->validate($v) );
 
-        $v =  '高';
-        $this->assertTrue( $testClass::_()->validate($v) );
-        $this->assertTrue( $testClass::_($trimZenkakuSpace)->validate($v) );
+        $valid_array_two = [
+            'ID' =>  1,
+            'name' =>  'Peter',
+        ];
+        $v = 'Peter';
+        $this->assertTrue( $testClass::_($valid_array_two)->validate($v) );
 
-        $v =  '髙橋';     //　上の'高'感じとこの'髙'感じ違います。
-        $this->assertTrue( $testClass::_()->validate($v) );
-        $this->assertTrue( $testClass::_($trimZenkakuSpace)->validate($v) );
-
-        $v =  '「いっぱい」';
-        $this->assertTrue( $testClass::_()->validate($v) );
-        $this->assertTrue( $testClass::_($trimZenkakuSpace)->validate($v) );
-
-        $v =  '存在する・存在する/存在する。';
-        $this->assertTrue( $testClass::_()->validate($v) );
-        $this->assertTrue( $testClass::_($trimZenkakuSpace)->validate($v) );
-
-        $v =  '〒120-0000';
-        $this->assertTrue( $testClass::_()->validate($v) );
-        $this->assertTrue( $testClass::_($trimZenkakuSpace)->validate($v) );
-
-        $v =  '〶120-0000';
-        $this->assertTrue( $testClass::_()->validate($v) );
-        $this->assertTrue( $testClass::_($trimZenkakuSpace)->validate($v) );
-
-        $v =  '三千円';
-        $this->assertTrue( $testClass::_()->validate($v) );
-        $this->assertTrue( $testClass::_($trimZenkakuSpace)->validate($v) );
-
-        $v =  'A strange string to pass, maybe with some ø, æ, å characters.';
-        $this->assertTrue( $testClass::_()->validate($v) );
-        $this->assertTrue( $testClass::_($trimZenkakuSpace)->validate($v) );
-
-		$v =  999;
-		$this->assertTrue( $testClass::_()->validate($v) );
-        $this->assertTrue( $testClass::_($trimZenkakuSpace)->validate($v) );
-
-		$v =  999.9876;
-		$this->assertTrue( $testClass::_()->validate($v) );
-        $this->assertTrue( $testClass::_($trimZenkakuSpace)->validate($v) );
+        $valid_array_two = [
+            'ID' =>  1,
+            'name' =>  'Peter',
+        ];
+        $v = 'John';
+        $this->assertFalse( $testClass::_($valid_array_two)->validate($v) );
 	}
 }
