@@ -30,9 +30,9 @@ class WGGInt extends WGG
 
 	public function validate( mixed &$data ): bool
 	{
-		if ( preg_match( '/^\-?[0-9]+$/', $data ) )
+		if ( preg_match( '/^\-?[0-9]+$/', $this->castString( $data ), $match ) )
 		{
-			$n = (int) $data;
+			$n = (int) $match[0];
 			if ( $n >= $this->min && $n <= $this->max )
 			{
 				$data = $n;

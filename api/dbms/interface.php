@@ -28,7 +28,7 @@ function _QC(): WGDBMS|false
 				$WG_CORE_DBMS = new WGDBMSPostgreSQL( WGCONF_DBMS_HOST, WGCONF_DBMS_PORT, WGCONF_DBMS_DB, WGCONF_DBMS_USER, WGCONF_DBMS_PASSWD );
 				if ( ! $WG_CORE_DBMS->open() )
 				{
-					wg_log_write( WGLOG_FATAL, "'" . WGCONF_DBMS_DB . "' への接続に失敗しました" );
+					wg_log_write( WGLOG_FATAL, "Can't connect to '%s' as PostgreSQL", WGCONF_DBMS_DB );
 
 					return false;
 				}
@@ -41,14 +41,14 @@ function _QC(): WGDBMS|false
 				$WG_CORE_DBMS = new WGDBMSMySQL( WGCONF_DBMS_HOST, WGCONF_DBMS_PORT, WGCONF_DBMS_DB, WGCONF_DBMS_USER, WGCONF_DBMS_PASSWD );
 				if ( ! $WG_CORE_DBMS->open() )
 				{
-					wg_log_write( WGLOG_FATAL, "'" . WGCONF_DBMS_DB . "' への接続に失敗しました" );
+					wg_log_write( WGLOG_FATAL, "Can't connect to '%s' as MySQL/MariaDB", WGCONF_DBMS_DB );
 
 					return false;
 				}
 				break;
 
 			default:
-				wg_log_write( WGLOG_FATAL, "WGCONF_DBMS_TYPE 種別が想定外です。" );
+				wg_log_write( WGLOG_FATAL, "WGCONF_DBMS_TYPE '%s' is not supported.", WGCONF_DBMS_TYPE );
 				break;
 		}
 	}
@@ -179,7 +179,7 @@ function _R(): int
  */
 function _ESC( string $str ): string
 {
-	return ( $d = _QC() ) ? $d->ESC( $str ) : die();
+	return ( $d = _QC() ) ? $d->ESC( $str ) : throw new WGDatabaseRuntimeException();
 }
 
 /**
@@ -192,7 +192,7 @@ function _ESC( string $str ): string
  */
 function _S( mixed $str, bool $isAllowNull = true ): string
 {
-	return ( $d = _QC() ) ? $d->S( $str, $isAllowNull ) : die();
+	return ( $d = _QC() ) ? $d->S( $str, $isAllowNull ) : throw new WGDatabaseRuntimeException();
 }
 
 /**
@@ -205,7 +205,7 @@ function _S( mixed $str, bool $isAllowNull = true ): string
  */
 function _B( mixed $bool, bool $isAllowNull = true ): string
 {
-	return ( $d = _QC() ) ? $d->B( $bool, $isAllowNull ) : die();
+	return ( $d = _QC() ) ? $d->B( $bool, $isAllowNull ) : throw new WGDatabaseRuntimeException();
 }
 
 /**
@@ -218,7 +218,7 @@ function _B( mixed $bool, bool $isAllowNull = true ): string
  */
 function _N( mixed $num, bool $isAllowNull = true )
 {
-	return ( $d = _QC() ) ? $d->N( $num, $isAllowNull ) : die();
+	return ( $d = _QC() ) ? $d->N( $num, $isAllowNull ) : throw new WGDatabaseRuntimeException();
 }
 
 /**
@@ -231,7 +231,7 @@ function _N( mixed $num, bool $isAllowNull = true )
  */
 function _D( mixed $num, bool $isAllowNull = true ): string
 {
-	return ( $d = _QC() ) ? $d->D( $num, $isAllowNull ) : die();
+	return ( $d = _QC() ) ? $d->D( $num, $isAllowNull ) : throw new WGDatabaseRuntimeException();
 }
 
 /**
@@ -244,7 +244,7 @@ function _D( mixed $num, bool $isAllowNull = true ): string
  */
 function _TD( mixed $t, bool $isAllowNull = true ): string
 {
-	return ( $d = _QC() ) ? $d->TD( $t, $isAllowNull ) : die();
+	return ( $d = _QC() ) ? $d->TD( $t, $isAllowNull ) : throw new WGDatabaseRuntimeException();
 }
 
 /**
@@ -257,7 +257,7 @@ function _TD( mixed $t, bool $isAllowNull = true ): string
  */
 function _TT( mixed $t, bool $isAllowNull = true ): string
 {
-	return ( $d = _QC() ) ? $d->TT( $t, $isAllowNull ) : die();
+	return ( $d = _QC() ) ? $d->TT( $t, $isAllowNull ) : throw new WGDatabaseRuntimeException();
 }
 
 /**
@@ -270,7 +270,7 @@ function _TT( mixed $t, bool $isAllowNull = true ): string
  */
 function _TS( mixed $t, bool $isAllowNull = true ): string
 {
-	return ( $d = _QC() ) ? $d->TS( $t, $isAllowNull ) : die();
+	return ( $d = _QC() ) ? $d->TS( $t, $isAllowNull ) : throw new WGDatabaseRuntimeException();
 }
 
 /**
@@ -283,7 +283,7 @@ function _TS( mixed $t, bool $isAllowNull = true ): string
  */
 function _BLOB( mixed $raw, bool $isAllowNull = true ): string
 {
-	return ( $d = _QC() ) ? $d->BLOB( $raw, $isAllowNull ) : die();
+	return ( $d = _QC() ) ? $d->BLOB( $raw, $isAllowNull ) : throw new WGDatabaseRuntimeException();
 }
 
 /**
@@ -292,7 +292,7 @@ function _BLOB( mixed $raw, bool $isAllowNull = true ): string
  */
 function _U()
 {
-	return ( $d = _QC() ) ? $d->N( wg_get_usercd() ) : die();
+	return ( $d = _QC() ) ? $d->N( wg_get_usercd() ) : throw new WGDatabaseRuntimeException();
 }
 
 /**
@@ -300,7 +300,7 @@ function _U()
  */
 function _QBEGIN(): void
 {
-	( $d = _QC() ) ? $d->BEGIN() : die();
+	( $d = _QC() ) ? $d->BEGIN() : throw new WGDatabaseRuntimeException();
 }
 
 /**
@@ -308,7 +308,7 @@ function _QBEGIN(): void
  */
 function _QROLLBACK(): void
 {
-	( $d = _QC() ) ? $d->ROLLBACK() : die();
+	( $d = _QC() ) ? $d->ROLLBACK() : throw new WGDatabaseRuntimeException();
 }
 
 /**
@@ -316,7 +316,7 @@ function _QROLLBACK(): void
  */
 function _QCOMMIT(): void
 {
-	( $d = _QC() ) ? $d->COMMIT() : die();
+	( $d = _QC() ) ? $d->COMMIT() : throw new WGDatabaseRuntimeException();
 }
 
 /**
@@ -325,7 +325,7 @@ function _QCOMMIT(): void
  */
 function _QEND(): void
 {
-	( $d = _QC() ) ? $d->END() : die();
+	( $d = _QC() ) ? $d->END() : throw new WGDatabaseRuntimeException();
 }
 
 /**

@@ -120,7 +120,7 @@ function wg_log_write( int $logtype, string $format, mixed ...$args ): void
 				$log = sprintf( "   --> %-40s %s (%s)\n", $cn, $b["file"], $b["line"] );
 				wg_log_write_error_log( $log );
 			}
-			die();
+			throw new WGRuntimeException();
 		}
 	}
 }
@@ -156,7 +156,7 @@ function wg_log_dump( int $logtype, mixed $var ): void
  */
 function wg_die( string $msg ): void
 {
-	wg_log_write( WGLOG_ERROR, "DIE\n{$msg}" );
+	wg_log_write( WGLOG_ERROR, "DIE\n$msg" );
 	exit;
 }
 
