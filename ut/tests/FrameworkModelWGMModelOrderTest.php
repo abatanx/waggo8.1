@@ -14,9 +14,41 @@ if ( ! defined( 'WG_UNITTEST' ) )
 }
 
 require_once __DIR__ . '/../../framework/m/WGMModel.php';
+require_once __DIR__ . '/../../framework/m/WGMModelOrder.php';
 
 class FrameworkModelWGMModelOrderTest extends TestCase
 {
+	public function test_model_order_class()
+	{
+		$o = new WGMModelOrder();
+		$o->setOrderSyntax('id');
+		$this->assertEquals('{id}', $o->getFormula());
+		$this->assertEquals('ASC', $o->getOrder());
+
+		$o = new WGMModelOrder();
+		$o->setOrderSyntax('{id}');
+		$this->assertEquals('{id}', $o->getFormula());
+		$this->assertEquals('ASC', $o->getOrder());
+
+		$o = new WGMModelOrder();
+		$o->setOrderSyntax('id desc');
+		$this->assertEquals('{id}', $o->getFormula());
+		$this->assertEquals('DESC', $o->getOrder());
+
+		$o = new WGMModelOrder();
+		$o->setOrderSyntax('{id} desc');
+		$this->assertEquals('{id}', $o->getFormula());
+		$this->assertEquals('DESC', $o->getOrder());
+
+		$o = new WGMModelOrder();
+		$o->setOrderSyntax('random()');
+		$this->assertEquals('random()', $o->getFormula());
+		$this->assertEquals(null, $o->getOrder());
+
+
+
+	}
+
 	public function test_model_order()
 	{
 		_E( <<<SQL

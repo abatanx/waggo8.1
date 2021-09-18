@@ -9,58 +9,111 @@ declare( strict_types=1 );
 
 class WGMModelOrder
 {
+	const ORDER_NONE = 0, ORDER_ASC = 1, ORDER_DESC = 2;
+
 	static int $currentPriority = 0x7fff;
 
 	protected int $priority;
 
-	protected string $name;
-	protected string $asc;
+	protected string $formula;
+	protected int $order = self::ORDER_NONE;
 
 	public function __construct()
 	{
 		$this->priority = self::$currentPriority ++;
-		$this->name     = '';
-		$this->asc      = 'ASC';
+		$this->formula  = '';
+		$this->order    = self::ORDER_NONE;
 	}
 
-	public function getName(): string
+	public function getFormula(): string
 	{
-		return $this->name;
+		return $this->formula;
 	}
 
-	public function setName( $name ): self
+	public function setFormula( $name ): self
 	{
-		$this->name = $name;
+		$this->formula = $name;
 
 		return $this;
 	}
 
 	public function asc(): self
 	{
-		$this->asc = 'ASC';
+		$this->order = self::ORDER_ASC;
 
 		return $this;
 	}
 
 	public function desc(): self
 	{
-		$this->asc = 'DESC';
+		$this->order = self::ORDER_DESC;
 
 		return $this;
 	}
 
-	public function getNameAppendingPrefix( string $alias ): string
+	public function setOrder( int $order ): self
 	{
-		return $alias . '.' . $this->name;
+		$this->order = $order;
+
+		return $this;
 	}
 
-	public function setOrderSyntax( string $order ): bool
+	public function setOrderByString( string $order ): self
 	{
-		$syntax = trim($order);
-		$e = preg_split('/\s+/',$syntax);
+		switch ( strtoupper( $order ) )
+		{
+			case 'ASC':
+				$this->order = self::ORDER_ASC;
+				break;
+			case 'DESC':
+				$this->order = self::ORDER_DESC;
+				break;
+			default:
+				$this->order = self::ORDER_NONE;
+		}
 
+		return $this;
+	}
 
+	public function getOrder(): int
+	{
+		return $this->order;
+	}
 
+	public function getNameAppendingPrefix( string $alias ): string
+	{
+		return $alias . '.' . $this->formula;
+	}
 
+	public function setOrderSyntax( string $order ): self
+	{
+		$syntax = trim( $order );
+		if ( preg_match( '/^(\w+)\s+(asc|desc)$/i', $syntax, $m ) )
+		{
+			$this->formula = '{' . $m[1] . '}';
+			$this->setOrderByString( $m[2] );
+		}
+		else if ( preg_match( '/^({\w+})\s+(asc|desc)$/i', $syntax, $m ) )
+		{
+			$this->formula = $m[1];
+			$this->setOrderByString( $m[2] );
+		}
+		else if ( preg_match( '/^(\w+)$/', $syntax, $m ) )
+		{
+			$this->formula = '{' . $m[1] . '}';
+			$this->setOrder( self::ORDER_ASC );
+		}
+		else if ( preg_match( '/^({\w+})$/', $syntax, $m ) )
+		{
+			$this->formula = $m[1];
+			$this->setOrder( self::ORDER_ASC );
+		}
+		else
+		{
+			$this->formula = $syntax;
+			$this->setOrder( self::ORDER_NONE );
+		}
+
+		return $this;
 	}
 }
