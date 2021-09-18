@@ -28,27 +28,39 @@ class WGMModelOrder
 		return $this->name;
 	}
 
-	public function setName($name): self
+	public function setName( $name ): self
 	{
 		$this->name = $name;
 
 		return $this;
 	}
 
-	public function asc():self
+	public function asc(): self
 	{
 		$this->asc = 'ASC';
+
 		return $this;
 	}
 
-	public function desc():self
+	public function desc(): self
 	{
 		$this->asc = 'DESC';
+
 		return $this;
 	}
 
 	public function getNameAppendingPrefix( string $alias ): string
 	{
 		return $alias . '.' . $this->name;
+	}
+
+	public function setOrderSyntax( string $order ): bool
+	{
+		$syntax = trim($order);
+		$e = preg_split('/\s+/',$syntax);
+
+
+
+
 	}
 }

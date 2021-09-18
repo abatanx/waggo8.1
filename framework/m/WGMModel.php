@@ -403,7 +403,7 @@ class WGMModel
 		return $this->initFieldsPrimaryKey( $this->tableName );
 	}
 
-	public function expansion( string $exp ): string
+	public function expansion( string $exp, ?string $aliasPrefix = null ): string
 	{
 		$r = [];
 		$t = '';
@@ -450,8 +450,8 @@ class WGMModel
 		}
 		$queue( 1, $r, $t );
 
-		$g = function ( $m ) {
-			return $this->getAlias() . '.' . $m[1];
+		$g = function ( $m ) use ( $aliasPrefix ) {
+			return ( $aliasPrefix ?? $this->getAlias() ) . '.' . $m[1];
 		};
 
 		return implode( '', array_map( function ( $v ) use ( $g ) {
@@ -765,6 +765,8 @@ class WGMModel
 		$orders = [];
 		foreach ( $keys as $key )
 		{
+
+
 			if ( is_int( $key ) )
 			{
 				$this->orderOrder = $key;
@@ -1055,7 +1057,10 @@ class WGMModel
 		} );
 
 		$fieldOrders = [];
-		foreach( $orders as $o ) $fieldOrders[] = $o[1];
+		foreach ( $orders as $o )
+		{
+			$fieldOrders[] = $o[1];
+		}
 		$orderby = count( $fieldOrders ) > 0 ? ' ORDER BY ' . implode( ',', $fieldOrders ) : '';
 
 		$this->recs  = 0;
