@@ -824,14 +824,11 @@ class WGMModel
 
 	public function findJoinModel( string $tableName ): WGMModel|false
 	{
-		/**
-		 * @var WGMModel[] $jm
-		 */
-		foreach ( $this->joins as $jm )
+		foreach ( $this->joins as $join )
 		{
-			if ( $jm->getJoinModel()->getTable() === $tableName )
+			if ( $join->getJoinModel()->getTable() === $tableName )
 			{
-				return $jm->getJoinModel();
+				return $join->getJoinModel();
 			}
 		}
 
@@ -841,13 +838,10 @@ class WGMModel
 
 	public function whereOptCondExpression(): array
 	{
-		/**
-		 * @var WGMModel[] $jm
-		 */
 		$wheres = [];
-		foreach ( $this->joins as $jm )
+		foreach ( $this->joins as $join )
 		{
-			$wheres = array_merge( $wheres, $jm->getJoinModel()->whereOptCondExpression() );
+			$wheres = array_merge( $wheres, $join->getJoinModel()->whereOptCondExpression() );
 		}
 		foreach ( $this->getConditions() as $w )
 		{
@@ -895,9 +889,6 @@ class WGMModel
 
 	public function getJoinExternalFields(): array
 	{
-		/**
-		 * @var WGMModel[] $jm
-		 */
 		$fields = [];
 		foreach ( $this->getFields() as $f )
 		{
@@ -906,9 +897,9 @@ class WGMModel
 				$this->fields[ $f ]->getNameAppendingPrefix( $this->getAlias() )
 			];
 		}
-		foreach ( $this->joins as $jm )
+		foreach ( $this->joins as $join )
 		{
-			$fields = array_merge( $fields, $jm->getJoinModel()->getJoinExternalFields() );
+			$fields = array_merge( $fields, $join->getJoinModel()->getJoinExternalFields() );
 		}
 
 		return $fields;
@@ -916,46 +907,30 @@ class WGMModel
 
 	public function getJoinTables( string $base ): string
 	{
-		/**
-		 * @var WGMModel[] $jm
-		 */
-		foreach ( $this->joins as $jm )
+		foreach ( $this->joins as $join )
 		{
 			$on = [];
-			foreach ( $jm->getOn() as $l => $r )
+			foreach ( $join->getOn() as $l => $r )
 			{
 				$l = is_int( $l ) ? $r : $l;
 				if ( ! in_array( $l, $this->getFields() ) )
 				{
 					$this->logFatal( 'Joined LEFT, no \'%s\' field.', $l );
 				}
-				if ( ! in_array( $r, $jm->getJoinModel()->getFields() ) )
+				if ( ! in_array( $r, $join->getJoinModel()->getFields() ) )
 				{
 					$this->logFatal( 'Joined RIGHT, no \'%s\' field.', $r );
 				}
-				$on[] = $this->getAlias() . '.' . $l . '=' . $jm->getJoinModel()->getAlias() . '.' . $r;
+				$on[] = $this->getAlias() . '.' . $l . '=' . $join->getJoinModel()->getAlias() . '.' . $r;
 			}
+
 			$on = implode( ' AND ', $on );
-			$j  = '';
-			switch ( $jm->getJoinType() )
-			{
-				case WGMModelJoin::LEFT:
-					$j = 'LEFT JOIN';
-					break;
-				case WGMModelJoin::RIGHT:
-					$j = 'RIGHT JOIN';
-					break;
-				case WGMModelJoin::INNER:
-					$j = 'INNER JOIN';
-					break;
-				default:
-					$this->logFatal( 'Unrecognized join type.' );
-			}
-			$base = '(' . $base . ' ' . $j . ' ' .
-					$jm->getJoinModel()->getTable() . ' AS ' .
-					$jm->getJoinModel()->getAlias() .
+
+			$base = '(' . $base . ' ' . $join->getJoinTypeOperatorString() . ' ' .
+					$join->getJoinModel()->getTable() . ' AS ' .
+					$join->getJoinModel()->getAlias() .
 					' ON ' . $on . ')';
-			$base = $jm->getJoinModel()->getJoinTables( $base );
+			$base = $join->getJoinModel()->getJoinTables( $base );
 		}
 
 		return $base;
@@ -966,13 +941,10 @@ class WGMModel
 	 */
 	public function getJoinOrders(): array
 	{
-		/**
-		 * @var WGMModel[] $jm
-		 */
 		$orders = $this->orderArray;
-		foreach ( $this->joins as $jm )
+		foreach ( $this->joins as $join )
 		{
-			$orders = array_merge( $orders, $jm->getJoinModel()->getJoinOrders() );
+			$orders = array_merge( $orders, $join->getJoinModel()->getJoinOrders() );
 		}
 
 		return $orders;
@@ -980,13 +952,10 @@ class WGMModel
 
 	public function getJoinModels(): array
 	{
-		/**
-		 * @var WGMModel[] $jm
-		 */
 		$models = [ $this ];
-		foreach ( $this->joins as $jm )
+		foreach ( $this->joins as $join )
 		{
-			$models = array_merge( $models, $jm->getJoinModel()->getJoinModels() );
+			$models = array_merge( $models, $join->getJoinModel()->getJoinModels() );
 		}
 
 		return $models;
@@ -1001,13 +970,10 @@ class WGMModel
 	// (((aaaa as t1 inner join bbbb as t2 on t1.id=t2.id) inner join cccc as t3 on t1.id=t3.id
 	public function getJoinExternalTables(): array
 	{
-		/**
-		 * @var WGMModel[] $jm
-		 */
 		$ret = [];
-		foreach ( $this->joins as $jm )
+		foreach ( $this->joins as $join )
 		{
-			$ret = array_merge( $ret, $jm->getJoinModel()->getJoinExternalTables() );
+			$ret = array_merge( $ret, $join->getJoinModel()->getJoinExternalTables() );
 		}
 
 		return $ret;
@@ -1432,15 +1398,14 @@ class WGMModel
 
 	public function getJoinedAvars(): array
 	{
-		$r  = [];
-		$jm = $this->getJoinModels();
-		$n  = $this->result();
-		foreach ( $jm as $m )
+		$r = [];
+		$n = $this->result();
+		foreach ( $this->getJoinModels() as $join )
 		{
-			$tn = $m->getTable();
+			$tn = $join->getTable();
 			for ( $i = 0; $i < $n; $i ++ )
 			{
-				$r[ $i ][ $tn ] = $m->avars[ $i ];
+				$r[ $i ][ $tn ] = $join->avars[ $i ];
 			}
 		}
 

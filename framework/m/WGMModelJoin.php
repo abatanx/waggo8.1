@@ -37,6 +37,16 @@ class WGMModelJoin
 		return $this->joinType;
 	}
 
+	public function getJoinTypeOperatorString(): string
+	{
+		return match ( $this->getJoinType() )
+		{
+			self::INNER => 'INNER JOIN',
+			self::LEFT => 'LEFT JOIN',
+			self::RIGHT => 'RIGHT JOIN'
+		};
+	}
+
 	public function getJoinModel(): WGMModel
 	{
 		return $this->joinModel;
