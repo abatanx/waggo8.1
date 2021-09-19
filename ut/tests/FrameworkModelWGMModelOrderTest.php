@@ -20,55 +20,141 @@ class FrameworkModelWGMModelOrderTest extends TestCase
 {
 	public function test_model_order_class()
 	{
-		$o = new WGMModelOrder();
-		$o->setOrderSyntax('id');
-		$this->assertEquals('{id}', $o->getFormula());
-		$this->assertEquals('ASC', $o->getOrder());
+		_E( <<<SQL
+DROP TABLE IF EXISTS test_order_class;
+CREATE TABLE test_order_class(
+    id int4 not null primary key
+);
+SQL);
+		$m = new WGMModel('test_order_class');
+		$m->setAlias('x');
 
-		$o = new WGMModelOrder();
-		$o->setOrderSyntax('{id}');
-		$this->assertEquals('{id}', $o->getFormula());
-		$this->assertEquals('ASC', $o->getOrder());
+		$o = new WGMModelOrder($m);
+		$o->setFormula('id');
+		$this->assertEquals('x.id ASC', $o->getFormula());
+		$this->assertEquals(WGMModelOrder::ORDER_ASC, $o->getOrder());
 
-		$o = new WGMModelOrder();
-		$o->setOrderSyntax('id desc');
-		$this->assertEquals('{id}', $o->getFormula());
-		$this->assertEquals('DESC', $o->getOrder());
+		$o = new WGMModelOrder($m);
+		$o->setFormula('{id}');
+		$this->assertEquals('x.id ASC', $o->getFormula());
+		$this->assertEquals(WGMModelOrder::ORDER_ASC, $o->getOrder());
 
-		$o = new WGMModelOrder();
-		$o->setOrderSyntax('{id} desc');
-		$this->assertEquals('{id}', $o->getFormula());
-		$this->assertEquals('DESC', $o->getOrder());
+		$o = new WGMModelOrder($m);
+		$o->setFormula('id desc');
+		$this->assertEquals('x.id DESC', $o->getFormula());
+		$this->assertEquals(WGMModelOrder::ORDER_DESC, $o->getOrder());
 
-		$o = new WGMModelOrder();
-		$o->setOrderSyntax('random()');
-		$this->assertEquals('random()', $o->getFormula());
-		$this->assertEquals(null, $o->getOrder());
+		$o = new WGMModelOrder($m);
+		$o->setFormula('{id} desc');
+		$this->assertEquals('x.id DESC', $o->getFormula());
+		$this->assertEquals(WGMModelOrder::ORDER_DESC, $o->getOrder());
 
+		$o = new WGMModelOrder($m);
+		$o->setFormula('func()');
+		$this->assertEquals('func() ASC', $o->getFormula());
+		$this->assertEquals(WGMModelOrder::ORDER_ASC, $o->getOrder());
 
+		$o = new WGMModelOrder($m);
+		$o->setFormula('func(id)');
+		$this->assertEquals('func(id) ASC', $o->getFormula());
+		$this->assertEquals(WGMModelOrder::ORDER_ASC, $o->getOrder());
 
+		$o = new WGMModelOrder($m);
+		$o->setFormula('func({id})');
+		$this->assertEquals('func(x.id) ASC', $o->getFormula());
+		$this->assertEquals(WGMModelOrder::ORDER_ASC, $o->getOrder());
+
+		$o = new WGMModelOrder($m);
+		$o->setFormula('func() desc');
+		$this->assertEquals('func() DESC', $o->getFormula());
+		$this->assertEquals(WGMModelOrder::ORDER_DESC, $o->getOrder());
+
+		$o = new WGMModelOrder($m);
+		$o->setFormula('func(id) desc');
+		$this->assertEquals('func(id) DESC', $o->getFormula());
+		$this->assertEquals(WGMModelOrder::ORDER_DESC, $o->getOrder());
+
+		$o = new WGMModelOrder($m);
+		$o->setFormula('func({id}) desc');
+		$this->assertEquals('func(x.id) DESC', $o->getFormula());
+		$this->assertEquals(WGMModelOrder::ORDER_DESC, $o->getOrder());
+
+		_E( <<<SQL
+DROP TABLE IF EXISTS test_order_class;
+SQL
+		);
 	}
 
 	public function test_model_order()
 	{
 		_E( <<<SQL
 DROP TABLE IF EXISTS test_order;
-CREATE TABLE test_text(
+CREATE TABLE test_order(
     id int4 not null primary key ,
     v0 text,
     v1 text 
 );
-INSERT INTO test_text VALUES(0,'',null);
-INSERT INTO test_text VALUES(10,'A','C');
-INSERT INTO test_text VALUES(20,'B','B');
-INSERT INTO test_text VALUES(30,'C','A');
+INSERT INTO test_order VALUES(0,'',null);
+INSERT INTO test_order VALUES(10,'A','D');
+INSERT INTO test_order VALUES(20,'A','C');
+INSERT INTO test_order VALUES(30,'B','C');
 SQL
 		);
 
 		$m = new WGMModel( "test_order" );
-		$m->orderby('id');
+		$this->assertSame(
+			[
+				[ 'id' => 0, 'v0' => '', 'v1' => null, ],
+				[ 'id' => 10, 'v0' => 'A', 'v1' => 'D', ],
+				[ 'id' => 20, 'v0' => 'A', 'v1' => 'C', ],
+				[ 'id' => 30, 'v0' => 'B', 'v1' => 'C', ],
+			],
+			$m->orderby('id')->select()->avars
+		);
 
+		$m = new WGMModel( "test_order" );
+		$this->assertSame(
+			[
+				[ 'id' => 30, 'v0' => 'B', 'v1' => 'C', ],
+				[ 'id' => 20, 'v0' => 'A', 'v1' => 'C', ],
+				[ 'id' => 10, 'v0' => 'A', 'v1' => 'D', ],
+				[ 'id' => 0, 'v0' => '', 'v1' => null, ],
+			],
+			$m->orderby('id desc')->select()->avars
+		);
 
+		$m = new WGMModel( "test_order" );
+		$this->assertSame(
+			[
+				[ 'id' => 30, 'v0' => 'B', 'v1' => 'C', ],
+				[ 'id' => 10, 'v0' => 'A', 'v1' => 'D', ],
+				[ 'id' => 20, 'v0' => 'A', 'v1' => 'C', ],
+				[ 'id' => 0, 'v0' => '', 'v1' => null, ],
+			],
+			$m->orderby('v0 desc','id')->select()->avars
+		);
+
+		$m = new WGMModel( "test_order" );
+		$this->assertSame(
+			[
+				[ 'id' => 0, 'v0' => '', 'v1' => null, ],
+				[ 'id' => 20, 'v0' => 'A', 'v1' => 'C', ],
+				[ 'id' => 10, 'v0' => 'A', 'v1' => 'D', ],
+				[ 'id' => 30, 'v0' => 'B', 'v1' => 'C', ],
+			],
+			$m->orderby("{v0}||COALESCE({v1},'')")->select()->avars
+		);
+
+		$m = new WGMModel( "test_order" );
+		$this->assertSame(
+			[
+				[ 'id' => 30, 'v0' => 'B', 'v1' => 'C', ],
+				[ 'id' => 10, 'v0' => 'A', 'v1' => 'D', ],
+				[ 'id' => 20, 'v0' => 'A', 'v1' => 'C', ],
+				[ 'id' => 0, 'v0' => '', 'v1' => null, ],
+			],
+			$m->orderby("{v0}||COALESCE({v1},'') desc")->select()->avars
+		);
 
 		_E( <<<SQL
 DROP TABLE IF EXISTS test_order;

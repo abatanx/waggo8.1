@@ -47,32 +47,16 @@ INSERT INTO test_b VALUES(303,30,'a3-2',false);
 SQL
 		);
 
-		$a = (new WGMModel( 'test_a' ))->orderby('id');
-		$b = (new WGMModel( 'test_b' ))->orderby('id');
+		$a = ( new WGMModel( 'test_a' ) )->orderby( 'id' );
+		$b = ( new WGMModel( 'test_b' ) )->orderby( 'id' );
 		$a->inner( $b, [ 'id' => 'a_id' ] )->select()->avars;
 
-		$this->assertEquals( array(
-				array(
-					'id'      => 10,
-					'title'   => 'a1',
-					'enabled' => true,
-				),
-				array(
-					'id'      => 10,
-					'title'   => 'a1',
-					'enabled' => true,
-				),
-				array(
-					'id'      => 20,
-					'title'   => 'a2',
-					'enabled' => false,
-				),
-				array(
-					'id'      => 20,
-					'title'   => 'a2',
-					'enabled' => false,
-				),
-			)
+		$this->assertSame( [
+				[ 'id' => 10, 'title' => 'a1', 'enabled' => true, ],
+				[ 'id' => 10, 'title' => 'a1', 'enabled' => true, ],
+				[ 'id' => 20, 'title' => 'a2', 'enabled' => false, ],
+				[ 'id' => 20, 'title' => 'a2', 'enabled' => false, ],
+			]
 			, $a->avars );
 
 

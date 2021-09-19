@@ -10,6 +10,8 @@ declare( strict_types=1 );
 require_once __DIR__ . '/../../waggo.php';
 require_once __DIR__ . '/../v8/WGV8Object.php';
 require_once __DIR__ . '/WGMModelField.php';
+require_once __DIR__ . '/WGMModelOrder.php';
+require_once __DIR__ . '/WGMModelJoin.php';
 require_once __DIR__ . '/WGMModelGetKeys.php';
 require_once __DIR__ . '/WGMModelFilter.php';
 require_once __DIR__ . '/WGMVarsObject.php';
@@ -23,7 +25,6 @@ $WGMModelID = [];
 class WGMModel
 {
 	const N = 0, S = 1, B = 2, TD = 3, TT = 4, TS = 5, D = 6;
-	const JNULL = 0, JINNER = 1, JLEFT = 2, JRIGHT = 3;
 
 	public WGDBMS $dbms;
 
@@ -46,12 +47,20 @@ class WGMModel
 	protected array $conditions;
 
 	protected WGV8BasicPagination|null $pager;
-	protected array $joins;
 
 	protected stdClass $dbmsProperty;
 
-	protected array $orderByArray;
+	/**
+	 * @var WGMModelJoin[]
+	 */
+	protected array $joins;
+
+	/**
+	 * @var WGMModelOrder[]
+	 */
+	protected array $orderArray;
 	protected int $orderOrder;
+
 	protected string|null $offsetKeyword, $limitKeyword;
 
 	public function __construct( string $tableName, WGDBMS|null $dbms = null )
@@ -79,20 +88,20 @@ class WGMModel
 
 		$this->defaultFilter = new WGMModelFILTER();
 
-		$this->tableName    = $tableName;
-		$this->fields       = [];
-		$this->assign       = [];
-		$this->vars         = [];
-		$this->avars        = [];
-		$this->backvars     = [];
-		$this->joins        = [];
-		$this->conditions   = [];
-		$this->initYmdKeys  = [];
-		$this->updYmdKeys   = [];
-		$this->orderByArray = [];
-		$this->orderOrder   = PHP_INT_MAX;
-		$this->recs         = 0;
-		$this->pager        = null;
+		$this->tableName   = $tableName;
+		$this->fields      = [];
+		$this->assign      = [];
+		$this->vars        = [];
+		$this->avars       = [];
+		$this->backvars    = [];
+		$this->joins       = [];
+		$this->conditions  = [];
+		$this->initYmdKeys = [];
+		$this->updYmdKeys  = [];
+		$this->orderArray  = [];
+		$this->orderOrder  = PHP_INT_MAX;
+		$this->recs        = 0;
+		$this->pager       = null;
 
 		$this->offsetKeyword = null;
 		$this->limitKeyword  = null;
@@ -242,6 +251,11 @@ class WGMModel
 		}
 	}
 
+	/**
+	 * テーブルから、フィールドを初期化する
+	 *
+	 * @param string $tableName
+	 */
 	protected function initFields( string $tableName ): void
 	{
 		if ( $this->dbms instanceof WGDBMSPostgreSQL )
@@ -645,21 +659,21 @@ class WGMModel
 
 	public function left( WGMModel $model, array $on ): self
 	{
-		$this->joins[] = [ self::JLEFT, $model, $on ];
+		$this->joins[] = WGMModelJoin::_( WGMModelJoin::LEFT, $model, $on );
 
 		return $this;
 	}
 
 	public function right( WGMModel $model, array $on ): self
 	{
-		$this->joins[] = [ self::JRIGHT, $model, $on ];
+		$this->joins[] = WGMModelJoin::_( WGMModelJoin::RIGHT, $model, $on );
 
 		return $this;
 	}
 
 	public function inner( WGMModel $model, array $on ): self
 	{
-		$this->joins[] = [ self::JINNER, $model, $on ];
+		$this->joins[] = WGMModelJoin::_( WGMModelJoin::INNER, $model, $on );
 
 		return $this;
 	}
@@ -759,34 +773,23 @@ class WGMModel
 
 	public function orderby( ...$args ): self
 	{
-		$keys = $this->toFlatArray( $args );
-		$this->logInfo( 'WGMModel::orderby( %s )', implode( ' , ', $keys ) );
+		$args = $this->toFlatArray( $args );
+		$this->logInfo( 'WGMModel::orderby( %s )', implode( ' , ', $args ) );
 
 		$orders = [];
-		foreach ( $keys as $key )
+		foreach ( $args as $arg )
 		{
-
-
-			if ( is_int( $key ) )
+			if ( is_int( $arg ) )
 			{
-				$this->orderOrder = $key;
+				//$this->orderOrder = $key;
 			}
 			else
 			{
-				if ( preg_match( '/^(\w+)(\s+\w+)?$/', trim( $key ), $m ) )
-				{
-					$e        = [ trim( $m[1] ), trim( $m[2] ?? '' ) ];
-					$e[0]     = $this->getAlias() . '.' . $e[0];
-					$orders[] = implode( ' ', $e );
-				}
-				else
-				{
-					$orders[] = $this->expansion( $key );
-				}
+				$orders[] = WGMModelOrder::_( $this, $arg );
 			}
 		}
 
-		$this->orderByArray = $orders;
+		$this->orderArray = $orders;
 
 		return $this;
 	}
@@ -826,9 +829,9 @@ class WGMModel
 		 */
 		foreach ( $this->joins as $jm )
 		{
-			if ( $jm[1]->getTable() === $tableName )
+			if ( $jm->getJoinModel()->getTable() === $tableName )
 			{
-				return $jm[1];
+				return $jm->getJoinModel();
 			}
 		}
 
@@ -844,7 +847,7 @@ class WGMModel
 		$wheres = [];
 		foreach ( $this->joins as $jm )
 		{
-			$wheres = array_merge( $wheres, $jm[1]->whereOptCondExpression() );
+			$wheres = array_merge( $wheres, $jm->getJoinModel()->whereOptCondExpression() );
 		}
 		foreach ( $this->getConditions() as $w )
 		{
@@ -905,7 +908,7 @@ class WGMModel
 		}
 		foreach ( $this->joins as $jm )
 		{
-			$fields = array_merge( $fields, $jm[1]->getJoinExternalFields() );
+			$fields = array_merge( $fields, $jm->getJoinModel()->getJoinExternalFields() );
 		}
 
 		return $fields;
@@ -919,54 +922,57 @@ class WGMModel
 		foreach ( $this->joins as $jm )
 		{
 			$on = [];
-			foreach ( $jm[2] as $l => $r )
+			foreach ( $jm->getOn() as $l => $r )
 			{
 				$l = is_int( $l ) ? $r : $l;
 				if ( ! in_array( $l, $this->getFields() ) )
 				{
 					$this->logFatal( 'Joined LEFT, no \'%s\' field.', $l );
 				}
-				if ( ! in_array( $r, $jm[1]->getFields() ) )
+				if ( ! in_array( $r, $jm->getJoinModel()->getFields() ) )
 				{
 					$this->logFatal( 'Joined RIGHT, no \'%s\' field.', $r );
 				}
-				$on[] = $this->getAlias() . '.' . $l . '=' . $jm[1]->getAlias() . '.' . $r;
+				$on[] = $this->getAlias() . '.' . $l . '=' . $jm->getJoinModel()->getAlias() . '.' . $r;
 			}
 			$on = implode( ' AND ', $on );
 			$j  = '';
-			switch ( $jm[0] )
+			switch ( $jm->getJoinType() )
 			{
-				case self::JLEFT:
+				case WGMModelJoin::LEFT:
 					$j = 'LEFT JOIN';
 					break;
-				case self::JRIGHT:
+				case WGMModelJoin::RIGHT:
 					$j = 'RIGHT JOIN';
 					break;
-				case self::JINNER:
+				case WGMModelJoin::INNER:
 					$j = 'INNER JOIN';
 					break;
 				default:
 					$this->logFatal( 'Unrecognized join type.' );
 			}
-			$base = '(' . $base . ' ' . $j . ' ' . $jm[1]->getTable() . ' AS ' . $jm[1]->getAlias() . ' ON ' . $on . ')';
-			$base = $jm[1]->getJoinTables( $base );
+			$base = '(' . $base . ' ' . $j . ' ' .
+					$jm->getJoinModel()->getTable() . ' AS ' .
+					$jm->getJoinModel()->getAlias() .
+					' ON ' . $on . ')';
+			$base = $jm->getJoinModel()->getJoinTables( $base );
 		}
 
 		return $base;
 	}
 
-	public function getJoinOrders( array $orders ): array
+	/**
+	 * @return WGMModelOrder[]
+	 */
+	public function getJoinOrders(): array
 	{
 		/**
 		 * @var WGMModel[] $jm
 		 */
-		if ( count( $this->orderByArray ) > 0 )
-		{
-			$orders[] = [ $this->orderOrder, $this->orderByArray ];
-		}
+		$orders = $this->orderArray;
 		foreach ( $this->joins as $jm )
 		{
-			$orders = $jm[1]->getJoinOrders( $orders );
+			$orders = array_merge( $orders, $jm->getJoinModel()->getJoinOrders() );
 		}
 
 		return $orders;
@@ -977,13 +983,13 @@ class WGMModel
 		/**
 		 * @var WGMModel[] $jm
 		 */
-		$ret = [ $this ];
+		$models = [ $this ];
 		foreach ( $this->joins as $jm )
 		{
-			$ret = array_merge( $ret, $jm[1]->getJoinModels() );
+			$models = array_merge( $models, $jm->getJoinModel()->getJoinModels() );
 		}
 
-		return $ret;
+		return $models;
 	}
 
 	//    aaaa as t1
@@ -1001,7 +1007,7 @@ class WGMModel
 		$ret = [];
 		foreach ( $this->joins as $jm )
 		{
-			$ret = array_merge( $ret, $jm[1]->getJoinExternalTables() );
+			$ret = array_merge( $ret, $jm->getJoinModel()->getJoinExternalTables() );
 		}
 
 		return $ret;
@@ -1051,15 +1057,15 @@ class WGMModel
 
 		// Entry all joined tables
 		$tables = $this->getJoinTables( $this->getTable() . ' AS ' . $this->getAlias() );
-		$orders = $this->getJoinOrders( [] );
-		usort( $orders, function ( $a, $b ) {
-			return $a[0] == $b[0] ? 0 : ( $a[0] < $b[0] ? - 1 : 1 );
+		$orders = $this->getJoinOrders();
+		usort( $orders, function ( WGMModelOrder $a, WGMModelOrder $b ) {
+			return $a->getPriority() - $b->getPriority();
 		} );
 
 		$fieldOrders = [];
 		foreach ( $orders as $o )
 		{
-			$fieldOrders[] = $o[1];
+			$fieldOrders[] = $o->getFormula();
 		}
 		$orderby = count( $fieldOrders ) > 0 ? ' ORDER BY ' . implode( ',', $fieldOrders ) : '';
 
@@ -1098,7 +1104,7 @@ class WGMModel
 
 		list( $f, $t, $w, $ord, $ofs, $lim ) = $this->makeQuery( $keys );
 
-		$q = sprintf( 'SELECT %s FROM %s%s%s%s%s;', $f, $t, $w, $ord, $ofs, $lim );
+		$q = sprintf( /** @lang text */ 'SELECT %s FROM %s%s%s%s%s;', $f, $t, $w, $ord, $ofs, $lim );
 		$this->dbms->E( $q );
 		$this->recs = $this->dbms->RECS();
 
@@ -1180,10 +1186,10 @@ class WGMModel
 	public function insert(): self
 	{
 		$this->recs = 0;
-		$flds       = $this->getFields();
+		$fields     = $this->getFields();
 
 		$dd = [];
-		foreach ( $flds as $k )
+		foreach ( $fields as $k )
 		{
 			$dd[ $k ] = $this->getAssignedValue( $k );
 		}
@@ -1196,7 +1202,7 @@ class WGMModel
 		$vs = [];
 		foreach ( $dd as $f => $v )
 		{
-			if ( ! in_array( $f, $flds ) )
+			if ( ! in_array( $f, $fields ) )
 			{
 				continue;
 			}
@@ -1355,7 +1361,7 @@ class WGMModel
 			}
 			else
 			{
-				$q = sprintf( 'UPDATE %s SET %s%s;', $this->tableName, implode( ',', $ss ), $wheres );
+				$q = sprintf( /** @lang text */ 'UPDATE %s SET %s%s;', $this->tableName, implode( ',', $ss ), $wheres );
 			}
 		}
 

@@ -9,30 +9,51 @@ declare( strict_types=1 );
 
 class WGMModelOrder
 {
-	const ORDER_NONE = 0, ORDER_ASC = 1, ORDER_DESC = 2;
+	const ORDER_ASC = 1, ORDER_DESC = 2;
 
 	static int $currentPriority = 0x7fff;
 
 	protected int $priority;
 
-	protected string $formula;
-	protected int $order = self::ORDER_NONE;
+	protected WGMModel $assignedModel;
+	protected string $orderField;
+	protected int $order = self::ORDER_ASC;
 
-	public function __construct()
+	public function __construct( WGMModel $ownerModel )
 	{
-		$this->priority = self::$currentPriority ++;
-		$this->formula  = '';
-		$this->order    = self::ORDER_NONE;
+		$this->priority      = self::$currentPriority ++;
+		$this->orderField    = '';
+		$this->order         = self::ORDER_ASC;
+		$this->assignedModel = $ownerModel;
+	}
+
+	static function _( WGMModel $ownerModel, string $formulaString ): self
+	{
+		$order = new static( $ownerModel );
+
+		return $order->setFormula( $formulaString );
+	}
+
+	public function getOrderField(): string
+	{
+		return $this->orderField;
 	}
 
 	public function getFormula(): string
 	{
-		return $this->formula;
+		$expanded = $this->assignedModel->expansion( $this->getOrderField() );
+
+		return match ( $this->order )
+		{
+			self::ORDER_ASC => $expanded . ' ASC',
+			self::ORDER_DESC => $expanded . ' DESC',
+			default => $expanded,
+		};
 	}
 
-	public function setFormula( $name ): self
+	public function setOrderField( $name ): self
 	{
-		$this->formula = $name;
+		$this->orderField = $name;
 
 		return $this;
 	}
@@ -60,17 +81,11 @@ class WGMModelOrder
 
 	public function setOrderByString( string $order ): self
 	{
-		switch ( strtoupper( $order ) )
+		$this->order = match ( strtoupper( $order ) )
 		{
-			case 'ASC':
-				$this->order = self::ORDER_ASC;
-				break;
-			case 'DESC':
-				$this->order = self::ORDER_DESC;
-				break;
-			default:
-				$this->order = self::ORDER_NONE;
-		}
+			'DESC' => self::ORDER_DESC,
+			default => self::ORDER_ASC,
+		};
 
 		return $this;
 	}
@@ -80,38 +95,26 @@ class WGMModelOrder
 		return $this->order;
 	}
 
-	public function getNameAppendingPrefix( string $alias ): string
+	public function getPriority():int
 	{
-		return $alias . '.' . $this->formula;
+		return $this->priority;
 	}
 
-	public function setOrderSyntax( string $order ): self
+	public function setFormula( string $formulaString ): self
 	{
-		$syntax = trim( $order );
-		if ( preg_match( '/^(\w+)\s+(asc|desc)$/i', $syntax, $m ) )
+		$syntax = trim( $formulaString );
+		$syntax = trim(preg_replace_callback('/\s+(asc|desc)$/i', function($m){
+			$this->setOrderByString($m[1]);
+			return '';
+		},$syntax));
+
+		if( preg_match('/^(\w+)$/', $syntax) )
 		{
-			$this->formula = '{' . $m[1] . '}';
-			$this->setOrderByString( $m[2] );
-		}
-		else if ( preg_match( '/^({\w+})\s+(asc|desc)$/i', $syntax, $m ) )
-		{
-			$this->formula = $m[1];
-			$this->setOrderByString( $m[2] );
-		}
-		else if ( preg_match( '/^(\w+)$/', $syntax, $m ) )
-		{
-			$this->formula = '{' . $m[1] . '}';
-			$this->setOrder( self::ORDER_ASC );
-		}
-		else if ( preg_match( '/^({\w+})$/', $syntax, $m ) )
-		{
-			$this->formula = $m[1];
-			$this->setOrder( self::ORDER_ASC );
+			$this->orderField = '{' . $syntax . '}';
 		}
 		else
 		{
-			$this->formula = $syntax;
-			$this->setOrder( self::ORDER_NONE );
+			$this->orderField = $syntax;
 		}
 
 		return $this;
