@@ -23,7 +23,7 @@ class FrameworkModelWGMModelJoinTest extends TestCase
 DROP TABLE IF EXISTS test_a;
 CREATE TABLE test_a
 (
-	id int4 not null,
+	id int4 not null primary key,
 	title varchar not null,
 	enabled boolean not null
 );
@@ -33,17 +33,31 @@ INSERT INTO test_a VALUES(20,'a2',false);
 DROP TABLE IF EXISTS test_b;
 CREATE TABLE test_b
 (
-	id int4 not null,
+	id int4 not null primary key,
 	a_id int4 not null,
 	body text,
 	enabled boolean not null
 );
-INSERT INTO test_b VALUES(101,10,'a1-1',true);
-INSERT INTO test_b VALUES(102,10,'a1-2',true);
-INSERT INTO test_b VALUES(201,20,'a2-1',true);
-INSERT INTO test_b VALUES(202,20,'a2-2',true);
-INSERT INTO test_b VALUES(301,30,'a3-1',true);
-INSERT INTO test_b VALUES(303,30,'a3-2',false);
+
+INSERT INTO test_b VALUES(101,10,'b1-1',true);
+INSERT INTO test_b VALUES(102,10,'b1-2',true);
+INSERT INTO test_b VALUES(201,20,'b2-1',true);
+INSERT INTO test_b VALUES(202,20,'b2-2',true);
+INSERT INTO test_b VALUES(301,30,'b3-1',true);
+INSERT INTO test_b VALUES(303,30,'b3-2',false);
+
+DROP TABLE IF EXISTS test_c;
+CREATE TABLE test_c
+(
+	id int4 not null primary key,
+	a_id int4 not null,
+	b_id int4 not null,
+	note text,
+	enabled boolean not null
+);
+
+INSERT INTO test_c VALUES(1001,20,202,'c',true);
+
 SQL
 		);
 
@@ -65,6 +79,7 @@ SQL
 		_E( <<<SQL
 DROP TABLE IF EXISTS test_a;
 DROP TABLE IF EXISTS test_b;
+DROP TABLE IF EXISTS test_c;
 SQL
 		);
 	}
