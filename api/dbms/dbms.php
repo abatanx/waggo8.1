@@ -5,6 +5,8 @@
  * @license MIT
  */
 
+require_once __DIR__ . '/dbms_property.php';
+
 abstract class WGDBMS
 {
 	public bool $echo;
@@ -20,6 +22,8 @@ abstract class WGDBMS
 		$this->logging = WG_SQLDEBUG;
 		$this->log     = [];
 	}
+
+	abstract public function property(): WGDBMSProperty;
 
 	/**
 	 * データベース接続を開始する
@@ -116,6 +120,106 @@ abstract class WGDBMS
 	abstract public function RECS(): int;
 
 	/**
+	 * 文字列をSQL用にクォートする
+	 *
+	 * @param string $str クォートする文字列
+	 *
+	 * @return string クォート後の文字列
+	 */
+	abstract static public function ESC( string $str ): string;
+
+	/**
+	 * 書式付きSQL発行用に、数値を文字列に変換する
+	 *
+	 * @param mixed $num 数値
+	 * @param bool $isAllowNull true の時、$num が null の場合は、'NULL' を返す
+	 *
+	 * @return string 変換後の文字列
+	 */
+	abstract static public function N( mixed $num, bool $isAllowNull = true ): string;
+
+	/**
+	 * 書式付きSQL発行用に、文字列を引用符付き文字列に変換する
+	 *
+	 * @param mixed|null $str 文字列
+	 * @param bool $isAllowNull true の時、$str が null の場合は、'NULL' を返す
+	 *
+	 * @return string 変換後の文字列(null 以外の場合、クォート後両端に引用符が付加される)
+	 */
+	abstract static public function S( mixed $str, bool $isAllowNull = true ): string;
+
+	/**
+	 * 書式付きSQL発行用に、論理値を文字列に変換する
+	 *
+	 * @param mixed $bool 論理値
+	 * @param bool $isAllowNull true の時、$bool が null の場合は、'NULL' を返す
+	 *
+	 * @return string 変換後の文字列
+	 */
+	abstract static public function B( mixed $bool, bool $isAllowNull = true ): string;
+
+	/**
+	 * 書式付きSQL発行用に、日付を文字列に変換する
+	 *
+	 * @param mixed $date 日付文字列(PostgreSQLでの日付関数表記可)
+	 * @param bool $isAllowNull true の時、$d が null/false/'' の場合は、'NULL' を返す
+	 *
+	 * @return string 変換後の文字列。日付関数表記以外の場合、両端に引用符が付与されるだけです。
+	 */
+	abstract static public function TD( mixed $date, bool $isAllowNull = true ): string;
+
+	/**
+	 * 書式付きSQL発行用に、時刻を文字列に変換する
+	 *
+	 * @param mixed $time 時刻文字列(PostgreSQLでの日付関数表記可)
+	 * @param bool $isAllowNull true の時、$d が null/false/'' の場合は、'NULL' を返す
+	 *
+	 * @return string 変換後の文字列。日付関数表記以外の場合、両端に引用符が付与されるだけです。
+	 */
+	abstract static public function TT( mixed $time, bool $isAllowNull = true ): string;
+
+	/**
+	 * 書式付きSQL発行用に、タイムスタンプを文字列に変換する
+	 *
+	 * @param mixed $timestamp 時刻文字列(PostgreSQLでの日付関数表記可)
+	 * @param bool $isAllowNull true の時、$d が null/false/'' の場合は、'NULL' を返す
+	 *
+	 * @return string 変換後の文字列。日付関数表記以外の場合、両端に引用符が付与されるだけです。
+	 */
+	abstract static public function TS( mixed $timestamp, bool $isAllowNull = true ): string;
+
+	/**
+	 * 書式付きSQL発行用に、浮動小数点数を文字列に変換する
+	 *
+	 * @param mixed $num 浮動小数点数
+	 * @param bool $isAllowNull true の時、$num が null の場合は、'NULL' を返す
+	 *
+	 * @return string 変換後の文字列
+	 */
+	abstract static public function D( mixed $num, bool $isAllowNull = true ): string;
+
+	/**
+	 * 書式付きSQL発行用に、バイナリデータを16進文字列に変換する
+	 *
+	 * @param mixed $blob バイナリデータ
+	 * @param bool $isAllowNull true の時、$raw が null の場合は、'NULL' を返す
+	 *
+	 * @return string
+	 */
+	abstract static public function BLOB( mixed $blob, bool $isAllowNull = true ): string;
+
+	/**
+	 * SQLから返されたデータが同じかどうか比較する
+	 *
+	 * @param mixed $a 比較対象文字列１
+	 * @param mixed $b 比較対象文字列２
+	 * @param ?string $type NULLの場合はあいまい比較、stringの場合は文字列比較、datetimeの場合は日付時刻比較、boolの場合は論理値比較を行う
+	 *
+	 * @return bool 比較対象の片方がNULLの場合必ず true が、それ以外の場合は一致していれば true を、それ以外の場合は false を返す
+	 */
+	abstract static public function CMP( mixed $a, mixed $b, ?string $type = null ): bool;
+
+	/**
 	 * トランザクションを開始する
 	 */
 	abstract public function BEGIN(): void;
@@ -134,4 +238,6 @@ abstract class WGDBMS
 	 * トランザクションをコミットする
 	 */
 	abstract public function END(): void;
+
+
 }

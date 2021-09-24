@@ -104,10 +104,10 @@ function wg_log_write( int $logtype, string $format, mixed ...$args ): void
 		$es9 = "\x1b[m";
 
 		$msg = rtrim( $msg );
-		$dd  = date( "Ymd H:i:s" );
+		$dd  = date( 'Ymd H:i:s' );
 		$msg = str_replace( "\0", "\\0", $msg );    // NULL文字が入ると正常にロギングできない対処。
 		$im  = $wg_log_write_types[ $logtype ];
-		$log = sprintf( "{$es0}[%6d] {$es1}%-15s %s {$es2}[%s] %s {$es9}\n", $pid, $dd, $_SERVER["SCRIPT_NAME"], $im, $msg );
+		$log = sprintf( "{$es0}[%6d] {$es1}%-15s %s {$es2}[%s] %s {$es9}\n", $pid, $dd, $_SERVER['SCRIPT_NAME'], $im, $msg );
 		wg_log_write_error_log( $log );
 
 		// 致命的エラーの場合、バックトレースを表示して終了する。
@@ -115,9 +115,17 @@ function wg_log_write( int $logtype, string $format, mixed ...$args ): void
 		{
 			foreach ( debug_backtrace() as $b )
 			{
-				$cn = sprintf( "%s::%s", $b["class"], $b["function"] );
+				if ( ! isset( $b['class'] ) )
+				{
+					$cn = sprintf( '%s', $b['function'] );
+				}
+				else
+				{
+					$cn = sprintf( '%s::%s', $b['class'], $b['function'] );
+				}
 
-				$log = sprintf( "   --> %-40s %s (%s)\n", $cn, $b["file"], $b["line"] );
+
+				$log = sprintf( "   --> %-40s %s (%s)\n", $cn, $b['file'], $b['line'] );
 				wg_log_write_error_log( $log );
 			}
 			throw new WGRuntimeException();

@@ -10,8 +10,9 @@ declare( strict_types=1 );
 class WGMModelOrder
 {
 	const ORDER_ASC = 1, ORDER_DESC = 2;
+	const STARTING_PRIORITY_NUMBER = 0x10000;
 
-	static int $currentPriority = 0x7fff;
+	static int $currentPriority = self::STARTING_PRIORITY_NUMBER;
 
 	protected int $priority;
 
@@ -95,7 +96,14 @@ class WGMModelOrder
 		return $this->order;
 	}
 
-	public function getPriority():int
+	public function setPriority( int $priority ): self
+	{
+		$this->priority = $priority;
+
+		return $this;
+	}
+
+	public function getPriority(): int
 	{
 		return $this->priority;
 	}
@@ -103,12 +111,13 @@ class WGMModelOrder
 	public function setFormula( string $formulaString ): self
 	{
 		$syntax = trim( $formulaString );
-		$syntax = trim(preg_replace_callback('/\s+(asc|desc)$/i', function($m){
-			$this->setOrderByString($m[1]);
-			return '';
-		},$syntax));
+		$syntax = trim( preg_replace_callback( '/\s+(asc|desc)$/i', function ( $m ) {
+			$this->setOrderByString( $m[1] );
 
-		if( preg_match('/^(\w+)$/', $syntax) )
+			return '';
+		}, $syntax ) );
+
+		if ( preg_match( '/^(\w+)$/', $syntax ) )
 		{
 			$this->orderField = '{' . $syntax . '}';
 		}

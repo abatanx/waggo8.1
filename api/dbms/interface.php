@@ -76,7 +76,7 @@ function _E( string $q ): int
  *
  * @return int|false 成功した場合はレコード数、失敗した場合は false を返す
  */
-function _Q( string $format, string|int|float ...$values )
+function _Q( string $format, string|int|float ...$values ): int|false
 {
 	$p = [ $format, ...$values ];
 
@@ -188,7 +188,7 @@ function _ESC( string $str ): string
  * @param mixed $str 文字列。
  * @param boolean $isAllowNull Trueの場合NULL値を利用する。
  *
- * @return string 変換後の文字列。NULL以外の場合はクォート後両端に引用符が付加されます。
+ * @return string 変換後の文字列。 NULL 以外の場合はクォート後両端に引用符が付加されます。
  */
 function _S( mixed $str, bool $isAllowNull = true ): string
 {
@@ -201,7 +201,7 @@ function _S( mixed $str, bool $isAllowNull = true ): string
  * @param mixed $bool 論理値。
  * @param boolean $isAllowNull Trueの場合NULL値を利用する。
  *
- * @return string 変換後の文字列。true, false, null が返されます。
+ * @return string 変換後の文字列。 true, false, null が返されます。
  */
 function _B( mixed $bool, bool $isAllowNull = true ): string
 {
@@ -216,7 +216,7 @@ function _B( mixed $bool, bool $isAllowNull = true ): string
  *
  * @return string 変換後の文字列。
  */
-function _N( mixed $num, bool $isAllowNull = true )
+function _N( mixed $num, bool $isAllowNull = true ): string
 {
 	return ( $d = _QC() ) ? $d->N( $num, $isAllowNull ) : throw new WGDatabaseRuntimeException();
 }
@@ -287,15 +287,6 @@ function _BLOB( mixed $raw, bool $isAllowNull = true ): string
 }
 
 /**
- * 書式付きSQL発行用に、現在ログイン中のユーザーIDを文字列に変換する。
- * @return string ユーザーIDの文字列。
- */
-function _U()
-{
-	return ( $d = _QC() ) ? $d->N( wg_get_usercd() ) : throw new WGDatabaseRuntimeException();
-}
-
-/**
  * トランザクションを開始します。
  */
 function _QBEGIN(): void
@@ -334,6 +325,7 @@ function _QEND(): void
  */
 function wg_is_dbms_mysql(): bool
 {
+	/** @noinspection PhpInArrayCanBeReplacedWithComparisonInspection */
 	return in_array( strtolower( WGCONF_DBMS_TYPE ), [ 'mysql' ] );
 }
 
@@ -363,10 +355,13 @@ function wg_is_supported_sequence_mariadb(): bool
 {
 	if ( wg_is_dbms_mariadb() )
 	{
-		$v = explode( ".", WGCONF_DBMS_VERSION );
-		if ( count( $v ) >= 2 && (int) $v[0] * 1000 + (int) $v[1] >= 10003 )
+		if ( defined( 'WGCONF_DBMS_VERSION' ) )
 		{
-			return true;
+			$v = explode( '.', WGCONF_DBMS_VERSION );
+			if ( count( $v ) >= 2 && (int) $v[0] * 1000 + (int) $v[1] >= 10003 )
+			{
+				return true;
+			}
 		}
 	}
 

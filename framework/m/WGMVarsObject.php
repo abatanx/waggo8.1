@@ -8,43 +8,75 @@
 abstract class WGMVarsObject
 {
 	protected $vars, $qvars;
+
 	public function __construct()
 	{
 		$this->vars  = [];
 		$this->qvars = [];
-		$this->_array_walk_vars(func_get_args());
-		$this->vars  = array_unique($this->vars);
+		$this->_array_walk_vars( func_get_args() );
+		$this->vars = array_unique( $this->vars );
 	}
-	protected function _array_walk_vars($avars)
+
+	protected function _array_walk_vars( $avars )
 	{
-		foreach($avars as $avar)
+		foreach ( $avars as $av )
 		{
-			if(is_array($avar)) $this->_array_walk_vars($avar);
-			else $this->vars[] = $avar;
+			if ( is_array( $av ) )
+			{
+				$this->_array_walk_vars( $av );
+			}
+			else
+			{
+				$this->vars[] = $av;
+			}
 		}
 	}
-	public function getVars()       { return $this->vars;  }
-	public function getQuotedVars() { return $this->qvars; }
-	public function setQuotedVars($qvars) { $this->qvars = $qvars; }
-	abstract public function getWhereExpression($field);
+
+	public function getVars()
+	{
+		return $this->vars;
+	}
+
+	public function getQuotedVars()
+	{
+		return $this->qvars;
+	}
+
+	public function setQuotedVars( $qvars )
+	{
+		$this->qvars = $qvars;
+	}
+
+	abstract public function getWhereExpression( $field );
 }
 
 class WGMVOr extends WGMVarsObject
 {
-	public function getWhereExpression($field)
+	public function getWhereExpression( $field )
 	{
-		if(count($this->qvars)==0) return "";
-		return sprintf("(%s in (%s))", $field, implode(",",$this->qvars));
+		if ( count( $this->qvars ) == 0 )
+		{
+			return "";
+		}
+
+		return sprintf( "(%s in (%s))", $field, implode( ",", $this->qvars ) );
 	}
 }
 
 class WGMVAnd extends WGMVarsObject
 {
-	public function getWhereExpression($field)
+	public function getWhereExpression( $field )
 	{
-		if(count($this->qvars)==0) return "";
+		if ( count( $this->qvars ) == 0 )
+		{
+			return "";
+		}
 		$dd = [];
-		foreach($this->qvars as $qv) $dd[] = sprintf("%s=%s", $field,$qv);
-		return "(".implode(" and ", $dd).")";
+		foreach ( $this->qvars as $qv )
+		{
+			$dd[] = sprintf( "%s=%s", $field, $qv );
+		}
+
+		return "(" . implode( " and ", $dd ) . ")";
 	}
 }

@@ -8,13 +8,7 @@
 
 use PHPUnit\Framework\TestCase;
 
-if ( ! defined( 'WG_UNITTEST' ) )
-{
-	define( 'WG_UNITTEST', true );
-}
-
-require_once __DIR__ . '/../../framework/m/WGMModel.php';
-require_once __DIR__ . '/../../framework/m/WGMModelOrder.php';
+require_once __DIR__ . '/local-common.php';
 
 class FrameworkModelWGMModelOrderTest extends TestCase
 {
@@ -158,6 +152,83 @@ SQL
 
 		_E( <<<SQL
 DROP TABLE IF EXISTS test_order;
+SQL
+		);
+	}
+
+	public function test_model_order_priority()
+	{
+		_E( <<<SQL
+DROP TABLE IF EXISTS test_order_priority;
+CREATE TABLE test_order_priority(
+    id int4 not null primary key ,
+    v0 text,
+    v1 text 
+);
+INSERT INTO test_order_priority VALUES(0,'',null);
+INSERT INTO test_order_priority VALUES(10,'A','D');
+INSERT INTO test_order_priority VALUES(20,'A','C');
+INSERT INTO test_order_priority VALUES(30,'B','C');
+SQL
+		);
+
+		$m = new WGMModel( "test_order_priority" );
+		$this->assertSame(
+			[
+				[ 'id' => 0, 'v0' => '', 'v1' => null, ],
+				[ 'id' => 20, 'v0' => 'A', 'v1' => 'C', ],
+				[ 'id' => 10, 'v0' => 'A', 'v1' => 'D', ],
+				[ 'id' => 30, 'v0' => 'B', 'v1' => 'C', ],
+			],
+			$m->orderby('v0','v1')->select()->avars
+		);
+
+		$m = new WGMModel( "test_order_priority" );
+		$this->assertSame(
+			[
+				[ 'id' => 20, 'v0' => 'A', 'v1' => 'C', ],
+				[ 'id' => 30, 'v0' => 'B', 'v1' => 'C', ],
+				[ 'id' => 10, 'v0' => 'A', 'v1' => 'D', ],
+				[ 'id' => 0, 'v0' => '', 'v1' => null, ],
+			],
+			$m->orderby('v1','v0')->select()->avars
+		);
+
+		$m = new WGMModel( "test_order_priority" );
+		$this->assertSame(
+			[
+				[ 'id' => 20, 'v0' => 'A', 'v1' => 'C', ],
+				[ 'id' => 30, 'v0' => 'B', 'v1' => 'C', ],
+				[ 'id' => 10, 'v0' => 'A', 'v1' => 'D', ],
+				[ 'id' => 0, 'v0' => '', 'v1' => null, ],
+			],
+			$m->orderby('v0',1,'v1',0)->select()->avars
+		);
+
+		$m = new WGMModel( "test_order_priority" );
+		$this->assertSame(
+			[
+				[ 'id' => 0, 'v0' => '', 'v1' => null, ],
+				[ 'id' => 10, 'v0' => 'A', 'v1' => 'D', ],
+				[ 'id' => 20, 'v0' => 'A', 'v1' => 'C', ],
+				[ 'id' => 30, 'v0' => 'B', 'v1' => 'C', ],
+			],
+			$m->orderby('v0',1,'v1',2,'id',0)->select()->avars
+		);
+
+		$m = new WGMModel( "test_order_priority" );
+		$this->assertSame(
+			[
+				[ 'id' => 0, 'v0' => '', 'v1' => null, ],
+				[ 'id' => 10, 'v0' => 'A', 'v1' => 'D', ],
+				[ 'id' => 20, 'v0' => 'A', 'v1' => 'C', ],
+				[ 'id' => 30, 'v0' => 'B', 'v1' => 'C', ],
+			],
+			$m->orderby('v0',1,'v1',2,'id',0)->select()->avars
+		);
+
+		_E( <<<SQL
+DROP TABLE IF EXISTS test_order_priority;
 SQL
 		);
 	}

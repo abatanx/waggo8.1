@@ -12,6 +12,7 @@ require_once __DIR__ . '/WGMModel.php';
 /**
  * @noinspection PhpUnused
  */
+
 class WGMModelGetKeys
 {
 	private array $keys;

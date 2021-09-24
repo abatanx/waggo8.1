@@ -5,7 +5,10 @@
  * @license MIT
  */
 
+/** @noinspection PhpComposerExtensionStubsInspection */
+
 require_once __DIR__ . '/dbms.php';
+require_once __DIR__ . '/postgresql_property.php';
 
 /**
  * PostgreSQL over WGDBMS
@@ -44,6 +47,11 @@ class WGDBMSPostgreSQL extends WGDBMS
 		$this->DB     = $db;
 		$this->USER   = $user;
 		$this->PASSWD = $passwd;
+	}
+
+	public function property(): WGDBMSProperty
+	{
+		return WGDBMSPropertyPostgreSQL::property();
 	}
 
 	/**
@@ -290,7 +298,7 @@ class WGDBMSPostgreSQL extends WGDBMS
 	/**
 	 * 書式付きSQL発行用に、文字列を引用符付き文字列に変換する
 	 *
-	 * @param mixed|null $str 文字列
+	 * @param mixed $str 文字列
 	 * @param bool $isAllowNull true の時、$str が null の場合は、'NULL' を返す
 	 *
 	 * @return string 変換後の文字列(null 以外の場合、クォート後両端に引用符が付加される)

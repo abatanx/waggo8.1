@@ -7,12 +7,7 @@
 
 use PHPUnit\Framework\TestCase;
 
-if ( ! defined( 'WG_UNITTEST' ) )
-{
-	define( 'WG_UNITTEST', true );
-}
-
-require_once __DIR__ . '/../../framework/m/WGMModel.php';
+require_once __DIR__ . '/local-common.php';
 
 class FrameworkModelWGMModelTest extends TestCase
 {
@@ -51,22 +46,22 @@ SQL
 			$m->getFields() );
 
 		// ::getFieldType()
-		$this->assertEquals( WGMModel::N, $m->getFieldType( 't0_1' ) );
-		$this->assertEquals( WGMModel::N, $m->getFieldType( 't0_2' ) );
-		$this->assertEquals( WGMModel::S, $m->getFieldType( 't1_1' ) );
-		$this->assertEquals( WGMModel::S, $m->getFieldType( 't1_2' ) );
-		$this->assertEquals( WGMModel::S, $m->getFieldType( 't2_1' ) );
-		$this->assertEquals( WGMModel::S, $m->getFieldType( 't2_2' ) );
-		$this->assertEquals( WGMModel::D, $m->getFieldType( 't3_1' ) );
-		$this->assertEquals( WGMModel::D, $m->getFieldType( 't3_2' ) );
-		$this->assertEquals( WGMModel::B, $m->getFieldType( 't4_1' ) );
-		$this->assertEquals( WGMModel::B, $m->getFieldType( 't4_2' ) );
-		$this->assertEquals( WGMModel::TD, $m->getFieldType( 't5_1' ) );
-		$this->assertEquals( WGMModel::TD, $m->getFieldType( 't5_2' ) );
-		$this->assertEquals( WGMModel::TT, $m->getFieldType( 't6_1' ) );
-		$this->assertEquals( WGMModel::TT, $m->getFieldType( 't6_2' ) );
-		$this->assertEquals( WGMModel::TS, $m->getFieldType( 't7_1' ) );
-		$this->assertEquals( WGMModel::TS, $m->getFieldType( 't7_2' ) );
+		$this->assertEquals( WGDBMSProperty::N, $m->getFieldType( 't0_1' ) );
+		$this->assertEquals( WGDBMSProperty::N, $m->getFieldType( 't0_2' ) );
+		$this->assertEquals( WGDBMSProperty::S, $m->getFieldType( 't1_1' ) );
+		$this->assertEquals( WGDBMSProperty::S, $m->getFieldType( 't1_2' ) );
+		$this->assertEquals( WGDBMSProperty::S, $m->getFieldType( 't2_1' ) );
+		$this->assertEquals( WGDBMSProperty::S, $m->getFieldType( 't2_2' ) );
+		$this->assertEquals( WGDBMSProperty::D, $m->getFieldType( 't3_1' ) );
+		$this->assertEquals( WGDBMSProperty::D, $m->getFieldType( 't3_2' ) );
+		$this->assertEquals( WGDBMSProperty::B, $m->getFieldType( 't4_1' ) );
+		$this->assertEquals( WGDBMSProperty::B, $m->getFieldType( 't4_2' ) );
+		$this->assertEquals( WGDBMSProperty::TD, $m->getFieldType( 't5_1' ) );
+		$this->assertEquals( WGDBMSProperty::TD, $m->getFieldType( 't5_2' ) );
+		$this->assertEquals( WGDBMSProperty::TT, $m->getFieldType( 't6_1' ) );
+		$this->assertEquals( WGDBMSProperty::TT, $m->getFieldType( 't6_2' ) );
+		$this->assertEquals( WGDBMSProperty::TS, $m->getFieldType( 't7_1' ) );
+		$this->assertEquals( WGDBMSProperty::TS, $m->getFieldType( 't7_2' ) );
 
 		// ::getTableName()
 		$this->assertEquals( 'integer', $m->getFieldFormat( 't0_1' ) );
