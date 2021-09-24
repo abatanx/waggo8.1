@@ -49,7 +49,7 @@ class WGMModel
 	protected WGMModelFilter $defaultFilter;
 	protected array $conditions;
 
-	protected WGV8BasicPagination|null $pager;
+	protected ?WGV8BasicPagination $pager;
 
 	/**
 	 * @var WGMModelJoin[]
@@ -62,9 +62,9 @@ class WGMModel
 	protected array $orderArray;
 	protected int $orderOrder;
 
-	protected string|null $offsetKeyword, $limitKeyword;
+	protected ?string $offsetKeyword, $limitKeyword;
 
-	public function __construct( string $tableName, WGDBMS|null $dbms = null )
+	public function __construct( string $tableName, ?WGDBMS $dbms = null )
 	{
 		global $WGMModelID;
 		$this->isModelDebug = WG_MODELDEBUG;
@@ -298,7 +298,7 @@ class WGMModel
 		return $this;
 	}
 
-	public function assign( string $keyField, WGV8Object $view, WGMModelFilter|null $modelFilter = null ): self
+	public function assign( string $keyField, WGV8Object $view, ?WGMModelFilter $modelFilter = null ): self
 	{
 		if ( ! isset( $this->fields[ $keyField ] ) )
 		{
@@ -318,7 +318,7 @@ class WGMModel
 		return $this;
 	}
 
-	protected function checkNullField( string $keyField, string|null $v ): self
+	protected function checkNullField( string $keyField, ?string $v ): self
 	{
 		if ( $this->fields[ $keyField ]->isNotNull() && ( strtolower( $v ) === 'null' || is_null( $v ) ) )
 		{
@@ -328,7 +328,7 @@ class WGMModel
 		return $this;
 	}
 
-	protected function posValue( string $pos ): array|null
+	protected function posValue( string $pos ): ?array
 	{
 		if ( preg_match( '/\(([\-0-9.]+),([\-0-9.]+)\)/', $pos, $m ) )
 		{
@@ -610,7 +610,7 @@ class WGMModel
 		return $this;
 	}
 
-	public function offset( int|null $offset = null, int|null $limit = null ): self
+	public function offset( ?int $offset = null, ?int $limit = null ): self
 	{
 		$this->logInfo( 'WGMModel::offset( %s )', $offset ?? '', $limit ?? '' );
 
