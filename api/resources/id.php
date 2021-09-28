@@ -7,11 +7,12 @@
 
 /**
  * m10w31 を計算する。
- * @param $n
  *
- * @return int
+ * @param int $n m10w31計算前の数値
+ *
+ * @return int m10w31計算後の数値
  */
-function wg_m10w31( $n )
+function wg_m10w31( int $n ): int
 {
 	$v[0] = $v[1] = 0;
 	for ( $p = 0, $a = (int) $n; $a > 0; $p = 1 - $p )
@@ -21,7 +22,7 @@ function wg_m10w31( $n )
 	}
 	$b = ( 10 - ( ( $v[0] * 3 + $v[1] ) % 10 ) ) % 10;
 
-	return (int) $n * 10 + $b;
+	return $n * 10 + $b;
 }
 
 /**
@@ -33,7 +34,7 @@ function wg_m10w31( $n )
  *
  * @return int リソース管理番号(id)
  */
-function wg_newid( $seq = 'seq_id', $use_m10w31 = true )
+function wg_newid( string $seq = 'seq_id', bool $use_m10w31 = true )
 {
 	if ( wg_is_dbms_mariadb() )
 	{
@@ -121,10 +122,12 @@ function wg_create_grpcd()
 
 /**
  * ユニークな識別符号用にランダムな文字列32文字を生成する。
+ *
  * @param int $length 文字列の長さ
+ *
  * @return string ランダムな文字列
  */
-function wg_create_uniqid( int $length = 32 ):string
+function wg_create_uniqid( int $length = 32 ): string
 {
 	$basechrs1 = "ghijklmnopqrstuvwxyz";
 	$basechrs2 = "0123456789abcdefghijklmnopqrstuvwxyz";

@@ -5,11 +5,11 @@
  * @license MIT
  */
 
-function wg_unset_session( $regptn )
+function wg_unset_session( $regex ): void
 {
 	foreach ( $_SESSION as $k => $v )
 	{
-		if ( preg_match( $regptn, $k ) )
+		if ( preg_match( $regex, $k ) )
 		{
 			$_SESSION[ $k ] = null;
 			unset( $_SESSION[ $k ] );

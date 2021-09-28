@@ -5,18 +5,18 @@
  * @license MIT
  */
 
-function wg_is_login()
+function wg_is_login(): bool
 {
-	return ( isset( $_SESSION["_sUID"] ) && $_SESSION["_sUID"] != 0 );
+	return ( isset( $_SESSION["_sUID"] ) && $_SESSION["_sUID"] !== 0 );
 }
 
 /**
  * ログインしているのであればユーザコードを取得する。
  * @return int ログイン済みの場合ユーザコードを、未ログインの場合 0 を返す。
  */
-function wg_get_usercd()
+function wg_get_usercd(): int
 {
-	return ( wg_is_login() ) ? intval($_SESSION["_sUID"]) : 0;
+	return ( wg_is_login() ) ? intval( $_SESSION["_sUID"] ) : 0;
 }
 
 /**
@@ -26,11 +26,11 @@ function wg_get_usercd()
  *
  * @return boolean 存在すればTrueを、存在しなければFalseを返す。
  */
-function wg_is_user( $usercd )
+function wg_is_user( int $usercd ): bool
 {
 	$v = _QQ( "SELECT true FROM base WHERE usercd=%s AND enabled=true AND deny=false;", _N( $usercd ) );
 
-	return ( $v ) ? true : false;
+	return (bool) $v;
 }
 
 /**
@@ -40,19 +40,19 @@ function wg_is_user( $usercd )
  *
  * @return boolean 自分自身の場合Trueを、自分以外の場合はFalseを返す。
  */
-function wg_is_myself( $usercd )
+function wg_is_myself( int $usercd ): bool
 {
-	return wg_is_login() ? ( wg_get_usercd() === $usercd ) : false;
+	return wg_is_login() && wg_get_usercd() === $usercd;
 }
 
 /**
  * ユーザコードのユーザが管理権限を持っているかチェックする。
  *
- * @param int $usercd 判定するユーザコード(null の場合は、ログインしているユーザのユーザコード)。
+ * @param ?int $usercd 判定するユーザコード(null の場合は、ログインしているユーザのユーザコード)。
  *
  * @return boolean 管理権限があればTrueを返す。
  */
-function wg_is_admin( $usercd = null )
+function wg_is_admin( ?int $usercd = null ): bool
 {
 	if ( is_null( $usercd ) )
 	{
@@ -68,7 +68,7 @@ function wg_is_admin( $usercd = null )
  *
  * @param int $usercd セッションをユーザがログインした状態に変更する。
  */
-function wg_set_login( $usercd )
+function wg_set_login( int $usercd ): void
 {
 	$_SESSION["_sUID"]   = $usercd;
 	$_SESSION["_sRHOST"] = wg_get_remote_adr();
@@ -77,7 +77,7 @@ function wg_set_login( $usercd )
 /**
  * ログアウトを行う。
  */
-function wg_unset_login()
+function wg_unset_login(): void
 {
 	unset( $_SESSION["_sUID"] );
 	unset( $_SESSION["_sRHOST"] );

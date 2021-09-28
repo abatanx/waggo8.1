@@ -128,7 +128,7 @@ class WGV8BasicPaginationState
 
 class WGV8BasicPagination extends WGV8Object
 {
-	private int
+	protected int
 		$limit = 0,
 		$count = 0,
 		$total = 0,
