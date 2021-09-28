@@ -80,9 +80,8 @@ class WGMModel
 		{
 			$WGMModelID[ $kid ] ++;
 		}
-		$id = $WGMModelID[ $kid ];
 
-		$this->aliasName = $kid . $id;
+		$this->aliasName = $tableName;
 		$this->dbms      = ( is_null( $dbms ) ) ? _QC() : $dbms;
 
 		$this->defaultFilter = new WGMModelFILTER();
@@ -109,6 +108,11 @@ class WGMModel
 
 		$this->fields      = $this->dbms->property()->detectFields( $this->dbms, $tableName );
 		$this->primaryKeys = $this->dbms->property()->detectPrimaryKeys( $this->dbms, $tableName );
+	}
+
+	public static function _( string $tableName, ?WGDBMS $dbms = null ): self
+	{
+		return new static( $tableName, $dbms );
 	}
 
 	protected function logInfo( string $msg, mixed ...$args ): void
@@ -142,14 +146,14 @@ class WGMModel
 		wg_log_write( WGLOG_FATAL, $msg, ...$args );
 	}
 
-	protected function toFlatArray( array $array ): array
+	protected static function arrayFlatten( array $array ): array
 	{
 		$result = [];
 		foreach ( $array as $v )
 		{
 			if ( is_array( $v ) )
 			{
-				$result = array_merge( $result, $this->toFlatArray( $v ) );
+				$result = array_merge( $result, self::arrayFlatten( $v ) );
 			}
 			else
 			{
@@ -518,12 +522,15 @@ class WGMModel
 
 	/**
 	 * 追加WHERE句を設定する。追加される条件はすべて AND で組み合わされます。
+	 * フィールド名は{}で囲むことによって、実行時に実際のフィールド名に変換されます。
+	 * 追加した条件は、条件を識別するための condition-id を返します。
 	 *
-	 * @param string $where 条件。フィールド名は{}で囲むことによって、実行時に実際のフィールド名に変換されます。
+	 * @param string $format 条件書式。書式パラメータがない場合は、書式を適用しません。
+	 * @param mixed ...$args 書式パラメータ
 	 *
-	 * @return string 追加した conditionId 識別子
+	 * @return string 追加WHERE句を識別するための condition-id 。
 	 */
-	public function addCondition( string $where ): string
+	public function addConditionWithId( string $format, mixed ...$args ): string
 	{
 		if ( ! isset( $this->uniqueIds['cond'] ) )
 		{
@@ -532,10 +539,29 @@ class WGMModel
 
 		$conditionId = sprintf( 'cond-%d', $this->uniqueIds['cond'] ++ );
 
-		$this->conditions[ $conditionId ] = $this->expansion( $where );
+		$condition = count( $args ) === 0 ? $format : vsprintf( $format, $args );
+
+		$this->conditions[ $conditionId ] = $this->expansion( $condition );
 
 		return $conditionId;
 	}
+
+	/**
+	 * 追加WHERE句を設定する。追加される条件はすべて AND で組み合わされます。
+	 * フィールド名は{}で囲むことによって、実行時に実際のフィールド名に変換されます。
+	 *
+	 * @param string $format 条件書式。書式パラメータがない場合は、書式を適用しません。
+	 * @param mixed ...$args 書式パラメータ
+	 *
+	 * @return self
+	 */
+	public function addCondition( string $format, mixed ...$args ): self
+	{
+		$this->addConditionWithId( $format, ...$args );
+
+		return $this;
+	}
+
 
 	/**
 	 * 追加WHERE句を削除する。
@@ -574,7 +600,7 @@ class WGMModel
 
 	public function orderby( ...$args ): self
 	{
-		$args = $this->toFlatArray( $args );
+		$args = self::arrayFlatten( $args );
 		$this->logInfo( 'WGMModel::orderby( %s )', implode( ' , ', $args ) );
 
 		$prevOrder = null;
@@ -589,7 +615,7 @@ class WGMModel
 				{
 					wg_log_write( WGLOG_FATAL, 'Priority number must be less than %d.', WGMModelOrder::STARTING_PRIORITY_NUMBER );
 				}
-				if ( !is_null( $prevOrder ) )
+				if ( ! is_null( $prevOrder ) )
 				{
 					$prevOrder->setPriority( $priorityNumber );
 					$prevOrder = null;
@@ -728,16 +754,44 @@ class WGMModel
 			$on = [];
 			foreach ( $join->getOn() as $l => $r )
 			{
+				$leftModel  = null;
+				$leftField  = null;
+				$rightModel = null;
+				$rightField = null;
+
 				$l = is_int( $l ) ? $r : $l;
-				if ( ! in_array( $l, $this->getFields() ) )
+				if ( is_string( $l ) && in_array( $l, $this->getFields() ) )
+				{
+					$leftModel = $this;
+					$leftField = $l;
+				}
+
+				if ( ! is_array( $r ) && in_array( $r, $join->getJoinModel()->getFields() ) )
+				{
+					$rightModel = $join->getJoinModel();
+					$rightField = $r;
+				}
+				else if ( is_array( $r ) )
+				{
+					list( $rm, $rf ) = $r;
+					if ( $rm instanceof WGMModel && is_string( $rf ) && in_array( $rf, $rm->getFields() ) )
+					{
+						$rightModel = $rm;
+						$rightField = $rf;
+					}
+				}
+
+				if ( is_null( $leftModel ) || is_null( $leftField ) )
 				{
 					$this->logFatal( 'Joined LEFT, no \'%s\' field.', $l );
 				}
-				if ( ! in_array( $r, $join->getJoinModel()->getFields() ) )
+
+				if ( is_null( $rightModel ) || is_null( $rightField ) )
 				{
-					$this->logFatal( 'Joined RIGHT, no \'%s\' field.', $r );
+					$this->logFatal( 'Joined RIGHT, no \'%s\' field.', $l );
 				}
-				$on[] = $this->getAlias() . '.' . $l . '=' . $join->getJoinModel()->getAlias() . '.' . $r;
+
+				$on[] = $leftModel->getAlias() . '.' . $leftField . '=' . $rightModel->getAlias() . '.' . $rightField;
 			}
 
 			$on = implode( ' AND ', $on );
@@ -849,16 +903,18 @@ class WGMModel
 		{
 			$fieldOrders[] = $o->getFormula();
 		}
-		$orderby = count( $fieldOrders ) > 0 ? ' ORDER BY ' . implode( ',', $fieldOrders ) : '';
+		$orderby = count( $fieldOrders ) > 0 ? ' ORDER BY ' . implode( ', ', $fieldOrders ) : '';
 
 		$this->recs  = 0;
 		$this->avars = [];
 
 		// 条件式作成
-		$wheres = $this->whereCondExpression( $keys );
+		$wheres = array_map( function ( $m ) {
+			return "( $m )";
+		}, $this->whereCondExpression( $keys ) );
 		$wheres = count( $wheres ) > 0 ? ' WHERE ' . implode( ' AND ', $wheres ) : '';
 
-		return [ implode( ',', $fields ), $tables, $wheres, $orderby, $this->offsetKeyword, $this->limitKeyword ];
+		return [ implode( ', ', $fields ), $tables, $wheres, $orderby, $this->offsetKeyword, $this->limitKeyword ];
 	}
 
 	/**
@@ -870,7 +926,7 @@ class WGMModel
 	 */
 	public function select( ...$keys ): self
 	{
-		$keys = $this->toFlatArray( $keys );
+		$keys = self::arrayFlatten( $keys );
 		$this->logInfo( 'WGMModel::select( %s )', implode( ' , ', $keys ) );
 
 		if ( $this->pager )
@@ -939,7 +995,7 @@ class WGMModel
 
 	public function check( mixed ...$args ): bool
 	{
-		$keys = $this->toFlatArray( $args );
+		$keys = self::arrayFlatten( $args );
 		$this->logInfo( 'WGMModel::check( %s )', implode( ' , ', $keys ) );
 
 		list( , $t, $w ) = $this->makeQuery( $keys );
@@ -949,7 +1005,7 @@ class WGMModel
 
 	public function count( mixed ...$args ): int
 	{
-		$keys = $this->toFlatArray( $args );
+		$keys = self::arrayFlatten( $args );
 		$this->logInfo( 'WGMModel::count( %s )', implode( ' , ', $keys ) );
 
 		list( , $t, $w ) = $this->makeQuery( $keys );
@@ -999,8 +1055,8 @@ class WGMModel
 		{
 			$q = sprintf( 'INSERT INTO %s(%s) VALUES(%s);',
 				$this->tableName,
-				implode( ',', $fs ),
-				implode( ',', $vs )
+				implode( ', ', $fs ),
+				implode( ', ', $vs )
 			);
 		}
 
@@ -1025,7 +1081,7 @@ class WGMModel
 	 */
 	public function update( ...$args ): self
 	{
-		$keys = $this->toFlatArray( $args );
+		$keys = self::arrayFlatten( $args );
 		$this->logInfo( 'WGMModel::update( %s )', implode( ' , ', $keys ) );
 
 		$fields = $this->getFields();
@@ -1037,7 +1093,7 @@ class WGMModel
 		$wheres = count( $wheres ) > 0 ? ' WHERE ' . implode( ' AND ', $wheres ) : '';
 
 		$q = sprintf( 'SELECT %s FROM %s%s;',
-			implode( ',', $fields ),
+			implode( ', ', $fields ),
 			$this->tableName,
 			$wheres
 		);
@@ -1091,8 +1147,8 @@ class WGMModel
 			{
 				$q = sprintf( 'INSERT INTO %s(%s) VALUES(%s);',
 					$this->tableName,
-					implode( ',', $fs ),
-					implode( ',', $vs )
+					implode( ', ', $fs ),
+					implode( ', ', $vs )
 				);
 			}
 		}
@@ -1143,7 +1199,7 @@ class WGMModel
 			}
 			else
 			{
-				$q = sprintf( /** @lang text */ 'UPDATE %s SET %s%s;', $this->tableName, implode( ',', $ss ), $wheres );
+				$q = sprintf( /** @lang text */ 'UPDATE %s SET %s%s;', $this->tableName, implode( ', ', $ss ), $wheres );
 			}
 		}
 
@@ -1168,7 +1224,7 @@ class WGMModel
 	 */
 	public function delete( ...$args ): self
 	{
-		$keys = $this->toFlatArray( $args );
+		$keys = self::arrayFlatten( $args );
 		$this->dumpKeys( $keys );
 		$this->logInfo( 'WGMModel::delete( %s )', implode( ' , ', $keys ) );
 
@@ -1218,7 +1274,7 @@ class WGMModel
 		$n = $this->result();
 		foreach ( $this->getJoinModels() as $join )
 		{
-			$tn = $join->getTable();
+			$tn = $join->getAlias();
 			for ( $i = 0; $i < $n; $i ++ )
 			{
 				$r[ $i ][ $tn ] = $join->avars[ $i ];

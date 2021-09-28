@@ -160,40 +160,70 @@ SQL
 			, $b->avars );
 
 		// Test for multiple join
-//		$a = ( new WGMModel( 'test_a' ) )->orderby( 'id' );
-//		$b = ( new WGMModel( 'test_b' ) )->orderby( 'id' );
-//		$c = ( new WGMModel( 'test_c' ) )->orderby( 'id' );
-//		$a->inner( $b, [ 'id' => 'a_id' ] );
-//		$a->inner( $c, [ 'id' => 'a_id' ] );
-//		$b->inner( $c, [ 'id' => 'b_id' ] );
 		$a = ( new WGMModel( 'test_a' ) )->orderby( 'id' );
 		$b = ( new WGMModel( 'test_b' ) )->orderby( 'id' );
 		$c = ( new WGMModel( 'test_c' ) )->orderby( 'id' );
 		$a->inner( $b, [ 'id' => 'a_id' ] );
-		$a->inner( $c, [ 'id' => 'a_id' ] );
-		$b->inner( $c, [ 'id' => 'b_id' ] );
-
+		$b->inner( $c, [ 'id' => 'b_id', 'a_id' => 'a_id' ] );
 		$a->select();
 
-
-		var_export( $a->getJoinedAvars() );
-
-
 		$this->assertSame( [
-				[ 'id' => 10, 'title' => 'a1', 'enabled' => true, ],
-				[ 'id' => 10, 'title' => 'a1', 'enabled' => true, ],
-				[ 'id' => 20, 'title' => 'a2', 'enabled' => false, ],
-				[ 'id' => 20, 'title' => 'a2', 'enabled' => false, ],
+				[ 'id' => 20, 'title' => 'a2', 'enabled' => false, ]
 			]
 			, $a->avars );
 
 		$this->assertSame( [
-				[ 'id' => 101, 'a_id' => 10, 'body' => 'A', 'enabled' => true, ],
-				[ 'id' => 102, 'a_id' => 10, 'body' => 'E', 'enabled' => true, ],
-				[ 'id' => 201, 'a_id' => 20, 'body' => 'D', 'enabled' => true, ],
-				[ 'id' => 202, 'a_id' => 20, 'body' => 'F', 'enabled' => false, ],
+				[ 'id' => 202, 'a_id' => 20, 'body' => 'F', 'enabled' => false, ]
 			]
 			, $b->avars );
+
+		$this->assertSame( [
+				[ 'id' => 1001, 'a_id' => 20, 'b_id' => 202, 'note' => 'c', 'enabled' => true, ],
+			]
+			, $c->avars );
+
+		$this->assertSame(
+			[
+				[
+					'test_a' => [ 'id' => 20, 'title' => 'a2', 'enabled' => false, ],
+					'test_b' => [ 'id' => 202, 'a_id' => 20, 'body' => 'F', 'enabled' => false, ],
+					'test_c' => [ 'id' => 1001, 'a_id' => 20, 'b_id' => 202, 'note' => 'c', 'enabled' => true, ],
+				]
+			], $a->getJoinedAvars()
+		);
+
+		// Test for multiple join
+		$a = ( new WGMModel( 'test_a' ) )->orderby( 'id' )->setAlias( 'a0' );
+		$b = ( new WGMModel( 'test_b' ) )->orderby( 'id' )->setAlias( 'b0' );
+		$c = ( new WGMModel( 'test_c' ) )->orderby( 'id' )->setAlias( 'c0' );
+		$a->inner( $b, [ 'id' => 'a_id' ] );
+		$b->inner( $c, [ 'id' => 'b_id', 'a_id' => 'a_id' ] );
+		$a->select();
+
+		$this->assertSame( [
+				[ 'id' => 20, 'title' => 'a2', 'enabled' => false, ]
+			]
+			, $a->avars );
+
+		$this->assertSame( [
+				[ 'id' => 202, 'a_id' => 20, 'body' => 'F', 'enabled' => false, ]
+			]
+			, $b->avars );
+
+		$this->assertSame( [
+				[ 'id' => 1001, 'a_id' => 20, 'b_id' => 202, 'note' => 'c', 'enabled' => true, ],
+			]
+			, $c->avars );
+
+		$this->assertSame(
+			[
+				[
+					'a0' => [ 'id' => 20, 'title' => 'a2', 'enabled' => false, ],
+					'b0' => [ 'id' => 202, 'a_id' => 20, 'body' => 'F', 'enabled' => false, ],
+					'c0' => [ 'id' => 1001, 'a_id' => 20, 'b_id' => 202, 'note' => 'c', 'enabled' => true, ],
+				]
+			], $a->getJoinedAvars()
+		);
 
 
 		_E( <<<SQL
