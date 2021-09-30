@@ -432,7 +432,9 @@ class WGMModel
 		}
 		else
 		{
-			$this->vars[ $keyField ] = $value;
+			$this->vars[ $keyField ] =
+				isset($this->assign[$keyField]['filter']) ?
+				$this->assign[$keyField]['filter']->output($value) : $value;
 		}
 
 		return $this;
@@ -451,7 +453,10 @@ class WGMModel
 		}
 		else
 		{
-			return $this->vars[ $keyField ] ?? null;
+			return isset($this->assign[$keyField]['filter']) ?
+				$this->assign[$keyField]['filter']->input(
+					$this->vars[ $keyField ] ?? null
+				) : $this->vars[ $keyField ] ?? null;
 		}
 	}
 
