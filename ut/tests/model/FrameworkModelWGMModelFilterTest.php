@@ -46,7 +46,7 @@ SQL
 		$m1->getVars( [ 'id' => 0 ] );
 
 		$this->assertSame( [
-			'age' => 87, 'name' => 'yamamoto', 'opts' => [ 0 => 1, 1 => 2, 2 => 3, 3 => 4, 4 => 5, ],
+			'age' => 87, 'name' => 'yamamoto', 'opts' => [ 1, 2, 3, 4, 5 ],
 		], $m1->vars['v0'] );
 
 		// Filter (var to model)
