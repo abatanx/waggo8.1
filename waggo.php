@@ -22,7 +22,7 @@ function wgdie( $msg )
 	}
 }
 
-if( defined('WG_UNITTEST') )
+if ( defined( 'WG_UNITTEST' ) )
 {
 	$configFile = __DIR__ . '/ut/unittest-config.php';
 }
@@ -77,11 +77,11 @@ require_once __DIR__ . '/api/http/http.php';
 
 foreach ( $_GET as $k => $v )
 {
-	wg_log_write( WGLOG_INFO, "## GET  " . sprintf( "%-10s = %s", "[$k]", "[$v]" ) );
+	wg_log_write( WGLOG_INFO, "## GET  %-10s = %s", "[$k]", var_export( $v, true ) );
 }
 foreach ( $_POST as $k => $v )
 {
-	wg_log_write( WGLOG_INFO, "## POST " . sprintf( "%-10s = %s", "[$k]", "[$v]" ) );
+	wg_log_write( WGLOG_INFO, "## POST %-10s = %s", "[$k]", var_export( $v, true ) );
 }
 
 require_once __DIR__ . '/api/core/exception.php';
@@ -104,8 +104,8 @@ require_once __DIR__ . '/api/datetime/datetime.php';
 
 wg_log_write( WGLOG_INFO, "[[ Loaded   framework APIs ]]" );
 
-if( !defined('WG_UNITTEST') )
+if ( ! defined( 'WG_UNITTEST' ) )
 {
-	require_once __DIR__ . '/../config.php' ;
+	require_once __DIR__ . '/../config.php';
 	wg_log_write( WGLOG_INFO, "[[ Loaded application APIs ]]" );
 }
