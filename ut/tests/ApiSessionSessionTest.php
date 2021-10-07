@@ -6,7 +6,6 @@
  */
 
 use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\WGFSession;
 
 if ( ! defined( 'WG_UNITTEST' ) )
 {
@@ -39,11 +38,10 @@ if ( ! defined( 'WG_UNITTEST' ) )
  *
 **/
 
-class ApiSessionSessionTest extends TestCase implements WGFSession
+class ApiSessionSessionTest extends TestCase
 {
 	public function test_wg_unset_session()
     {
 
     }
-
 }

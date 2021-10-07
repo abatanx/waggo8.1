@@ -7,15 +7,11 @@
 
 use PHPUnit\Framework\TestCase;
 
-if ( ! defined( 'WG_UNITTEST' ) )
-{
-	define( 'WG_UNITTEST', true );
-}
+require_once __DIR__ . '/local-common.php';
 
-require_once __DIR__ . '/../unittest-config.php';
-require_once __DIR__ . '/../../framework/gauntlet/WGGDate.php';
-require_once __DIR__ . '/../../api/datetime/datetime.php';
-require_once __DIR__ . '/../../api/datetime/WGDateTime.php';
+require_once __DIR__ . '/../../../framework/gauntlet/WGGDate.php';
+require_once __DIR__ . '/../../../api/datetime/datetime.php';
+require_once __DIR__ . '/../../../api/datetime/WGDateTime.php';
 
 class FrameworkGauntletWGGDateTest extends TestCase
 {

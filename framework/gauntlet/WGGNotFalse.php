@@ -25,7 +25,7 @@ class WGGNotFalse extends WGG
 		{
 			if ( function_exists( 'wg_log_write' ) )
 			{
-				wg_log_write( WGLOG_FATAL, '\'%s\' type is not allowed.', gettype( $value ) );
+				wg_log_write( WGLOG_FATAL, '\'%s\' type is not allowed.', gettype( $data ) );
 			}
 			else
 			{

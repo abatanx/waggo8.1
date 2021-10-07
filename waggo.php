@@ -84,8 +84,10 @@ foreach ( $_POST as $k => $v )
 	wg_log_write( WGLOG_INFO, "## POST " . sprintf( "%-10s = %s", "[$k]", "[$v]" ) );
 }
 
+require_once __DIR__ . '/api/core/exception.php';
 require_once __DIR__ . '/api/core/autoload.php';
 require_once __DIR__ . '/api/core/quotemeta.php';
+require_once __DIR__ . '/api/core/safe.php';
 require_once __DIR__ . '/api/core/check.php';
 require_once __DIR__ . '/api/core/secure.php';
 require_once __DIR__ . '/api/core/shell.php';

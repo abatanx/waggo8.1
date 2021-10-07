@@ -7,13 +7,9 @@
 
 use PHPUnit\Framework\TestCase;
 
-if ( ! defined( 'WG_UNITTEST' ) )
-{
-	define( 'WG_UNITTEST', true );
-}
+require_once __DIR__ . '/local-common.php';
 
-require_once __DIR__ . '/../unittest-config.php';
-require_once __DIR__ . '/../../framework/gauntlet/WGGFloat.php';
+require_once __DIR__ . '/../../../framework/gauntlet/WGGFloat.php';
 
 class FrameworkGauntletWGGFloatTest extends TestCase
 {

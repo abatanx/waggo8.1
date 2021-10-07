@@ -6,6 +6,7 @@
  */
 
 require_once __DIR__ . '/WGG.php';
+require_once __DIR__ . '/WGGInArray.php';
 
 class WGGInArrayStrict extends WGGInArray
 {

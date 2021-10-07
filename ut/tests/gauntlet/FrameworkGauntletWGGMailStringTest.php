@@ -7,12 +7,9 @@
 
 use PHPUnit\Framework\TestCase;
 
-if ( ! defined( 'WG_UNITTEST' ) )
-{
-	define( 'WG_UNITTEST', true );
-}
-require_once __DIR__ . '/../../api/core/check.php';
-require_once __DIR__ . '/../../framework/gauntlet/WGGMailString.php';
+require_once __DIR__ . '/local-common.php';
+
+require_once __DIR__ . '/../../../framework/gauntlet/WGGMailString.php';
 
 class FrameworkGauntletWGGMailStringTest extends TestCase
 {

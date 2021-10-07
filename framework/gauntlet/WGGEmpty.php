@@ -21,10 +21,25 @@ class WGGEmpty extends WGG
 
 	public function validate( mixed &$data ): bool
 	{
-		$v = $this->toValidationString( $data );
+		if( $data === true )
+		{
+			if ( ! $this->isBranch() )
+			{
+				$this->addError( $this->makeErrorMessage() );
+			}
+
+			return false;
+		}
+		else if( $data === false )
+		{
+			$data = '';
+		}
+
+		$v = $this->toValidationString( (string) $data );
 		if ( strlen( $v ) === 0 )
 		{
 			$data = $v;
+
 			return true;
 		}
 		else

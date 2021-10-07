@@ -7,13 +7,9 @@
 
 use PHPUnit\Framework\TestCase;
 
-if ( ! defined( 'WG_UNITTEST' ) )
-{
-	define( 'WG_UNITTEST', true );
-}
+require_once __DIR__ . '/local-common.php';
 
-require_once __DIR__ . '/../unittest-config.php';
-require_once __DIR__ . '/../../framework/gauntlet/WGGEmpty.php';
+require_once __DIR__ . '/../../../framework/gauntlet/WGGEmpty.php';
 
 class FrameworkGauntletWGGEmptyTest extends TestCase
 {
@@ -46,7 +42,7 @@ class FrameworkGauntletWGGEmptyTest extends TestCase
 		$this->assertFalse( $testClass::_()->validate($v) );
 
 		$v =  false;
-		$this->assertFalse( $testClass::_()->validate($v) );
+		$this->assertTrue( $testClass::_()->validate($v) );
 
         $v =  null;
         $this->assertTrue( $testClass::_()->validate($v) );

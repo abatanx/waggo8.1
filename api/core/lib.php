@@ -5,12 +5,13 @@
  * @license MIT
  */
 
+require_once __DIR__ . '/exception.php';
+
 const WGLOG_APP     = 0;    ///< 情報タイプのログメッセージである。
 const WGLOG_INFO    = 1;    ///< 情報タイプのログメッセージである。
 const WGLOG_WARNING = 2;    ///< 警告タイプのログメッセージである。
 const WGLOG_ERROR   = 3;    ///< エラータイプのログメッセージである。
 const WGLOG_FATAL   = 9;    ///< 致命的エラータイプのログメッセージである。
-
 
 global $wg_log_write_colors;
 $wg_log_write_colors = [
