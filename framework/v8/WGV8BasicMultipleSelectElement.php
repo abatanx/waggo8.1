@@ -44,23 +44,13 @@ class WGV8BasicMultipleSelectElement extends WGV8BasicSelectElement
 		}
 	}
 
-	public function postCopy():self
+	public function postCopy(): self
 	{
 		if ( isset( $_POST[ $this->getKey() ] ) )
 		{
 			$postValue = $_POST[ $this->getKey() ];
-			if ( $postValue === false || is_null( $postValue ) )
-			{
-				$vs = [];
-			}
-			else if ( ! is_array( $postValue ) )
-			{
-				$vs = [ $postValue ];
-			}
-			else
-			{
-				$vs = $postValue;
-			}
+
+			$vs = is_array( $postValue ) ? $postValue : [];
 
 			if ( $this->isPostCheck )
 			{
@@ -92,11 +82,14 @@ class WGV8BasicMultipleSelectElement extends WGV8BasicSelectElement
 		return $this;
 	}
 
-	public function publish():array
+	public function publish(): array
 	{
 		$checkes = array_map( function ( $v ) {
 			return (string) $v;
 		}, $this->getValue() );
+
+		$i = $this->controller->inputType == WGFController::SHOWHTML ?
+			[] : [ 'init' => sprintf( '<input type="hidden" id="%s" name="%s" value="">', $this->getId() . '-init', $this->getName() ) ];
 
 		$opt = [];
 		foreach ( $this->options as $k => $v )
@@ -115,6 +108,6 @@ class WGV8BasicMultipleSelectElement extends WGV8BasicSelectElement
 				'rawError' => $this->getValue(),
 				'params'   => $this->params->toString(),
 				'options'  => implode( "", $opt )
-			];
+			] + $i;
 	}
 }
