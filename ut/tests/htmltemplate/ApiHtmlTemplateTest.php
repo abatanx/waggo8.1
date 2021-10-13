@@ -11,12 +11,7 @@ require_once __DIR__ . '/local-common.php';
 
 class ApiHtmlTemplateTest extends TestCase
 {
-	private function ht($method, $code, $data)
-	{
-		$file = WGCONF_CANVASCACHE . '/ht_' . md5($method) . '.html';
-		file_put_contents($file, $code);
-		return HtmlTemplate::buffer($file, $data);
-	}
+	use HtmlTemplateTestUnit;
 
 	public function test_html_template_val()
 	{
@@ -34,8 +29,8 @@ PHP;
 			't7' => null,
 			'br' => "abc\ndef"
 		];
-		$r = $this->ht(__METHOD__, $html, $data);
-		$this->assertSame('[:&lt;br&gt;:100000:10000:10.5:1::::abc<br />'."\n".'def]', $r);
+		$r    = $this->ht( __METHOD__, $html, $data );
+		$this->assertSame( '[:&lt;br&gt;:100000:10000:10.5:1::::abc<br />' . "\n" . 'def]', $r );
 	}
 
 	public function test_html_template_rval()
@@ -54,8 +49,8 @@ PHP;
 			't7' => null,
 			'br' => "abc\ndef"
 		];
-		$r = $this->ht(__METHOD__, $html, $data);
-		$this->assertSame('[:<br>:100000:10000:10.5:1::::'."abc\ndef".']', $r);
+		$r    = $this->ht( __METHOD__, $html, $data );
+		$this->assertSame( '[:<br>:100000:10000:10.5:1::::' . "abc\ndef" . ']', $r );
 	}
 
 	public function test_html_template_rval2()
@@ -74,8 +69,8 @@ PHP;
 			't7' => null,
 			'br' => "abc\ndef"
 		];
-		$r = $this->ht(__METHOD__, $html, $data);
-		$this->assertSame('[:<br>:100000:10000:10.5:1::::'."abc\ndef".']', $r);
+		$r    = $this->ht( __METHOD__, $html, $data );
+		$this->assertSame( '[:<br>:100000:10000:10.5:1::::' . "abc\ndef" . ']', $r );
 	}
 
 	public function test_html_template_nval()
@@ -94,7 +89,7 @@ PHP;
 			't7' => null,
 			'br' => "abc\ndef"
 		];
-		$r = $this->ht(__METHOD__, $html, $data);
-		$this->assertSame('[0:0:100,000:10,000:10:1:0:::0]', $r);
+		$r    = $this->ht( __METHOD__, $html, $data );
+		$this->assertSame( '[0:0:100,000:10,000:10:1:0:::0]', $r );
 	}
 }

@@ -15,3 +15,14 @@ require_once __DIR__ . '/../../unittest-config.php';
 require_once __DIR__ . '/../../../api/html/htmltemplate.php';
 
 class HTE extends HtmlTemplateEncoder {}
+
+trait HtmlTemplateTestUnit
+{
+	protected function ht( $method, $code, $data )
+	{
+		$file = WGCONF_CANVASCACHE . '/ht_' . md5( $method ) . '.html';
+		file_put_contents( $file, $code );
+
+		return HtmlTemplate::buffer( $file, $data );
+	}
+}
