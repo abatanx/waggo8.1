@@ -9,7 +9,7 @@ class WGV8BasicPaginationState
 {
 	const STATE_INVISIBLE = 0, STATE_DISABLE = 1, STATE_ENABLE = 2, STATE_ACTIVE = 3;
 
-	private int $state;
+	private int    $state;
 	private string $number;
 	private string $caption;
 	private string $js;
@@ -155,8 +155,8 @@ class WGV8BasicPagination extends WGV8Object
 		$this->pageKey  = $pagekey;
 		$this->limitKey = $limitkey;
 
-		$this->page  = ( ! wg_inchk_int( $this->page, @$_GET[ $this->pageKey ], 1 ) ) ? 1 : $this->page;
-		$this->limit = ( ! wg_inchk_int( $this->limit, @$_GET[ $this->limitKey ], 1 ) ) ? $limit : $this->limit;
+		$this->page  = ( ! wg_inchk_int( $this->page, $_GET[ $this->pageKey ] ?? null, 1 ) ) ? 1 : $this->page;
+		$this->limit = ( ! wg_inchk_int( $this->limit, $_GET[ $this->limitKey ] ?? null, 1 ) ) ? $limit : $this->limit;
 
 		if ( ! in_array( $this->limit, array_keys( $this->limitList ) ) )
 		{
@@ -171,8 +171,8 @@ class WGV8BasicPagination extends WGV8Object
 
 	public function js( int $page, array $options = [] ): string
 	{
-		$url = wg_remake_uri( [ $this->pageKey => $page, $this->limitKey => $this->limit ] );
-		$opts = json_encode($options, JSON_FORCE_OBJECT);
+		$url  = wg_remake_uri( [ $this->pageKey => $page, $this->limitKey => $this->limit ] );
+		$opts = json_encode( $options, JSON_FORCE_OBJECT );
 
 		return "WG8.get('#'+$(this).closest('.wg-form').attr('id'),WG8.remakeURI('$url',$opts));";
 	}
@@ -437,7 +437,7 @@ class WGV8BasicPagination extends WGV8Object
 			<div id="{$id}_pagination_ul">
 				<div class="btn-group">$body</div>
 			</div>
-			
+
 			<div id="{$id}_pagination_dropdown" class="dropdown">
 				<button class="btn btn-default" type="button" id="{$id}_toggle" data-toggle="dropdown">
 					<span id="{$id}_caption">$cap</span> <span class="caret"></span>
@@ -447,7 +447,7 @@ class WGV8BasicPagination extends WGV8Object
 				</ul>
 				$totalCaption
 			</div>
-			
+
 		</div>
 	</div>
 </nav>
