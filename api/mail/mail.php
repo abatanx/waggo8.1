@@ -162,7 +162,7 @@ class WGMail
 		$options["username"]  = WGCONF_SMTP_AUTH_USERNAME;
 		$options["password"]  = WGCONF_SMTP_AUTH_PASSWORD;
 		$options["localhost"] = WGCONF_SMTP_LOCALHOST;
-		$mail_object          =& Mail::factory( "SMTP", $options );
+		$mail_object          = Mail::factory( "SMTP", $options );
 
 		if ( ! WGCONF_SMTP_TEST )
 		{
