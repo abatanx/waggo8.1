@@ -412,7 +412,7 @@ function wi_install(): bool
 		$src = $dirInfo['inittpl'] . "/" . $name;
 		$dst = $dirInfo['tpl'] . "/" . $name;
 
-		if ( ! file_exists( $src ) )
+		if ( file_exists( $src ) && ! file_exists( $dst ) )
 		{
 			copy( $src, $dst );
 		}
