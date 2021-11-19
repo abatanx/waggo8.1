@@ -92,7 +92,7 @@ class WGDBMSPostgreSQL extends WGDBMS
 
 		$param = implode( ' ', $params );
 
-		$this->connection = @pg_connect( $param );
+		$this->connection = @pg_connect( $param, PGSQL_CONNECT_FORCE_NEW );
 		if ( ! $this->connection )
 		{
 			wgdie( "Database connection error." );
