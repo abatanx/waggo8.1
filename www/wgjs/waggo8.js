@@ -118,11 +118,14 @@ WG8.get = function (jqs, url, opts) {
 			WG8.beforeLoad(jqs)
 		},
 		complete: function (jqx) {
+			if (opts.beforeComplete != null) opts.beforeComplete(jqs)
 			WG8.afterLoad(jqs)
 			WG8.parse(jqs, jqx, url, opts)
+			if (opts.afterComplete != null) opts.afterComplete(jqs)
 		},
 		error: function () {
 			WG8.afterLoad(jqs)
+			if (opts.onError != null) opts.onError(jqs)
 			console.log('WG8.get failed, ' + url)
 		}
 	})
@@ -138,11 +141,14 @@ WG8.post = function (jqs, url, opts) {
 			WG8.beforeLoad(jqs)
 		},
 		complete: function (jqx) {
+			if (opts.beforeComplete != null) opts.beforeComplete(jqs)
 			WG8.afterLoad(jqs)
 			WG8.parse(jqs, jqx, url, opts)
+			if (opts.afterComplete != null) opts.afterComplete(jqs)
 		},
 		error: function () {
 			WG8.afterLoad(jqs)
+			if (opts.onError != null) opts.onError(jqs)
 			console.log('WG8.post failed, ' + url)
 		}
 	})
