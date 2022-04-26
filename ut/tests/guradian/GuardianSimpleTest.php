@@ -9,12 +9,13 @@ use PHPUnit\Framework\TestCase;
 
 require_once __DIR__ . '/local-common.php';
 
+require_once __DIR__ . '/../../../framework/gauntlet/WGGInt.php';
 require_once __DIR__ . '/../../../framework/guardian/WGGuardian.php';
 
 class GuardianSimpleParam extends WGGuardian
 {
-	#[WGGuard(post:"a")]
-	public int $id;
+	#[WGGuard(GET:'a', POST:'a', gauntlet:new WGGInt(0,100))]
+	public int $id = 0;
 }
 
 
@@ -22,7 +23,11 @@ class GuardianSimpleTest extends TestCase
 {
 	public function test_guardian_simple()
 	{
+		$_GET['a'] = 12345;
+
 		$g = new GuardianSimpleParam( null );
 		$g->fromGET();
+
+		$this->assertEquals(12345, $g->id);
 	}
 }
