@@ -95,7 +95,7 @@ ___END___
 		$hasError = true;
 	}
 
-	if ( ! preg_match( '/\/sys\/waggo8$/', $dirInfo['waggo'] ) )
+	if ( ! preg_match( '/\/sys\/waggo8\.1$/', $dirInfo['waggo'] ) )
 	{
 		wi_echo( ECHO_NORMAL, "Error: Place <application>/sys/waggo8 ." );
 		wi_echo( ECHO_NORMAL, " % tar xvfz ~/Downloads/waggo8.00.tar.gz" );
