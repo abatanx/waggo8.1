@@ -38,6 +38,8 @@ class WGGFilterAnk extends WGG
 
 		$data = mb_convert_kana( $v, $this->convertKanaParam );
 
+		$this->addChainState( WGGChainState::_( true ) );
+
 		return true;
 	}
 }

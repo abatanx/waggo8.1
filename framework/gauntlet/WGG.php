@@ -8,12 +8,29 @@
 require_once __DIR__ . '/WGG.php';
 require_once __DIR__ . '/../../api/core/exception.php';
 
+class WGGChainState
+{
+	public bool $isValid;
+	public string $errorMessage;
+
+	public function __construct( bool $isValid = false, string $errorMessage = '' )
+	{
+		$this->isValid      = $isValid;
+		$this->errorMessage = $errorMessage;
+	}
+
+	static public function _( bool $isValid = false, string $errorMessage = '' )
+	{
+		return new static( $isValid, $errorMessage );
+	}
+}
+
 abstract class WGG
 {
 	/**
-	 * @var string[] エラーメッセージ
+	 * @var WGGChainState[] 評価結果
 	 */
-	private array $errors;
+	private array $chainStatuses;
 
 	/**
 	 * @var ?WGG 後部連結するガントレット
@@ -23,9 +40,27 @@ abstract class WGG
 
 	public function __construct()
 	{
-		$this->errors           = [];
-		$this->chainedIfValid   = null;
-		$this->chainedIfInvalid = null;
+		$this->chainStatuses    = [];
+		$this->chainedIfValid   = $this->ifValid();
+		$this->chainedIfInvalid = $this->ifInvalid();
+	}
+
+	/**
+	 * 後部連結するガントレットデフォルト
+	 * @return WGG|null
+	 */
+	protected function ifValid(): ?WGG
+	{
+		return null;
+	}
+
+	/**
+	 * 後部連結するガントレットデフォルト
+	 * @return WGG|null
+	 */
+	protected function ifInvalid(): ?WGG
+	{
+		return null;
 	}
 
 	/**
@@ -55,8 +90,8 @@ abstract class WGG
 			}
 			else
 			{
-				$type = gettype($value);
-				throw new WGRuntimeException("'$type' is not allowed.");
+				$type = gettype( $value );
+				throw new WGRuntimeException( "'$type' is not allowed." );
 			}
 		}
 	}
@@ -89,40 +124,56 @@ abstract class WGG
 		return $this;
 	}
 
-	public function setError( string $msg ): self
+	public function addChainState( WGGChainState $msg ): self
 	{
-		$this->errors = [ $msg ];
-
-		return $this;
-	}
-
-	public function addError( string $msg ): self
-	{
-		$this->errors[] = $msg;
+		$this->chainStatuses[] = $msg;
 
 		return $this;
 	}
 
 	public function listError(): array
 	{
-		return $this->errors;
+		return $this->chainStatuses;
 	}
 
 	public function getError(): string
 	{
-		return implode( ",", $this->errors );
+		if ( $this->hasError() )
+		{
+			$errorMessages = array_map( function ( $e ) {
+				return $e->errorMessage;
+			},
+				array_filter( $this->chainStatuses,
+					function ( $e ) {
+						return ! $e->isValid;
+					} )
+			);
+
+			return implode( "または、", $errorMessages );
+		}
+
+		return '';
 	}
 
 	public function unsetError(): self
 	{
-		$this->errors = [];
+		$this->chainStatuses = [];
 
 		return $this;
 	}
 
 	public function hasError(): bool
 	{
-		return count( $this->errors ) > 0;
+		if ( count( $this->chainStatuses ) > 0 )
+		{
+			$lastState = $this->chainStatuses[ count( $this->chainStatuses ) - 1 ];
+
+			return ! $lastState->isValid;
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 	public function isFilter(): bool
@@ -143,16 +194,6 @@ abstract class WGG
 	abstract protected function validate( mixed &$data ): bool;
 
 	/**
-	 * ガントレットの結果によって分岐する場合は、エラーメッセージを追記しない。
-	 */
-	public function isBranch(): bool
-	{
-		return
-			$this->chainedIfValid instanceof WGG &&
-			$this->chainedIfInvalid instanceof WGG;
-	}
-
-	/**
 	 * @param mixed $data ガントレット対象データ
 	 *
 	 * @return WGG ガントレットインスタンス
@@ -165,20 +206,19 @@ abstract class WGG
 			$result = $currentGauntlet->unsetError()->validate( $data );
 			if ( $currentGauntlet !== $this )
 			{
-				$this->errors = array_merge( $this->errors, $currentGauntlet->listError() );
+				$this->chainStatuses = array_merge( $this->chainStatuses, $currentGauntlet->listError() );
 			}
 
-			if ( $currentGauntlet->isBranch() )
+			if ( ! $currentGauntlet->isFilter() )
 			{
-				$currentGauntlet = $result ? $currentGauntlet->chainedIfValid : $currentGauntlet->chainedIfInvalid;
+				$currentGauntlet = $result ?
+					$currentGauntlet->chainedIfValid :
+					$currentGauntlet->chainedIfInvalid;
 			}
 			else
 			{
-				if ( $result === false && ! $currentGauntlet->isFilter() )
-				{
-					break;
-				}
-				$currentGauntlet = $currentGauntlet->chainedIfValid;
+				$currentGauntlet =
+					$currentGauntlet->chainedIfValid;
 			}
 		}
 

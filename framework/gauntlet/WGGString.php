@@ -25,7 +25,9 @@ class WGGString extends WGG
 
 	public function makeErrorMessage(): string
 	{
-		return sprintf( "%d〜%d文字の長さの範囲で入力してください。", $this->min, $this->max );
+		return $this->min != $this->max ?
+			sprintf( "%d〜%d文字の長さの範囲で入力してください。", $this->min, $this->max ) :
+			sprintf( "%d文字で入力してください。", $this->min );
 	}
 
 	public function validate( mixed &$data ): bool
@@ -38,14 +40,13 @@ class WGGString extends WGG
 		{
 			$data = $v;
 
+			$this->addChainState( WGGChainState::_( true ) );
+
 			return true;
 		}
 		else
 		{
-			if ( ! $this->isBranch() )
-			{
-				$this->setError( $this->makeErrorMessage() );
-			}
+			$this->addChainState( WGGChainState::_( false, $this->makeErrorMessage() ) );
 
 			return false;
 		}

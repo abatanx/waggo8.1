@@ -114,25 +114,28 @@ class WGParameters
 		}, $tags );
 	}
 
-	public function getParams( array $tags = [] ): array
+	public function getParams( array $tags = [], bool $isExcludeNull = false ): array
 	{
 		$result = [];
 
-		$this->forEachReflection( function ( $props, $instance ) use ( &$result ) {
+		$this->forEachReflection( function ( $props, $instance ) use ( &$result, $isExcludeNull ) {
 			/**
 			 * @var WGPara $instance
 			 */
 			$value = $props->getValue( $this );
 
-			$result[ $instance->getName( $props ) ] = (string) $value;
+			if ( ! is_null( $value ) || $isExcludeNull === false )
+			{
+				$result[ $instance->getName( $props ) ] = (string) $value;
+			}
 		}, $tags );
 
 		return $result;
 	}
 
-	public function getParamString( array $tags = [] ): string
+	public function getParamString( array $tags = [], bool $isExcludeNull = false ): string
 	{
-		$param = $this->getParams( $tags );
+		$param = $this->getParams( $tags, $isExcludeNull );
 
 		return implode( '&', array_map( function ( $v, $k ) {
 			return rawurlencode( $k ) . '=' . rawurldecode( $v );

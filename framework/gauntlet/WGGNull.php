@@ -7,7 +7,7 @@
 
 require_once __DIR__ . '/WGG.php';
 
-class WGGThru extends WGG
+class WGGNull extends WGG
 {
 	public static function _(): self
 	{
@@ -16,13 +16,23 @@ class WGGThru extends WGG
 
 	public function makeErrorMessage(): string
 	{
-		return '';
+		return '内容が空ではありません。';
 	}
 
-	public function validate( &$data ): bool
+	public function validate( mixed &$data ): bool
 	{
+		if ( ! empty( $data ) )
+		{
+			$this->addChainState( WGGChainState::_( false, $this->makeErrorMessage() ) );
+
+			return false;
+		}
+
+		$data = null;
+
 		$this->addChainState( WGGChainState::_( true ) );
 
 		return true;
 	}
 }
+

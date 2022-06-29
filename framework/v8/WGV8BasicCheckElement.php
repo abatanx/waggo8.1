@@ -47,10 +47,10 @@ class WGV8BasicCheckElement extends WGV8BasicElement
 
 	public function publish(): array
 	{
-		$a = $this->getValue() == false ?
-			[] : [ 'checked' => 'checked' ];
+		$a = ( ! ! $this->getValue() ) === false ?
+			[ 'checked' => '' ] : [ 'checked' => 'checked' ];
 		$i = $this->controller->inputType == WGFController::SHOWHTML ?
-			[] : [ 'init' => sprintf( '<input type="hidden" id="%s" name="%s" value="">', $this->getId() . '-init', $this->getName() ) ];
+			[ 'init' => '' ] : [ 'init' => sprintf( '<input type="hidden" id="%s" name="%s" value="">', $this->getId() . '-init', $this->getName() ) ];
 
 		// value は on が送信されるか否か(checkedに依存する)であるので、valueとしては'on'を適用する。
 		$p          = parent::publish() + $a + $i;
