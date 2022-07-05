@@ -26,14 +26,14 @@ class WGGMailString extends WGG
 		if ( wg_check_input_email( $v ) )
 		{
 			$data = $v;
+
+			$this->addChainState( WGGChainState::_( true ) );
+
 			return true;
 		}
 		else
 		{
-			if ( ! $this->isBranch() )
-			{
-				$this->addError( $this->makeErrorMessage() );
-			}
+			$this->addChainState( WGGChainState::_( false, $this->makeErrorMessage() ) );
 
 			return false;
 		}

@@ -21,18 +21,18 @@ class WGGDate extends WGG
 
 	public function validate( mixed &$data ): bool
 	{
-		$v = $this->toValidationString($data);
+		$v = $this->toValidationString( $data );
 		if ( wg_datetime_checkdate( $v ) )
 		{
 			$data = $v;
+
+			$this->addChainState( WGGChainState::_( true ) );
+
 			return true;
 		}
 		else
 		{
-			if ( ! $this->isBranch() )
-			{
-				$this->setError( $this->makeErrorMessage() );
-			}
+			$this->addChainState( WGGChainState::_( false, $this->makeErrorMessage() ) );
 
 			return false;
 		}

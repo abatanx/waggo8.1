@@ -24,7 +24,7 @@ class WGGReg extends WGG
 
 	public function makeErrorMessage(): string
 	{
-		return '入力内容を見直してください';
+		return '入力内容を見直してください。';
 	}
 
 	public function validate( &$data ): bool
@@ -35,14 +35,13 @@ class WGGReg extends WGG
 		{
 			$data = $v;
 
+			$this->addChainState( WGGChainState::_( true ) );
+
 			return true;
 		}
 		else
 		{
-			if ( ! $this->isBranch() )
-			{
-				$this->setError( $this->makeErrorMessage() );
-			}
+			$this->addChainState( WGGChainState::_( false, $this->makeErrorMessage() ) );
 
 			return false;
 		}

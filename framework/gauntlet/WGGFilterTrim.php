@@ -45,6 +45,8 @@ class WGGFilterTrim extends WGG
 			$data = trim( $v, " \t\n\r\0\x0B　" );
 		}
 
+		$this->addChainState( WGGChainState::_( true ) );
+
 		return true;
 	}
 }

@@ -19,17 +19,26 @@ class WGMModelJoin
 	protected int $joinType = self::INNER;
 	protected array $joinOn;
 
-	public function __construct( int $joinType, WGMModel $joinModel, array $on )
-	{
-		$this->priority  = self::$currentPriority ++;
-		$this->joinType  = $joinType;
-		$this->joinModel = $joinModel;
-		$this->joinOn    = $on;
+	protected ?string $leftConstraint;
+	protected ?string $rightConstraint;
+
+	public function __construct(
+		int $joinType, WGMModel $joinModel,
+		array $on, ?string $leftConstraint = null, ?string $rightConstraint = null
+	) {
+		$this->priority        = self::$currentPriority ++;
+		$this->joinType        = $joinType;
+		$this->joinModel       = $joinModel;
+		$this->joinOn          = $on;
+		$this->leftConstraint  = $leftConstraint;
+		$this->rightConstraint = $rightConstraint;
 	}
 
-	static public function _( int $joinType, WGMModel $joinModel, array $on ): self
-	{
-		return new static( $joinType, $joinModel, $on );
+	static public function _(
+		int $joinType, WGMModel $joinModel,
+		array $on, ?string $leftConstraint = null, ?string $rightConstraint = null
+	): self {
+		return new static( $joinType, $joinModel, $on, $leftConstraint, $rightConstraint );
 	}
 
 	public function getJoinType(): int
@@ -55,5 +64,15 @@ class WGMModelJoin
 	public function getOn(): array
 	{
 		return $this->joinOn;
+	}
+
+	public function getLeftConstraint(): ?string
+	{
+		return $this->leftConstraint;
+	}
+
+	public function getRightConstraint(): ?string
+	{
+		return $this->rightConstraint;
 	}
 }

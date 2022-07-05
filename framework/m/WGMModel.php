@@ -433,8 +433,8 @@ class WGMModel
 		else
 		{
 			$this->vars[ $keyField ] =
-				isset($this->assign[$keyField]['filter']) ?
-				$this->assign[$keyField]['filter']->output($value) : $value;
+				isset( $this->assign[ $keyField ]['filter'] ) ?
+					$this->assign[ $keyField ]['filter']->output( $value ) : $value;
 		}
 
 		return $this;
@@ -453,8 +453,8 @@ class WGMModel
 		}
 		else
 		{
-			return isset($this->assign[$keyField]['filter']) ?
-				$this->assign[$keyField]['filter']->input(
+			return isset( $this->assign[ $keyField ]['filter'] ) ?
+				$this->assign[ $keyField ]['filter']->input(
 					$this->vars[ $keyField ] ?? null
 				) : $this->vars[ $keyField ] ?? null;
 		}
@@ -467,23 +467,23 @@ class WGMModel
 		return $this;
 	}
 
-	public function left( WGMModel $model, array $on ): self
+	public function left( WGMModel $model, array $on, ?string $leftConstraint = null, ?string $rightConstraint = null ): self
 	{
-		$this->joins[] = WGMModelJoin::_( WGMModelJoin::LEFT, $model, $on );
+		$this->joins[] = WGMModelJoin::_( WGMModelJoin::LEFT, $model, $on, $leftConstraint, $rightConstraint );
 
 		return $this;
 	}
 
-	public function right( WGMModel $model, array $on ): self
+	public function right( WGMModel $model, array $on, ?string $leftConstraint = null, ?string $rightConstraint = null ): self
 	{
-		$this->joins[] = WGMModelJoin::_( WGMModelJoin::RIGHT, $model, $on );
+		$this->joins[] = WGMModelJoin::_( WGMModelJoin::RIGHT, $model, $on, $leftConstraint, $rightConstraint );
 
 		return $this;
 	}
 
-	public function inner( WGMModel $model, array $on ): self
+	public function inner( WGMModel $model, array $on, ?string $leftConstraint = null, ?string $rightConstraint = null ): self
 	{
-		$this->joins[] = WGMModelJoin::_( WGMModelJoin::INNER, $model, $on );
+		$this->joins[] = WGMModelJoin::_( WGMModelJoin::INNER, $model, $on, $leftConstraint, $rightConstraint );
 
 		return $this;
 	}
@@ -797,6 +797,15 @@ class WGMModel
 				}
 
 				$on[] = $leftModel->getAlias() . '.' . $leftField . '=' . $rightModel->getAlias() . '.' . $rightField;
+			}
+
+			foreach ( [ $join->getLeftConstraint(), $join->getRightConstraint() ] as $lr => $constraint )
+			{
+				if ( ! is_null( $constraint ) )
+				{
+					$model = $lr === 0 ? $this : $join->getJoinModel();
+					$on[]  = '(' . $model->expansion( $constraint ) . ')';
+				}
 			}
 
 			$on = implode( ' AND ', $on );
@@ -1124,7 +1133,8 @@ class WGMModel
 		{
 			$this->logInfo( 'Insert mode' );
 
-			foreach ( $fields as $k )
+			$ws = array_intersect( array_unique( array_merge( array_keys( $this->assign ), array_keys( $this->vars ) ) ), $fields );
+			foreach ( $ws as $k )
 			{
 				$dd[ $k ] = $this->getAssignedValue( $k );
 			}

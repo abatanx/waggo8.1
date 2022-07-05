@@ -17,7 +17,7 @@ class WGV8Object
 	protected ?string $id;
 	protected ?string $key;
 	protected bool $enable, $lock, $focus;
-	protected mixed $extra;
+	protected stdClass $extra;
 	protected ?WGG $gauntlet;
 
 	public ?WGFController $controller;
@@ -36,6 +36,14 @@ class WGV8Object
 		$this->focus    = false;
 		$this->extra    = new stdClass();
 		$this->key      = null;
+	}
+
+	/**
+	 * Cast
+	 */
+	static public function cast( WGV8Object $viewObject ): static
+	{
+		return $viewObject;
 	}
 
 	/**
@@ -354,7 +362,7 @@ class WGV8Object
 		return $this;
 	}
 
-	public function getExtra(): mixed
+	public function getExtra(): stdClass
 	{
 		return $this->extra;
 	}

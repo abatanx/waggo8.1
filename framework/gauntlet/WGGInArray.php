@@ -35,14 +35,13 @@ class WGGInArray extends WGG
 		{
 			$data = $v;
 
+			$this->addChainState( WGGChainState::_( true ) );
+
 			return true;
 		}
 		else
 		{
-			if ( ! $this->isBranch() )
-			{
-				$this->setError( $this->makeErrorMessage() );
-			}
+			$this->addChainState( WGGChainState::_( false, $this->makeErrorMessage() ) );
 
 			return false;
 		}

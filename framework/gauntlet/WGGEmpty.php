@@ -21,16 +21,13 @@ class WGGEmpty extends WGG
 
 	public function validate( mixed &$data ): bool
 	{
-		if( $data === true )
+		if ( $data === true )
 		{
-			if ( ! $this->isBranch() )
-			{
-				$this->addError( $this->makeErrorMessage() );
-			}
+			$this->addChainState( WGGChainState::_( false, $this->makeErrorMessage() ) );
 
 			return false;
 		}
-		else if( $data === false )
+		else if ( $data === false )
 		{
 			$data = '';
 		}
@@ -40,14 +37,13 @@ class WGGEmpty extends WGG
 		{
 			$data = $v;
 
+			$this->addChainState( WGGChainState::_( true ) );
+
 			return true;
 		}
 		else
 		{
-			if ( ! $this->isBranch() )
-			{
-				$this->addError( $this->makeErrorMessage() );
-			}
+			$this->addChainState( WGGChainState::_( false, $this->makeErrorMessage() ) );
 
 			return false;
 		}

@@ -21,7 +21,7 @@ class WGGNotFalse extends WGG
 
 	public function validate( mixed &$data ): bool
 	{
-		if( !is_bool($data) )
+		if ( ! is_bool( $data ) )
 		{
 			if ( function_exists( 'wg_log_write' ) )
 			{
@@ -29,21 +29,20 @@ class WGGNotFalse extends WGG
 			}
 			else
 			{
-				$type = gettype($data);
-				throw new WGRuntimeException("'$type' is not allowed.");
+				$type = gettype( $data );
+				throw new WGRuntimeException( "'$type' is not allowed." );
 			}
 		}
 
 		if ( $data === true )
 		{
+			$this->addChainState( WGGChainState::_( true ) );
+
 			return true;
 		}
 		else
 		{
-			if ( ! $this->isBranch() )
-			{
-				$this->addError( $this->makeErrorMessage() );
-			}
+			$this->addChainState( WGGChainState::_( false, $this->makeErrorMessage() ) );
 
 			return false;
 		}

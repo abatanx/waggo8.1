@@ -591,7 +591,14 @@ abstract class WGFController
 		}
 		foreach ( $models as $k => $t )
 		{
-			$this->models[ is_int( $k ) ? $t : $k ] = $this->initModelInstance( $t );
+			$modelInstance = $this->initModelInstance( $t );
+
+			$modelAlias = !$t instanceof WGMModel ? $t : $modelInstance->getAlias();
+			$this->models[ is_int( $k ) ? $modelAlias : $k ] = $modelInstance;
+			if ( ! is_int( $k ) )
+			{
+				$modelInstance->setAlias( $k );
+			}
 		}
 		foreach ( $this->models as $m )
 		{
