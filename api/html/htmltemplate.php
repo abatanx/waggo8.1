@@ -191,11 +191,14 @@ ___END___;
 		}
 		else
 		{
-			$code = self::parse( @file_get_contents( $file ) );
-			$fi   = self::storeCache( $file, $code );
-			if ( $fi !== false )
+			if( $file )
 			{
-				self::__SANDBOX__( $fi, $val );
+				$code = self::parse( @file_get_contents( $file ) );
+				$fi   = self::storeCache( $file, $code );
+				if ( $fi !== false )
+				{
+					self::__SANDBOX__( $fi, $val );
+				}
 			}
 		}
 	}
