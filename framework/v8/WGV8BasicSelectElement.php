@@ -88,13 +88,23 @@ class WGV8BasicSelectElement extends WGV8BasicElement
 
 	public function publish(): array
 	{
-		$opt = [];
+		$caption = '';
+		$opt     = [];
 		foreach ( $this->options as $k => $v )
 		{
-			$selected = (string) $this->getValue() === (string) $k ? " selected" : "";
-			$opt[]    = sprintf( '<option value="%s"%s>%s</option>', htmlspecialchars( $k ), $selected, htmlspecialchars( $v ) );
+			$selected = '';
+			if ( (string) $this->getValue() === (string) $k )
+			{
+				$selected = " selected";
+				$caption  = $v;
+			}
+			$opt[] = sprintf( '<option value="%s"%s>%s</option>', htmlspecialchars( $k ), $selected, htmlspecialchars( $v ) );
 		}
 
-		return parent::publish() + [ "options" => implode( "", $opt ) ];
+		return parent::publish() + [
+				"options"    => implode( "", $opt ),
+				"caption"    => htmlspecialchars( $caption, ENT_QUOTES | ENT_HTML5 ),
+				"rawCaption" => $caption,
+			];
 	}
 }
