@@ -467,22 +467,22 @@ class WGMModel
 		return $this;
 	}
 
-	public function left( WGMModel $model, array $on, ?string $leftConstraint = null, ?string $rightConstraint = null ): self
-	{
+	public function left( WGMModel $model, array $on, ?string $leftConstraint = null, ?string $rightConstraint = null
+	): self {
 		$this->joins[] = WGMModelJoin::_( WGMModelJoin::LEFT, $model, $on, $leftConstraint, $rightConstraint );
 
 		return $this;
 	}
 
-	public function right( WGMModel $model, array $on, ?string $leftConstraint = null, ?string $rightConstraint = null ): self
-	{
+	public function right( WGMModel $model, array $on, ?string $leftConstraint = null, ?string $rightConstraint = null
+	): self {
 		$this->joins[] = WGMModelJoin::_( WGMModelJoin::RIGHT, $model, $on, $leftConstraint, $rightConstraint );
 
 		return $this;
 	}
 
-	public function inner( WGMModel $model, array $on, ?string $leftConstraint = null, ?string $rightConstraint = null ): self
-	{
+	public function inner( WGMModel $model, array $on, ?string $leftConstraint = null, ?string $rightConstraint = null
+	): self {
 		$this->joins[] = WGMModelJoin::_( WGMModelJoin::INNER, $model, $on, $leftConstraint, $rightConstraint );
 
 		return $this;
@@ -810,10 +810,10 @@ class WGMModel
 
 			$on = implode( ' AND ', $on );
 
-			$base = '(' . $base . ' ' . $join->getJoinTypeOperatorString() . ' ' .
+			$base = $base . ' ' . $join->getJoinTypeOperatorString() . ' ' .
 					$join->getJoinModel()->getTable() . ' AS ' .
 					$join->getJoinModel()->getAlias() .
-					' ON ' . $on . ')';
+					' ON ' . $on;
 			$base = $join->getJoinModel()->getJoinTables( $base );
 		}
 
