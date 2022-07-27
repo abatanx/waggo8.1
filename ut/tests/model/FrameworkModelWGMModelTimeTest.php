@@ -17,11 +17,11 @@ class FrameworkModelWGMModelTimeTest extends TestCase
 		_E( <<<SQL
 DROP TABLE IF EXISTS test_time;
 CREATE TABLE test_time(
-    id int4 not null primary key ,
-    v0 time not null default '00:00:00'::time ,
+    id int4 NOT NULL PRIMARY KEY ,
+    v0 time NOT NULL DEFAULT '00:00:00'::time ,
     v1 time 
 );
-INSERT INTO test_time VALUES(0,'00:00:00',null);
+INSERT INTO test_time VALUES(0,'00:00:00',NULL);
 SQL
 		);
 
@@ -116,7 +116,7 @@ SQL
 			$i = [ 'v0' => $dateString ];
 			$m->setVars( $k + $i )->update( 'id' )->getVars( $k );
 			echo $m->vars['v0'];
-			$this->assertNotFalse( strptime( $m->vars['v0'], '%H:%M:%S' ) );
+			$this->assertNotFalse( date_parse_from_format( '%H:%M:%S', $m->vars['v0'] ) );
 		}
 
 		_E( <<<SQL

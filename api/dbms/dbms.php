@@ -126,7 +126,7 @@ abstract class WGDBMS
 	 *
 	 * @return string クォート後の文字列
 	 */
-	abstract static public function ESC( string $str ): string;
+	abstract public function ESC( string $str ): string;
 
 	/**
 	 * 書式付きSQL発行用に、数値を文字列に変換する
@@ -136,7 +136,7 @@ abstract class WGDBMS
 	 *
 	 * @return string 変換後の文字列
 	 */
-	abstract static public function N( mixed $num, bool $isAllowNull = true ): string;
+	abstract public function N( mixed $num, bool $isAllowNull = true ): string;
 
 	/**
 	 * 書式付きSQL発行用に、文字列を引用符付き文字列に変換する
@@ -146,7 +146,7 @@ abstract class WGDBMS
 	 *
 	 * @return string 変換後の文字列(null 以外の場合、クォート後両端に引用符が付加される)
 	 */
-	abstract static public function S( mixed $str, bool $isAllowNull = true ): string;
+	abstract public function S( mixed $str, bool $isAllowNull = true ): string;
 
 	/**
 	 * 書式付きSQL発行用に、論理値を文字列に変換する
@@ -156,7 +156,7 @@ abstract class WGDBMS
 	 *
 	 * @return string 変換後の文字列
 	 */
-	abstract static public function B( mixed $bool, bool $isAllowNull = true ): string;
+	abstract public function B( mixed $bool, bool $isAllowNull = true ): string;
 
 	/**
 	 * 書式付きSQL発行用に、日付を文字列に変換する
@@ -166,7 +166,7 @@ abstract class WGDBMS
 	 *
 	 * @return string 変換後の文字列。日付関数表記以外の場合、両端に引用符が付与されるだけです。
 	 */
-	abstract static public function TD( mixed $date, bool $isAllowNull = true ): string;
+	abstract public function TD( mixed $date, bool $isAllowNull = true ): string;
 
 	/**
 	 * 書式付きSQL発行用に、時刻を文字列に変換する
@@ -176,7 +176,7 @@ abstract class WGDBMS
 	 *
 	 * @return string 変換後の文字列。日付関数表記以外の場合、両端に引用符が付与されるだけです。
 	 */
-	abstract static public function TT( mixed $time, bool $isAllowNull = true ): string;
+	abstract public function TT( mixed $time, bool $isAllowNull = true ): string;
 
 	/**
 	 * 書式付きSQL発行用に、タイムスタンプを文字列に変換する
@@ -186,7 +186,7 @@ abstract class WGDBMS
 	 *
 	 * @return string 変換後の文字列。日付関数表記以外の場合、両端に引用符が付与されるだけです。
 	 */
-	abstract static public function TS( mixed $timestamp, bool $isAllowNull = true ): string;
+	abstract public function TS( mixed $timestamp, bool $isAllowNull = true ): string;
 
 	/**
 	 * 書式付きSQL発行用に、浮動小数点数を文字列に変換する
@@ -196,7 +196,7 @@ abstract class WGDBMS
 	 *
 	 * @return string 変換後の文字列
 	 */
-	abstract static public function D( mixed $num, bool $isAllowNull = true ): string;
+	abstract public function D( mixed $num, bool $isAllowNull = true ): string;
 
 	/**
 	 * 書式付きSQL発行用に、バイナリデータを16進文字列に変換する
@@ -206,7 +206,7 @@ abstract class WGDBMS
 	 *
 	 * @return string
 	 */
-	abstract static public function BLOB( mixed $blob, bool $isAllowNull = true ): string;
+	abstract public function BLOB( mixed $blob, bool $isAllowNull = true ): string;
 
 	/**
 	 * SQLから返されたデータが同じかどうか比較する
@@ -217,7 +217,7 @@ abstract class WGDBMS
 	 *
 	 * @return bool 比較対象の片方がNULLの場合必ず true が、それ以外の場合は一致していれば true を、それ以外の場合は false を返す
 	 */
-	abstract static public function CMP( mixed $a, mixed $b, ?string $type = null ): bool;
+	abstract public function CMP( mixed $a, mixed $b, ?string $type = null ): bool;
 
 	/**
 	 * トランザクションを開始する

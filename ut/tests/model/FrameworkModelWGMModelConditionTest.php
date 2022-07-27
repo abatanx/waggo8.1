@@ -89,7 +89,7 @@ SQL
 
 		// Test for addCondition / format
 		$a = ( new WGMModel( 'test_cond_a' ) )->orderby( 'id' );
-		$a->addCondition( "{title} LIKE %s", $a->dbms::S( '%2' ) )->select();
+		$a->addCondition( "{title} LIKE %s", $a->dbms->S( '%2' ) )->select();
 		$this->assertSame(
 			[
 				[ 'id' => 20, 'title' => 'a2', 'enabled' => false, ],

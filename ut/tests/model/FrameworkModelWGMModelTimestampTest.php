@@ -17,11 +17,11 @@ class FrameworkModelWGMModelTimestampTest extends TestCase
 		_E( <<<SQL
 DROP TABLE IF EXISTS test_timestamp;
 CREATE TABLE test_timestamp(
-    id int4 not null primary key ,
-    v0 timestamp not null default '1900-01-01 00:00:00'::timestamp ,
+    id int4 NOT NULL PRIMARY KEY ,
+    v0 timestamp NOT NULL DEFAULT '1900-01-01 00:00:00'::timestamp ,
     v1 timestamp 
 );
-INSERT INTO test_timestamp VALUES(0,'1900-01-01 00:00:00',null);
+INSERT INTO test_timestamp VALUES(0,'1900-01-01 00:00:00',NULL);
 SQL
 		);
 
@@ -116,7 +116,7 @@ SQL
 			$k = [ 'id' => $id ++ ];
 			$i = [ 'v0' => $dateString ];
 			$m->setVars( $k + $i )->update( 'id' )->getVars( $k );
-			$this->assertNotFalse( strptime( $m->vars['v0'], '%Y-%m-%d %H:%M:%S' ) );
+			$this->assertNotFalse( date_parse_from_format( '%Y-%m-%d %H:%M:%S', $m->vars['v0'] ) );
 		}
 		foreach ( [ 'infinity', '-infinity' ] as $dateString )
 		{

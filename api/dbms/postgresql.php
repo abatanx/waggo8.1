@@ -18,10 +18,10 @@ class WGDBMSPostgreSQL extends WGDBMS
 	protected mixed $connection = false;
 	protected mixed $query = false;
 
-	protected float $exectime = 0.0;
+	protected float $executeTime = 0.0;
 	protected int $row = 0;
-	protected int $maxrows = 0;
-	protected int $fetchmode = PGSQL_BOTH;
+	protected int $maxRows = 0;
+	protected int $fetchMode = PGSQL_BOTH;
 
 	protected string $HOST = "";
 	protected int $PORT = 5432;
@@ -125,17 +125,17 @@ class WGDBMSPostgreSQL extends WGDBMS
 			return 0;
 		}
 
-		$t1             = microtime( true );
-		$this->query    = @pg_query( $this->connection, $q );
-		$t2             = microtime( true );
-		$td             = $t2 - $t1;
-		$this->exectime += $td;
-		$maxrows        = ( $this->query ) ? @pg_num_rows( $this->query ) : 0;
+		$t1                = microtime( true );
+		$this->query       = @pg_query( $this->connection, $q );
+		$t2                = microtime( true );
+		$td                = $t2 - $t1;
+		$this->executeTime += $td;
+		$maxrows           = ( $this->query ) ? @pg_num_rows( $this->query ) : 0;
 
 		$e = ! $this->query ? pg_last_error( $this->connection ) : '';
 		$b = [
 			'd'       => $td,
-			'i'       => $this->exectime,
+			'i'       => $this->executeTime,
 			's'       => $q,
 			'r'       => (bool) $this->query,
 			'e'       => $e,
@@ -154,7 +154,7 @@ class WGDBMSPostgreSQL extends WGDBMS
 		}
 
 		$this->row     = 0;
-		$this->maxrows = $maxrows;
+		$this->maxRows = $maxrows;
 
 		return $maxrows;
 	}
@@ -202,12 +202,12 @@ class WGDBMSPostgreSQL extends WGDBMS
 	 */
 	public function F(): array|false
 	{
-		if ( ! $this->connection || ! $this->query || $this->maxrows === - 1 )
+		if ( ! $this->connection || ! $this->query || $this->maxRows === - 1 )
 		{
 			return false;
 		}
 
-		return $this->row < $this->maxrows ? @pg_fetch_array( $this->query, $this->row ++, $this->fetchmode ) : false;
+		return $this->row < $this->maxRows ? @pg_fetch_array( $this->query, $this->row ++, $this->fetchMode ) : false;
 	}
 
 	/**
@@ -257,12 +257,12 @@ class WGDBMSPostgreSQL extends WGDBMS
 	 */
 	public function RECS(): int
 	{
-		if ( ! $this->connection || ! $this->query || $this->maxrows == - 1 )
+		if ( ! $this->connection || ! $this->query || $this->maxRows == - 1 )
 		{
 			return 0;
 		}
 
-		return $this->maxrows;
+		return $this->maxRows;
 	}
 
 	/**
@@ -272,9 +272,14 @@ class WGDBMSPostgreSQL extends WGDBMS
 	 *
 	 * @return string クォート後の文字列
 	 */
-	static public function ESC( string $str ): string
+	public function ESC( string $str ): string
 	{
-		return pg_escape_string( $str );
+		if ( ! $this->connection )
+		{
+			throw new WGDatabaseRuntimeException();
+		}
+
+		return pg_escape_string( $this->connection, $str );
 	}
 
 	/**
@@ -285,7 +290,7 @@ class WGDBMSPostgreSQL extends WGDBMS
 	 *
 	 * @return string 変換後の文字列
 	 */
-	static public function N( mixed $num, bool $isAllowNull = true ): string
+	public function N( mixed $num, bool $isAllowNull = true ): string
 	{
 		if ( ! is_null( $num ) )
 		{
@@ -303,14 +308,14 @@ class WGDBMSPostgreSQL extends WGDBMS
 	 *
 	 * @return string 変換後の文字列(null 以外の場合、クォート後両端に引用符が付加される)
 	 */
-	static public function S( mixed $str, bool $isAllowNull = true ): string
+	public function S( mixed $str, bool $isAllowNull = true ): string
 	{
 		if ( ! is_null( $str ) )
 		{
 			$str = (string) $str;
 		}
 
-		return $isAllowNull && is_null( $str ) ? 'NULL' : ( "'" . self::ESC( (string) $str ) . "'" );
+		return $isAllowNull && is_null( $str ) ? 'NULL' : ( "'" . $this->ESC( (string) $str ) . "'" );
 	}
 
 	/**
@@ -321,7 +326,7 @@ class WGDBMSPostgreSQL extends WGDBMS
 	 *
 	 * @return string 変換後の文字列
 	 */
-	static public function B( mixed $bool, bool $isAllowNull = true ): string
+	public function B( mixed $bool, bool $isAllowNull = true ): string
 	{
 		if ( ! is_null( $bool ) )
 		{
@@ -339,20 +344,20 @@ class WGDBMSPostgreSQL extends WGDBMS
 	 *
 	 * @return string 変換後の文字列。日付関数表記以外の場合、両端に引用符が付与されるだけです。
 	 */
-	static public function TD( mixed $date, bool $isAllowNull = true ): string
+	public function TD( mixed $date, bool $isAllowNull = true ): string
 	{
 		if ( ! is_null( $date ) )
 		{
 			$date = (string) $date;
 		}
 
-		if ( is_null($date) )
+		if ( is_null( $date ) )
 		{
-			return $isAllowNull ? 'NULL' : self::S('0001-01-01');
+			return $isAllowNull ? 'NULL' : self::S( '0001-01-01' );
 		}
 		else if ( preg_match( '/^(epoch|-?infinity|today|tomorrow|yesterday)/i', $date ) )
 		{
-			return self::S($date);
+			return self::S( $date );
 		}
 		else if ( preg_match( '/^(current|localtime|now)/i', $date ) )
 		{
@@ -372,16 +377,16 @@ class WGDBMSPostgreSQL extends WGDBMS
 	 *
 	 * @return string 変換後の文字列。日付関数表記以外の場合、両端に引用符が付与されるだけです。
 	 */
-	static public function TT( mixed $time, bool $isAllowNull = true ): string
+	public function TT( mixed $time, bool $isAllowNull = true ): string
 	{
 		if ( ! is_null( $time ) )
 		{
 			$time = (string) $time;
 		}
 
-		if ( is_null($time) )
+		if ( is_null( $time ) )
 		{
-			return $isAllowNull ? 'NULL' : self::S('00:00:00');
+			return $isAllowNull ? 'NULL' : self::S( '00:00:00' );
 		}
 		else if ( preg_match( '/^(current|localtime|now)/i', $time ) )
 		{
@@ -401,20 +406,20 @@ class WGDBMSPostgreSQL extends WGDBMS
 	 *
 	 * @return string 変換後の文字列。日付関数表記以外の場合、両端に引用符が付与されるだけです。
 	 */
-	static public function TS( mixed $timestamp, bool $isAllowNull = true ): string
+	public function TS( mixed $timestamp, bool $isAllowNull = true ): string
 	{
 		if ( ! is_null( $timestamp ) )
 		{
 			$timestamp = (string) $timestamp;
 		}
 
-		if ( is_null($timestamp) )
+		if ( is_null( $timestamp ) )
 		{
-			return $isAllowNull ? 'NULL' : self::S('0001-01-01 00:00:00');
+			return $isAllowNull ? 'NULL' : self::S( '0001-01-01 00:00:00' );
 		}
-		else if ( preg_match( '/^(epoch|-?infinity|today|tomorrow|yesterday)/i', $timestamp) )
+		else if ( preg_match( '/^(epoch|-?infinity|today|tomorrow|yesterday)/i', $timestamp ) )
 		{
-			return self::S($timestamp);
+			return self::S( $timestamp );
 		}
 		else if ( preg_match( '/^(current|localtime|now)/i', $timestamp ) )
 		{
@@ -434,7 +439,7 @@ class WGDBMSPostgreSQL extends WGDBMS
 	 *
 	 * @return string 変換後の文字列
 	 */
-	static public function D( mixed $num, bool $isAllowNull = true ): string
+	public function D( mixed $num, bool $isAllowNull = true ): string
 	{
 		if ( ! is_null( $num ) )
 		{
@@ -452,7 +457,7 @@ class WGDBMSPostgreSQL extends WGDBMS
 	 *
 	 * @return string
 	 */
-	static public function BLOB( mixed $blob, bool $isAllowNull = true ): string
+	public function BLOB( mixed $blob, bool $isAllowNull = true ): string
 	{
 		return $isAllowNull && is_null( $blob ) ? 'NULL' : sprintf( "'%s'", pg_escape_bytea( $blob ) );
 	}
@@ -466,7 +471,7 @@ class WGDBMSPostgreSQL extends WGDBMS
 	 *
 	 * @return bool 比較対象の片方がNULLの場合必ず true が、それ以外の場合は一致していれば true を、それ以外の場合は false を返す
 	 */
-	static public function CMP( mixed $a, mixed $b, ?string $type = null ): bool
+	public function CMP( mixed $a, mixed $b, ?string $type = null ): bool
 	{
 		if ( is_null( $a ) && is_null( $b ) )
 		{

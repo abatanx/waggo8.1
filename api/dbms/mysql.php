@@ -275,7 +275,7 @@ class WGDBMSMySQL extends WGDBMS
 	 *
 	 * @return string クォート後の文字列
 	 */
-	static public function ESC( string $str ): string
+	public function ESC( string $str ): string
 	{
 		$v = self::$current_connection->quote( $str );
 		if ( ( $len = strlen( $v ) ) >= 2 && $v[0] == $v[ $len - 1 ] )
@@ -294,7 +294,7 @@ class WGDBMSMySQL extends WGDBMS
 	 *
 	 * @return string 変換後の文字列
 	 */
-	static public function N( mixed $num, bool $isAllowNull = true ): string
+	public function N( mixed $num, bool $isAllowNull = true ): string
 	{
 		if ( ! is_null( $num ) )
 		{
@@ -312,7 +312,7 @@ class WGDBMSMySQL extends WGDBMS
 	 *
 	 * @return string 変換後の文字列(null 以外の場合、クォート後両端に引用符が付加される)
 	 */
-	static public function S( mixed $str, bool $isAllowNull = true ): string
+	public function S( mixed $str, bool $isAllowNull = true ): string
 	{
 		if ( ! is_null( $str ) )
 		{
@@ -330,7 +330,7 @@ class WGDBMSMySQL extends WGDBMS
 	 *
 	 * @return string 変換後の文字列
 	 */
-	static public function B( mixed $bool, bool $isAllowNull = true ): string
+	public function B( mixed $bool, bool $isAllowNull = true ): string
 	{
 		if ( ! is_null( $bool ) )
 		{
@@ -348,7 +348,7 @@ class WGDBMSMySQL extends WGDBMS
 	 *
 	 * @return string 変換後の文字列。日付関数表記以外の場合、両端に引用符が付与されるだけです。
 	 */
-	static public function TD( mixed $date, bool $isAllowNull = true ): string
+	public function TD( mixed $date, bool $isAllowNull = true ): string
 	{
 		if ( ! is_null( $date ) )
 		{
@@ -381,7 +381,7 @@ class WGDBMSMySQL extends WGDBMS
 	 *
 	 * @return string 変換後の文字列。日付関数表記以外の場合、両端に引用符が付与されるだけです。
 	 */
-	static public function TT( mixed $time, bool $isAllowNull = true ): string
+	public function TT( mixed $time, bool $isAllowNull = true ): string
 	{
 		if ( ! is_null( $time ) )
 		{
@@ -410,7 +410,7 @@ class WGDBMSMySQL extends WGDBMS
 	 *
 	 * @return string 変換後の文字列。日付関数表記以外の場合、両端に引用符が付与されるだけです。
 	 */
-	static public function TS( mixed $timestamp, bool $isAllowNull = true ): string
+	public function TS( mixed $timestamp, bool $isAllowNull = true ): string
 	{
 		if ( ! is_null( $timestamp ) )
 		{
@@ -443,7 +443,7 @@ class WGDBMSMySQL extends WGDBMS
 	 *
 	 * @return string 変換後の文字列
 	 */
-	static public function D( mixed $num, bool $isAllowNull = true ): string
+	public function D( mixed $num, bool $isAllowNull = true ): string
 	{
 		if ( ! is_null( $num ) )
 		{
@@ -461,7 +461,7 @@ class WGDBMSMySQL extends WGDBMS
 	 *
 	 * @return string
 	 */
-	static public function BLOB( mixed $blob, bool $isAllowNull = true ): string
+	public function BLOB( mixed $blob, bool $isAllowNull = true ): string
 	{
 		return $isAllowNull && is_null( $blob ) ? 'NULL' : ( '0x' . bin2hex( $blob ) );
 	}
@@ -475,7 +475,7 @@ class WGDBMSMySQL extends WGDBMS
 	 *
 	 * @return bool 比較対象の片方がNULLの場合必ず true が、それ以外の場合は一致していれば true を、それ以外の場合は false を返す
 	 */
-	static public function CMP( mixed $a, mixed $b, ?string $type = null ): bool
+	public function CMP( mixed $a, mixed $b, ?string $type = null ): bool
 	{
 		if ( is_null( $a ) && is_null( $b ) )
 		{

@@ -30,10 +30,7 @@ class ApiCoreSafeTest extends TestCase
 
 		$nine1000 = str_repeat( '9', 1000 );
 
-		$this->assertSame( PHP_INT_MAX, wg_safe_int( $nine1000 ) );
-		$this->assertSame( PHP_INT_MIN, wg_safe_int( '-' . $nine1000 ) );
-
-		foreach ( [ '', '-', '+', '--', '++', ' ', '1-1', '1+1', '1-', '1+', '0xff' ] as $v )
+		foreach ( [ '', '-', '+', '--', '++', ' ', '1-1', '1+1', '1-', '1+', '0xff', $nine1000, '-' . $nine1000 ] as $v )
 		{
 			try
 			{
@@ -57,10 +54,18 @@ class ApiCoreSafeTest extends TestCase
 		$this->assertSame( 0.0, wg_safe_float( '-0' ) );
 		$this->assertSame( 0.0, wg_safe_float( '+0' ) );
 
-		$zero309 = str_repeat( '0', 309 );
+		$zero309    = str_repeat( '0', 309 );
+		$nine1000   = str_repeat( '9', 1000 );
+		$nine100000 = str_repeat( '9', 100000 );
 
 		$this->assertSame( PHP_FLOAT_MAX, wg_safe_float( '1' . $zero309 ) );
 		$this->assertSame( PHP_FLOAT_MIN, wg_safe_float( '-1' . $zero309 ) );
+
+		$this->assertSame( PHP_FLOAT_MAX, wg_safe_float( '1' . $nine1000 ) );
+		$this->assertSame( PHP_FLOAT_MIN, wg_safe_float( '-1' . $nine1000 ) );
+
+		$this->assertSame( PHP_FLOAT_MAX, wg_safe_float( '1' . $nine100000 ) );
+		$this->assertSame( PHP_FLOAT_MIN, wg_safe_float( '-1' . $nine100000 ) );
 
 		foreach ( [ '', '-', '+', '--', '++', ' ', '1-1', '1+1', '1-', '1+', '0xff' ] as $v )
 		{
