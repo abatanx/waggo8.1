@@ -17,11 +17,14 @@ class WGPara
 	public array $assign;
 	public ?WGG $gauntlet = null;
 
-	public function __construct( $tags = [], $name = null, $gauntlet = null, $default = null )
+	public ?WGParaFilter $filter = null;
+
+	public function __construct( $tags = [], $name = null, $gauntlet = null, $filter = null, $default = null )
 	{
 		$this->tags     = $tags;
 		$this->name     = $name;
 		$this->gauntlet = $gauntlet;
+		$this->filter   = $filter;
 		$this->default  = $default;
 	}
 
@@ -35,6 +38,16 @@ class WGPara
 		return $this->name ?? $refProp->getName();
 	}
 
+	public function applyOutputFilter( $value ): mixed
+	{
+		return $this->filter ? $this->filter->output( $value ) : $value;
+	}
+
+	public function applyInputFilter( $value ): mixed
+	{
+		return $this->filter ? $this->filter->input( $value ) : $value;
+	}
+
 	public function input( string $method, ReflectionProperty $refProp ): mixed
 	{
 		return match ( $method )
@@ -45,3 +58,12 @@ class WGPara
 		};
 	}
 }
+
+abstract class WGParaFilter
+{
+	abstract public function input( mixed $v ): mixed;
+
+	abstract public function output( mixed $v ): ?string;
+}
+
+

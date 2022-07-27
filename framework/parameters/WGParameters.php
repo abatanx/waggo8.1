@@ -95,9 +95,9 @@ class WGParameters
 
 		return $this->forEachReflection( function ( $props, $instance ) use ( $method ) {
 			/**
-			 * Input value
+			 * @var WGPara $instance
 			 */
-			$value = $instance->input( $method, $props ) ?? $instance->default;
+			$value = $instance->applyInputFilter( $instance->input( $method, $props ) ) ?? $instance->default;
 			/**
 			 * Auto validation
 			 */
@@ -126,7 +126,7 @@ class WGParameters
 
 			if ( ! is_null( $value ) || $isExcludeNull === false )
 			{
-				$result[ $instance->getName( $props ) ] = (string) $value;
+				$result[ $instance->getName( $props ) ] = (string) $instance->applyOutputFilter( $value );
 			}
 		}, $tags );
 
