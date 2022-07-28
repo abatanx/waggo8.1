@@ -42,7 +42,9 @@ class WGGFilterTrim extends WGG
 		}
 		else
 		{
-			$data = trim( $v, " \t\n\r\0\x0B　" );
+			$data = $v;
+			$data = preg_replace('/^[ \n\r\t\v\x00　]+/u', '', $data);
+			$data = preg_replace('/[ \n\r\t\v\x00　]+$/u', '', $data);
 		}
 
 		$this->addChainState( WGGChainState::_( true ) );
