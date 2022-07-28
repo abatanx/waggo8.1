@@ -97,7 +97,12 @@ class WGParameters
 			/**
 			 * @var WGPara $instance
 			 */
-			$value = $instance->applyInputFilter( $instance->input( $method, $props ) ) ?? $instance->default;
+
+			/**
+			 * Apply input filter before gauntlet chain.
+			 */
+			$value = $instance->applyInputFilterBeforeGauntlet( $instance->input( $method, $props ) ) ?? $instance->default;
+
 			/**
 			 * Auto validation
 			 */
@@ -110,6 +115,12 @@ class WGParameters
 					$value = $instance->default;
 				}
 			}
+
+			/**
+			 * Apply input filter after gauntlet chain.
+			 */
+			$value = $instance->applyInputFilterAfterGauntlet( $value );
+
 			$props->setValue( $this, $value );
 		}, $tags );
 	}

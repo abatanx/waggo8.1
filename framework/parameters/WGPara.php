@@ -10,6 +10,9 @@ require_once __DIR__ . '/WGParameters.php';
 #[Attribute]
 class WGPara
 {
+	const PRE_FILTER = 0;
+	const POST_FILTER = 1;
+
 	public ?string $name;
 	public array $tags;
 	public mixed $default;
@@ -19,8 +22,9 @@ class WGPara
 
 	public ?WGParaFilter $filter = null;
 
-	public function __construct( $tags = [], $name = null, $gauntlet = null, $filter = null, $default = null )
-	{
+	public function __construct(
+		$tags = [], $name = null, $filter = null, $gauntlet = null, $default = null
+	) {
 		$this->tags     = $tags;
 		$this->name     = $name;
 		$this->gauntlet = $gauntlet;
@@ -43,9 +47,14 @@ class WGPara
 		return $this->filter ? $this->filter->output( $value ) : $value;
 	}
 
-	public function applyInputFilter( $value ): mixed
+	public function applyInputFilterBeforeGauntlet( $value ): mixed
 	{
-		return $this->filter ? $this->filter->input( $value ) : $value;
+		return $this->filter ? $this->filter->inputBeforeGauntlet( $value ) : $value;
+	}
+
+	public function applyInputFilterAfterGauntlet( $value ): mixed
+	{
+		return $this->filter ? $this->filter->inputAfterGauntlet( $value ) : $value;
 	}
 
 	public function input( string $method, ReflectionProperty $refProp ): mixed
@@ -58,12 +67,3 @@ class WGPara
 		};
 	}
 }
-
-abstract class WGParaFilter
-{
-	abstract public function input( mixed $v ): mixed;
-
-	abstract public function output( mixed $v ): ?string;
-}
-
-
