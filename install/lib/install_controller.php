@@ -1,13 +1,13 @@
 <?php
 /**
- * waggo8
- * @copyright 2013-2021 CIEL, K.K., project waggo.
+ * waggo8.1
+ * @copyright 2013-2022 CIEL, K.K., project waggo.
  * @license MIT
  */
 
 require_once __DIR__ . '/check_directory.php';
 
-function wi_create_htaccess():string
+function wi_create_htaccess(): string
 {
 	return <<<___END___
 AllowOverride None
@@ -20,7 +20,7 @@ ___END___;
 }
 
 
-function wi_create_pccontroller( string $prefix ): string
+function wi_create_pc_controller( string $prefix ): string
 {
 	return <<<___END___
 <?php
@@ -37,7 +37,7 @@ class {$prefix}PCController extends WGFPCController
 ___END___;
 }
 
-function wi_create_xmlcontroller( string $prefix ): string
+function wi_create_xml_controller( string $prefix ): string
 {
 	return <<<___END___
 <?php
@@ -54,7 +54,7 @@ class {$prefix}XMLController extends WGFXMLController
 ___END___;
 }
 
-function wi_create_jsoncontroller( string $prefix ): string
+function wi_create_json_controller( string $prefix ): string
 {
 	return <<<___END___
 <?php
@@ -85,15 +85,15 @@ class HTE extends HtmlTemplateEncoder
 ___END___;
 }
 
-function wi_install_create_controller( $prefix )
+function wi_install_create_controller( $prefix ): void
 {
 	$dirInfo = wi_install_dir_info();
 
 	$files = [
 		[ $dirInfo['pub'] . ".htaccess", wi_create_htaccess() ],
-		[ $dirInfo['inc'] . "/{$prefix}PCController.php", wi_create_pccontroller( $prefix ) ],
-		[ $dirInfo['inc'] . "/{$prefix}XMLController.php", wi_create_xmlcontroller( $prefix ) ],
-		[ $dirInfo['inc'] . "/{$prefix}JSONController.php", wi_create_jsoncontroller( $prefix ) ],
+		[ $dirInfo['inc'] . "/{$prefix}PCController.php", wi_create_pc_controller( $prefix ) ],
+		[ $dirInfo['inc'] . "/{$prefix}XMLController.php", wi_create_xml_controller( $prefix ) ],
+		[ $dirInfo['inc'] . "/{$prefix}JSONController.php", wi_create_json_controller( $prefix ) ],
 		[ $dirInfo['inc'] . '/HTE.php', wi_create_HTE() ]
 	];
 
@@ -102,12 +102,12 @@ function wi_install_create_controller( $prefix )
 		clearstatcache();
 		if ( ! file_exists( $file[0] ) )
 		{
-			wi_echo( ECHO_NORMAL, "Creating: %s", $file[0]);
+			wi_echo( ECHO_NORMAL, "Creating: %s", $file[0] );
 			file_put_contents( $file[0], $file[1] );
 		}
 		else
 		{
-			wi_echo( ECHO_NORMAL, "Skipped to create: %s (already exists)", $file[0]);
+			wi_echo( ECHO_NORMAL, "Skipped to create: %s (already exists)", $file[0] );
 		}
 		clearstatcache();
 	}

@@ -1,12 +1,12 @@
 <?php
 /**
- * waggo8 configuration
+ * waggo8.1 configuration
  */
 $_SERVER['SERVER_NAME'] = '127.0.0.1';
 $_SERVER['SERVER_PORT'] = '80';
 
 /**
- * waggo8 configuration
+ * waggo8.1 configuration
  */
 const WG_DEBUG           = false;
 const WG_SQLDEBUG        = false;

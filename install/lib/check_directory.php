@@ -1,6 +1,6 @@
 <?php
 /**
- * waggo8
+ * waggo8.1
  * @copyright 2013-2021 CIEL, K.K., project waggo.
  * @license MIT
  */
@@ -34,7 +34,8 @@ function wi_install_dir_info(): array
 
 function wi_setup_dir(): bool
 {
-	$dirInfo = wi_install_dir_info();
+	$dirInfo        = wi_install_dir_info();
+	$installVersion = str_pad( WG_INSTALL_VERSION, 31, ' ' );
 
 	wi_echo( ECHO_NORMAL, <<<___END___
 
@@ -55,7 +56,7 @@ function wi_setup_dir(): bool
      |   |
      |   +--plugins      (@)                    -> {$dirInfo['plugins']}
      |   |
-     |   +--waggo8                              -> {$dirInfo['waggo']}
+     |   +--waggo{$installVersion}-> {$dirInfo['waggo']}
      |   |    |
      |   |    +--install                        -> {$dirInfo['install']}
      |   |        |
@@ -87,19 +88,18 @@ ___END___
 	if ( ! preg_match( '/\/sys$/', $dirInfo['sys'] ) )
 	{
 		wi_echo( ECHO_NORMAL, "Error: Place <application>/sys/waggo8 ." );
-		wi_echo( ECHO_NORMAL, " % mkdir hogehoge" );
-		wi_echo( ECHO_NORMAL, " % cd hogehoge" );
-		wi_echo( ECHO_NORMAL, " % mkdir sys" );
-		wi_echo( ECHO_NORMAL, " % cd sys" );
-		wi_echo( ECHO_NORMAL, " % tar xvfz ~/Downloads/waggo8.00.tar.gz" );
+		wi_echo( ECHO_NORMAL, ' % mkdir hogehoge' );
+		wi_echo( ECHO_NORMAL, ' % cd hogehoge' );
+		wi_echo( ECHO_NORMAL, ' % mkdir sys' );
+		wi_echo( ECHO_NORMAL, ' % cd sys' );
+		wi_echo( ECHO_NORMAL, ' % tar xvfz ~/Downloads/waggo' . WG_INSTALL_VERSION . '.tar.gz' );
 		$hasError = true;
 	}
 
-	if ( ! preg_match( '/\/sys\/waggo8\.1$/', $dirInfo['waggo'] ) )
+	if ( ! preg_match( '/\/sys\/waggo' . preg_quote( WG_INSTALL_VERSION ) . '$/', $dirInfo['waggo'] ) )
 	{
-		wi_echo( ECHO_NORMAL, "Error: Place <application>/sys/waggo8 ." );
-		wi_echo( ECHO_NORMAL, " % tar xvfz ~/Downloads/waggo8.00.tar.gz" );
-		wi_echo( ECHO_NORMAL, " % mv waggo8.00 waggo8" );
+		wi_echo( ECHO_NORMAL, "Error: Place <application>/sys/waggo" . WG_INSTALL_VERSION );
+		wi_echo( ECHO_NORMAL, " % tar xvfz ~/Downloads/waggo' . WG_INSTALL_VERSION . '.tar.gz" );
 		$hasError = true;
 	}
 
@@ -131,11 +131,11 @@ function wi_setup_dir_and_permissions(): bool
 	];
 
 	$symlinks = array(
-		[ $dirInfo['pub'] . '/examples', '../sys/waggo8/www/examples' ],
-		[ $dirInfo['pub'] . '/tests', '../sys/waggo8/ut/www' ],
-		[ $dirInfo['pub'] . '/wg', '../sys/waggo8/www/wg' ],
-		[ $dirInfo['pub'] . '/wgjs', '../sys/waggo8/www/wgjs' ],
-		[ $dirInfo['pub'] . '/wgcss', '../sys/waggo8/www/wgcss' ],
+		[ $dirInfo['pub'] . '/examples', '../sys/waggo' . WG_INSTALL_VERSION . '/www/examples' ],
+		[ $dirInfo['pub'] . '/tests', '../sys/waggo' . WG_INSTALL_VERSION . '/ut/www' ],
+		[ $dirInfo['pub'] . '/wg', '../sys/waggo' . WG_INSTALL_VERSION . '/www/wg' ],
+		[ $dirInfo['pub'] . '/wgjs', '../sys/waggo' . WG_INSTALL_VERSION . '/www/wgjs' ],
+		[ $dirInfo['pub'] . '/wgcss', '../sys/waggo' . WG_INSTALL_VERSION . '/www/wgcss' ],
 		[ $dirInfo['pub'] . '/resources', '../resources' ],
 	);
 
