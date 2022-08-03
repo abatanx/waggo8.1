@@ -221,7 +221,10 @@ abstract class WGFController
 	 **/
 	protected function addView( string $id, WGV8Object $view ): WGV8Object
 	{
-		wg_log_write( WGLOG_INFO, get_class( $this ) . ".addView $id(" . get_class( $view ) . ")" );
+		if ( WG_CONTROLLERDEBUG )
+		{
+			wg_log_write( WGLOG_INFO, get_class( $this ) . ".addView $id(" . get_class( $view ) . ")" );
+		}
 		$this->views[ $id ] = $view;
 		$this->initView( $id );
 
@@ -239,7 +242,11 @@ abstract class WGFController
 	protected function restoreView( WGV8Object $view ): WGV8Object
 	{
 		$id = $view->getName();
-		wg_log_write( WGLOG_INFO, get_class( $this ) . ".restoreView $id(" . get_class( $view ) . ")" );
+
+		if ( WG_CONTROLLERDEBUG )
+		{
+			wg_log_write( WGLOG_INFO, get_class( $this ) . ".restoreView $id(" . get_class( $view ) . ")" );
+		}
 		$this->views[ $id ] = $view;
 		$this->initView( $id );
 
@@ -593,7 +600,7 @@ abstract class WGFController
 		{
 			$modelInstance = $this->initModelInstance( $t );
 
-			$modelAlias = !$t instanceof WGMModel ? $t : $modelInstance->getAlias();
+			$modelAlias                                      = ! $t instanceof WGMModel ? $t : $modelInstance->getAlias();
 			$this->models[ is_int( $k ) ? $modelAlias : $k ] = $modelInstance;
 			if ( ! is_int( $k ) )
 			{
