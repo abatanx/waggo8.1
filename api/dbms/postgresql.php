@@ -30,6 +30,43 @@ class WGDBMSPostgreSQL extends WGDBMS
 	protected string $PASSWD = "";
 
 	/**
+	 * Serialize/Unserialilze interface
+	 */
+	public function __serialize(): array
+	{
+		return
+			parent::__serialize() + [
+				self::class =>
+					[
+						'executeTime' => $this->executeTime,
+						'row'         => $this->row,
+						'maxRows'     => $this->maxRows,
+						'fetchMode'   => $this->fetchMode,
+						'HOST'        => $this->HOST,
+						'PORT'        => $this->PORT,
+						'DB'          => $this->DB,
+						'USER'        => $this->USER,
+						'PASSWD'      => $this->PASSWD
+					]
+			];
+	}
+
+	public function __unserialize( array $data ): void
+	{
+		parent::__unserialize( $data );
+		$v                 = $data[ self::class ];
+		$this->executeTime = $v['executeTime'];
+		$this->row         = $v['row'];
+		$this->maxRows     = $v['maxRows'];
+		$this->fetchMode   = $v['fetchMode'];
+		$this->HOST        = $v['HOST'];
+		$this->PORT        = $v['PORT'];
+		$this->DB          = $v['DB'];
+		$this->USER        = $v['USER'];
+		$this->PASSWD      = $v['PASSWD'];
+	}
+
+	/**
 	 * PostgreSQL接続インスタンスを作成する
 	 *
 	 * @param string $host 接続先ホスト

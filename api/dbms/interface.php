@@ -7,6 +7,34 @@
 
 global $WG_CORE_DBMS;
 
+switch ( strtolower( WGCONF_DBMS_TYPE ) )
+{
+	case 'pg':
+	case 'pgsql':
+	case 'postgres':
+	case 'postgresql':
+		require_once __DIR__ . '/postgresql.php';
+		define( 'WG_RUNTIME_DBMS', 1 );
+		define( 'WG_RUNTIME_DBMS_CLASS', 'WGDBMSPostgreSQL' );
+		define( 'WG_RUNTIME_DBMS_NAME', 'PostgreSQL' );
+		break;
+
+	case 'my':
+	case 'mysql':
+	case 'maria':
+	case 'mariadb':
+		require_once __DIR__ . '/mysql.php';
+		define( 'WG_RUNTIME_DBMS', 2 );
+		define( 'WG_RUNTIME_DBMS_CLASS', 'WGDBMSMySQL' );
+		define( 'WG_RUNTIME_DBMS_NAME', 'MySQL/MariaDB' );
+		break;
+
+	default:
+		define( 'WG_RUNTIME_DBMS', 0 );
+		define( 'WG_RUNTIME_DBMS_CLASS', null );
+		define( 'WG_RUNTIME_DBMS_NAME', null );
+}
+
 /**
  * 規定のデータベースのインスタンスオブジェクトを返す
  * インスタンスが生成されていない場合は、規定のデータベースのインスタンスを作成し、そのインスタンスオブジェクトを返す
@@ -16,40 +44,22 @@ function _QC(): WGDBMS|false
 {
 	global $WG_CORE_DBMS;
 
-	if ( ! $WG_CORE_DBMS instanceof WGDBMSPostgreSQL &&
-		 ! $WG_CORE_DBMS instanceof WGDBMSMySQL )
+	if ( ! $WG_CORE_DBMS instanceof WGDBMS )
 	{
-		switch ( strtolower( WGCONF_DBMS_TYPE ) )
+		if ( WG_RUNTIME_DBMS )
 		{
-			case 'pgsql':
-			case 'postgres':
-			case 'postgresql':
-				require_once __DIR__ . '/postgresql.php';
-				$WG_CORE_DBMS = new WGDBMSPostgreSQL( WGCONF_DBMS_HOST, WGCONF_DBMS_PORT, WGCONF_DBMS_DB, WGCONF_DBMS_USER, WGCONF_DBMS_PASSWD );
-				if ( ! $WG_CORE_DBMS->open() )
-				{
-					wg_log_write( WGLOG_FATAL, "Can't connect to '%s' as PostgreSQL", WGCONF_DBMS_DB );
+			$dbmsClass    = WG_RUNTIME_DBMS_CLASS;
+			$WG_CORE_DBMS = new $dbmsClass( WGCONF_DBMS_HOST, WGCONF_DBMS_PORT, WGCONF_DBMS_DB, WGCONF_DBMS_USER, WGCONF_DBMS_PASSWD );
+			if ( ! $WG_CORE_DBMS->open() )
+			{
+				wg_log_write( WGLOG_FATAL, "Can't connect to '%s' as ", WGCONF_DBMS_DB, WG_RUNTIME_DBMS_NAME );
 
-					return false;
-				}
-				break;
-
-			case 'mysql':
-			case 'mariadb':
-			case 'maria':
-				require_once __DIR__ . '/mysql.php';
-				$WG_CORE_DBMS = new WGDBMSMySQL( WGCONF_DBMS_HOST, WGCONF_DBMS_PORT, WGCONF_DBMS_DB, WGCONF_DBMS_USER, WGCONF_DBMS_PASSWD );
-				if ( ! $WG_CORE_DBMS->open() )
-				{
-					wg_log_write( WGLOG_FATAL, "Can't connect to '%s' as MySQL/MariaDB", WGCONF_DBMS_DB );
-
-					return false;
-				}
-				break;
-
-			default:
-				wg_log_write( WGLOG_FATAL, "WGCONF_DBMS_TYPE '%s' is not supported.", WGCONF_DBMS_TYPE );
-				break;
+				return false;
+			}
+		}
+		else
+		{
+			wg_log_write( WGLOG_FATAL, "WGCONF_DBMS_TYPE '%s' is not supported.", WGCONF_DBMS_TYPE );
 		}
 	}
 

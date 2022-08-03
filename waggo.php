@@ -7,7 +7,7 @@
 
 const WG_NAME      = "waggo";
 const WG_VERSION   = "8.1";
-const WG_COPYRIGHT = "Copyright (C) 2013-2021 CIEL, K.K., project waggo.";
+const WG_COPYRIGHT = "Copyright (C) 2013-2022 CIEL, K.K., project waggo.";
 
 function wgdie( $msg )
 {

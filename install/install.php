@@ -10,13 +10,12 @@ const WG_INSTALL_VERSION = '8.1';
 require_once __DIR__ . '/lib/stdin.php';
 require_once __DIR__ . '/lib/lib.php';
 
-const
-STATE_ABORT        = - 1,
-STATE_END          = 0,
-STATE_LICENSE      = 1,
-STATE_DIR_CHECK    = 2,
-STATE_DIR          = 3,
-STATE_INSTALL_INFO = 4;
+const STATE_ABORT        = - 1;
+const STATE_END          = 0;
+const STATE_LICENSE      = 1;
+const STATE_DIR_CHECK    = 2;
+const STATE_DIR          = 3;
+const STATE_INSTALL_INFO = 4;
 
 $state = STATE_LICENSE;
 

@@ -15,7 +15,6 @@ const WG_CONTROLLERDEBUG = false;
 const WG_MODELDEBUG      = false;
 const WG_JSNOCACHE       = false;
 define( 'WG_INSTALLDIR', realpath( __DIR__ ) );
-
 const WG_LOGDIR  = WG_INSTALLDIR . "/logs";
 const WG_LOGNAME = 'waggo.unit-test.log'; // Edited by install.php at 2021/09/14 12:53:51
 const WG_LOGFILE = WG_LOGDIR . '/' . WG_LOGNAME;
@@ -23,7 +22,7 @@ const WG_LOGTYPE = 0;
 define( 'WG_ENCODING', mb_internal_encoding() );
 
 define( 'WGCONF_DIR_ROOT', WG_INSTALLDIR );
-define( 'WGCONF_DIR_WAGGO', realpath( WG_INSTALLDIR . '/../../sys/waggo8.1' ) );
+define( 'WGCONF_DIR_WAGGO', realpath( WG_INSTALLDIR . '/../../waggo8.1' ) );
 define( 'WGCONF_DIR_PUB', WG_INSTALLDIR . '/pub' );
 define( 'WGCONF_DIR_SYS', WG_INSTALLDIR . '/sys' );
 define( 'WGCONF_DIR_TPL', WG_INSTALLDIR . '/tpl' );
@@ -36,8 +35,8 @@ const WGCONF_DIR_FRAMEWORK            = WGCONF_DIR_WAGGO . '/framework';
 const WGCONF_DIR_FRAMEWORK_MODEL      = WGCONF_DIR_FRAMEWORK . '/m';
 const WGCONF_DIR_FRAMEWORK_VIEW8      = WGCONF_DIR_FRAMEWORK . '/v8';
 const WGCONF_DIR_FRAMEWORK_CONTROLLER = WGCONF_DIR_FRAMEWORK . '/c';
-const WGCONF_DIR_FRAMEWORK_EXT        = WGCONF_DIR_FRAMEWORK . '/exts';
-const WGCONF_DIR_FRAMEWORK_GAUNTLET   = WGCONF_DIR_FRAMEWORK . '/gauntlet';
+const WGCONF_DIR_FRAMEWORK_GAUNTLET	  = WGCONF_DIR_FRAMEWORK . '/gauntlet';
+const WGCONF_DIR_FRAMEWORK_PARAMETERS = WGCONF_DIR_FRAMEWORK . '/parameters';
 
 const WGCONF_PEAR  = '/usr/local/share/pear';
 const WGCONF_UP_PX = 640;
@@ -82,6 +81,7 @@ $WGCONF_AUTOLOAD = [
 	WGCONF_DIR_FRAMEWORK_VIEW8,
 	WGCONF_DIR_FRAMEWORK_GAUNTLET,
 	WGCONF_DIR_FRAMEWORK_MODEL,
-	WGCONF_DIR_FRAMEWORK_EXT,
-	WGCONF_DIR_SYS . '/include'
+	WGCONF_DIR_FRAMEWORK_PARAMETERS,
+	WGCONF_DIR_FRAMEWORK,
+	WGCONF_DIR_SYS.'/include',
 ];
