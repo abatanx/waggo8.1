@@ -1,7 +1,7 @@
 <?php
 /**
  * waggo8
- * @copyright 2013-2021 CIEL, K.K., project waggo.
+ * @copyright 2013-2022 CIEL, K.K., project waggo.
  * @license MIT
  */
 
@@ -42,7 +42,9 @@ class WGGFilterTrim extends WGG
 		}
 		else
 		{
-			$data = trim( $v, " \t\n\r\0\x0B　" );
+			$data = $v;
+			$data = preg_replace('/^[ \n\r\t\v\x00　]+/u', '', $data);
+			$data = preg_replace('/[ \n\r\t\v\x00　]+$/u', '', $data);
 		}
 
 		$this->addChainState( WGGChainState::_( true ) );

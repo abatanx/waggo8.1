@@ -1,7 +1,7 @@
 <?php
 /**
  * waggo8
- * @copyright 2013-2021 CIEL, K.K., project waggo.
+ * @copyright 2013-2022 CIEL, K.K., project waggo.
  * @license MIT
  * @noinspection PhpUnused
  */

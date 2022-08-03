@@ -1,7 +1,7 @@
 <?php
 /**
- * waggo8
- * @copyright 2013-2021 CIEL, K.K., project waggo.
+ * waggo8.1
+ * @copyright 2013-2022 CIEL, K.K., project waggo.
  * @license MIT
  */
 
@@ -23,6 +23,32 @@ abstract class WGDBMS
 		$this->log     = [];
 	}
 
+	/**
+	 * Serialize/Unserialilze interface
+	 */
+	public function __serialize(): array
+	{
+		return [
+			self::class =>
+				[
+					'echo'    => $this->echo,
+					'logging' => $this->logging,
+					'log'     => $this->log
+				]
+		];
+	}
+
+	public function __unserialize( array $data ): void
+	{
+		$v             = $data[ self::class ];
+		$this->echo    = $v['echo'];
+		$this->logging = $v['logging'];
+		$this->log     = $v['log'];
+	}
+
+	/**
+	 * @return WGDBMSProperty
+	 */
 	abstract public function property(): WGDBMSProperty;
 
 	/**

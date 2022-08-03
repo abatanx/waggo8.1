@@ -24,10 +24,12 @@ define( 'WGCONF_URLBASE', '$scheme://' . \$_SERVER['SERVER_NAME'] . ':' . \$_SER
 PHP;
 	}
 
+	$installVersion = WG_INSTALL_VERSION;
+
 	return <<<___END___
 <?php
 /**
- * waggo8 configuration
+ * waggo{$installVersion} configuration
  */
 const WG_DEBUG							=	false ;
 const WG_SQLDEBUG						=	false ;
@@ -43,7 +45,7 @@ const WG_LOGTYPE						=	0 ;
 define( 'WG_ENCODING'					,	mb_internal_encoding() );
 
 const WGCONF_DIR_ROOT					=	WG_INSTALLDIR ;
-const WGCONF_DIR_WAGGO					=	WG_INSTALLDIR . '/sys/waggo8' ;
+const WGCONF_DIR_WAGGO					=	WG_INSTALLDIR . '/sys/waggo{$installVersion}' ;
 const WGCONF_DIR_PUB					=	WG_INSTALLDIR . '/pub';
 const WGCONF_DIR_SYS					=	WG_INSTALLDIR . '/sys';
 const WGCONF_DIR_TPL					=	WG_INSTALLDIR . '/tpl';
@@ -187,40 +189,40 @@ function wi_replace_waggo_conf( $filename, $dat )
 			switch ( $key )
 			{
 				case 'WG_INSTALLDIR':
-					$line = sprintf( "const%s%s%s'%s'; {$editMessage}", $prefix, $key, $equal, wi_add_single_slashes( $dirInfo["application"] ) );
+					$line = sprintf( "const%s%s%s'%s';", $prefix, $key, $equal, wi_add_single_slashes( $dirInfo["application"] ) );
 					break;
 				case 'WG_LOGNAME':
-					$line = sprintf( "const%s%s%s'%s'; {$editMessage}", $prefix, $key, $equal, wi_add_single_slashes( 'waggo.' . $dat["server"]["host"] . '.log' ) );
+					$line = sprintf( "const%s%s%s'%s';", $prefix, $key, $equal, wi_add_single_slashes( 'waggo.' . $dat["server"]["host"] . '.log' ) );
 					break;
 				case 'WGCONF_DBMS_DB':
-					$line = sprintf( "const%s%s%s'%s'; {$editMessage}", $prefix, $key, $equal, wi_add_single_slashes( $dat["postgresql"]["dbname"] ) );
+					$line = sprintf( "const%s%s%s'%s';", $prefix, $key, $equal, wi_add_single_slashes( $dat["postgresql"]["dbname"] ) );
 					break;
 				case 'WGCONF_DBMS_USER':
-					$line = sprintf( "const%s%s%s'%s'; {$editMessage}", $prefix, $key, $equal, wi_add_single_slashes( $dat["postgresql"]["username"] ) );
+					$line = sprintf( "const%s%s%s'%s';", $prefix, $key, $equal, wi_add_single_slashes( $dat["postgresql"]["username"] ) );
 					break;
 				case 'WGCONF_DBMS_PASSWD':
-					$line = sprintf( "const%s%s%s'%s'; {$editMessage}", $prefix, $key, $equal, wi_add_single_slashes( $dat["postgresql"]["password"] ) );
+					$line = sprintf( "const%s%s%s'%s';", $prefix, $key, $equal, wi_add_single_slashes( $dat["postgresql"]["password"] ) );
 					break;
 				case 'WGCONF_DBMS_HOST':
-					$line = sprintf( "const%s%s%s'%s'; {$editMessage}", $prefix, $key, $equal, wi_add_single_slashes( $dat["postgresql"]["host"] ) );
+					$line = sprintf( "const%s%s%s'%s';", $prefix, $key, $equal, wi_add_single_slashes( $dat["postgresql"]["host"] ) );
 					break;
 				case 'WGCONF_HASHKEY':
-					$line = sprintf( "const%s%s%s'%s'; {$editMessage}", $prefix, $key, $equal, wi_add_single_slashes( $dat["hash"]["general_hashkey"] ) );
+					$line = sprintf( "const%s%s%s'%s';", $prefix, $key, $equal, wi_add_single_slashes( $dat["hash"]["general_hashkey"] ) );
 					break;
 				case 'WGCONF_PASSWORD_HASHKEY':
-					$line = sprintf( "const%s%s%s'%s'; {$editMessage}", $prefix, $key, $equal, wi_add_single_slashes( $dat["hash"]["password_hashkey"] ) );
+					$line = sprintf( "const%s%s%s'%s';", $prefix, $key, $equal, wi_add_single_slashes( $dat["hash"]["password_hashkey"] ) );
 					break;
 				case 'WGCONF_PHPCLI':
-					$line = sprintf( "const%s%s%s'%s'; {$editMessage}", $prefix, $key, $equal, wi_add_single_slashes( $dat["executable"]["phpcli"] ) );
+					$line = sprintf( "const%s%s%s'%s';", $prefix, $key, $equal, wi_add_single_slashes( $dat["executable"]["phpcli"] ) );
 					break;
 				case 'WGCONF_CONVERT':
-					$line = sprintf( "const%s%s%s'%s'; {$editMessage}", $prefix, $key, $equal, wi_add_single_slashes( $dat["executable"]["convert"] ) );
+					$line = sprintf( "const%s%s%s'%s';", $prefix, $key, $equal, wi_add_single_slashes( $dat["executable"]["convert"] ) );
 					break;
 				case 'WGCONF_FFMPEG':
-					$line = sprintf( "const%s%s%s'%s'; {$editMessage}", $prefix, $key, $equal, wi_add_single_slashes( $dat["executable"]["ffmpeg"] ) );
+					$line = sprintf( "const%s%s%s'%s';", $prefix, $key, $equal, wi_add_single_slashes( $dat["executable"]["ffmpeg"] ) );
 					break;
 				case 'WGCONF_PEAR':
-					$line = sprintf( "const%s%s%s'%s'; {$editMessage}", $prefix, $key, $equal, wi_add_single_slashes( $dat["pear"]["dir"] ) );
+					$line = sprintf( "const%s%s%s'%s';", $prefix, $key, $equal, wi_add_single_slashes( $dat["pear"]["dir"] ) );
 					break;
 			}
 		}

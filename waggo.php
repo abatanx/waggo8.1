@@ -1,13 +1,13 @@
 <?php
 /**
- * waggo8
- * @copyright 2013-2021 CIEL, K.K., project waggo.
+ * waggo8.1
+ * @copyright 2013-2022 CIEL, K.K., project waggo.
  * @license MIT
  */
 
 const WG_NAME      = "waggo";
-const WG_VERSION   = "8.00";
-const WG_COPYRIGHT = "Copyright (C) 2013-2021 CIEL, K.K., project waggo.";
+const WG_VERSION   = "8.1";
+const WG_COPYRIGHT = "Copyright (C) 2013-2022 CIEL, K.K., project waggo.";
 
 function wgdie( $msg )
 {
