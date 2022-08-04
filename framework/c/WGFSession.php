@@ -7,28 +7,28 @@
 
 class WGFSession
 {
-	static $isOpenSession = false;
-	protected $sessionid, $transactionid, $combinedid;
+	static bool $isOpenSession = false;
+	protected string $sessionId, $transactionId, $combinedId;
 
 	/**
-	 * 固有セッション管理インスタンスを作成する。
+	 * トランザクショナルセッション管理インスタンスを作成する。
 	 *
-	 * @param string $sessionid セッション管理ID。
-	 * @param string $transactionid 画面遷移管理ID。
+	 * @param string $sessionId 固有セッションID。
+	 * @param string $transactionId トランザクション管理ID。
 	 */
-	public function __construct( $sessionid, $transactionid )
+	public function __construct( string $sessionId, string $transactionId )
 	{
-		$this->setId( $sessionid, $transactionid );
+		$this->setId( $sessionId, $transactionId );
 	}
 
 	/**
-	 * 固有セッション管理インスタンスを結合キーから復帰する。
+	 * トランザクショナルセッション管理インスタンスを結合キーから復帰する。
 	 *
-	 * @param string $combinedid 結合キー
+	 * @param string $combinedId 結合キー
 	 *
-	 * @return WGFSession|bool 成功した場合は復元した固有セッション管理インスタンスを、失敗した場合は false を返す。
+	 * @return ?WGFSession 成功した場合は復元したトランザクショナルセッション管理インスタンスを、失敗した場合は null を返す。
 	 */
-	static public function restoreByCombinedId( $combinedid )
+	static public function restoreByCombinedId( string $combinedId ): ?WGFSession
 	{
 		if ( is_array( $_SESSION ) )
 		{
@@ -42,7 +42,7 @@ class WGFSession
 					{
 						if ( is_array( $_SESSION[ $ks ][ $kt ] )
 							 && @isset( $_SESSION[ $ks ][ $kt ]['%combined'] )
-							 && $_SESSION[ $ks ][ $kt ]['%combined'] === $combinedid )
+							 && $_SESSION[ $ks ][ $kt ]['%combined'] === $combinedId )
 						{
 							return new WGFSession( $ks, $kt );
 						}
@@ -51,11 +51,11 @@ class WGFSession
 			}
 		}
 
-		return false;
+		return null;
 	}
 
 	/**
-	 * 固有セッション管理インスタンスを破棄する。
+	 * トランザクショナルセッション管理インスタンスを破棄する。
 	 */
 	public function __destruct()
 	{
@@ -67,9 +67,9 @@ class WGFSession
 
 	/**
 	 * PHPセッションを開始する。
-	 * WGFSession は、このPHPセッションのうち、固有セッション管理IDで指定された部分を画面維持などに利用します。
+	 * WGFSession は、このPHPセッションのうち、トランザクショナル固有セッションIDで指定された部分を画面維持などに利用します。
 	 */
-	static public function open()
+	static public function open(): void
 	{
 		if ( ! self::$isOpenSession )
 		{
@@ -88,7 +88,7 @@ class WGFSession
 	/**
 	 * PHPセッションを終了する。
 	 */
-	static public function close()
+	static public function close(): void
 	{
 		if ( self::$isOpenSession )
 		{
@@ -102,99 +102,108 @@ class WGFSession
 	}
 
 	/**
-	 * 固有セッション管理IDを取得する。
-	 * @retval array [0=>セッション管理ID, 1=>画面遷移ID] を返す。
+	 * トランザクショナル固有セッションIDを取得する。
+	 * @retval array [0=>固有セッションID, 1=>画面遷移ID] を返す。
 	 */
-	public function getId()
+	public function getId(): array
 	{
-		return [ $this->sessionid, $this->transactionid ];
+		return [ $this->sessionId, $this->transactionId ];
 	}
 
-	public function setId( $sessionid, $transactionid )
+	/**
+	 * トランザクショナルセッションの割り当てを行う。
+	 *
+	 * @param string $sessionId セッションID
+	 * @param string $transactionId トランザクションID
+	 *
+	 * @return void
+	 */
+	public function setId( string $sessionId, string $transactionId ): void
 	{
-		$this->sessionid     = $sessionid;
-		$this->transactionid = $transactionid;
-		$this->combinedid    = md5( $this->transactionid . ' @ ' . $this->sessionid );
-		if ( ! isset( $_SESSION[ $this->sessionid ][ $this->transactionid ] ) || ! is_array( $_SESSION[ $this->sessionid ][ $this->transactionid ] ) )
+		$this->sessionId     = $sessionId;
+		$this->transactionId = $transactionId;
+		$this->combinedId    = md5( $this->transactionId . ' @ ' . $this->sessionId );
+		if ( ! isset( $_SESSION[ $this->sessionId ][ $this->transactionId ] ) ||
+			 ! is_array( $_SESSION[ $this->sessionId ][ $this->transactionId ] ) )
 		{
-			$_SESSION[ $this->sessionid ][ $this->transactionid ] = [];
+			$_SESSION[ $this->sessionId ][ $this->transactionId ] = [];
 		}
 
-		$_SESSION[ $this->sessionid ][ $this->transactionid ]["%atime"]    = time();
-		$_SESSION[ $this->sessionid ][ $this->transactionid ]["%combined"] = $this->combinedid;
+		$_SESSION[ $this->sessionId ][ $this->transactionId ]["%atime"]    = time();
+		$_SESSION[ $this->sessionId ][ $this->transactionId ]["%combined"] = $this->combinedId;
 
 		if ( WG_SESSIONDEBUG )
 		{
-			wg_log_write( WGLOG_INFO, "[[[ waggo SESSION started, {$this->sessionid} {$this->transactionid} ]]]" );
+			wg_log_write( WGLOG_INFO, "[[[ waggo SESSION started, $this->sessionId $this->transactionId ]]]" );
 		}
 	}
 
 	/**
-	 * 固有セッション管理IDのうち、複合IDを取得する。
+	 * トランザクショナル固有セッションIDのうち、複合IDを取得する。
 	 * @return string 結合ID
 	 */
-	public function getCombinedId()
+	public function getCombinedId(): string
 	{
-		return $this->get( '%combined' );
+		return (string) $this->get( '%combined' );
 	}
 
 	/**
-	 * 固有セッション管理IDのうち、セッション管理IDを取得する。
-	 * @retval string セッション管理ID。
+	 * トランザクショナル固有セッションIDのうち、固有セッションIDを取得する。
+	 * @retval string 固有セッションID。
 	 */
-	public function getSessionId()
+	public function getSessionId(): string
 	{
-		return $this->sessionid;
+		return $this->sessionId;
 	}
 
 	/**
-	 * 固有セッション管理IDのうち、画面遷移IDを取得する。
-	 * @retval string セッション管理ID。
+	 * トランザクショナル固有セッションIDのうち、画面遷移IDを取得する。
+	 * @retval string 固有セッションID。
 	 */
-	public function getTransactionId()
+	public function getTransactionId(): string
 	{
-		return $this->transactionid;
+		return $this->transactionId;
 	}
 
 	/**
-	 * 固有セッションのすべての情報を返します。通常は配列で得られます。
-	 * @return mixed PHPSESSION[セッション管理ID][画面遷移ID] を返します。
+	 * トランザクショナルセッションのすべての情報を返します。通常は配列で得られます。
+	 * @return mixed $_SESSION[固有セッションID][画面遷移ID] を返します。
 	 */
-	public function getAll()
+	public function getAll(): mixed
 	{
-		return $_SESSION[ $this->sessionid ][ $this->transactionid ];
+		return $_SESSION[ $this->sessionId ][ $this->transactionId ];
 	}
 
 	/**
-	 * 固有セッション管理IDで管理している領域に、データをセットします。
+	 * トランザクショナル固有セッションIDで管理している領域に、データをセットします。
 	 *
 	 * @param string $key キー。
 	 * @param mixed $val データ。
 	 */
-	public function __set( $key, $val )
+	public function __set( string $key, mixed $val ): void
 	{
 		$this->set( $key, $val );
 	}
 
 	/**
-	 * 固有セッション管理IDで管理している領域から、データを取得します。
+	 * トランザクショナル固有セッションIDで管理している領域から、データを取得します。
 	 *
 	 * @param string $key キー。
 	 *
 	 * @return mixed データ。
 	 */
-	public function __get( $key )
+	public function __get( string $key ): mixed
 	{
 		return $this->get( $key );
 	}
 
 	/**
-	 * 固有セッション管理IDで管理している領域に、データをセットします。
+	 * トランザクショナル固有セッションIDで管理している領域に、データをセットします。
 	 *
 	 * @param string $key キー。
 	 * @param mixed $val データ。
 	 */
-	public function set( $key, $val )
+	public function set( string $key, mixed $val ): void
 	{
 		if ( WG_SESSIONDEBUG )
 		{
@@ -202,17 +211,18 @@ class WGFSession
 		}
 		if ( is_null( $val ) )
 		{
-			$_SESSION[ $this->sessionid ][ $this->transactionid ][ $key ] = null;
-			unset( $_SESSION[ $this->sessionid ][ $this->transactionid ][ $key ] );
+			$_SESSION[ $this->sessionId ][ $this->transactionId ][ $key ] = null;
+			unset( $_SESSION[ $this->sessionId ][ $this->transactionId ][ $key ] );
 		}
 		else
 		{
-			$_SESSION[ $this->sessionid ][ $this->transactionid ][ $key ] = $val;
+			$_SESSION[ $this->sessionId ][ $this->transactionId ][ $key ]   = $val;
+			$_SESSION[ $this->sessionId ][ $this->transactionId ]['%atime'] = time();
 		}
 	}
 
 	/**
-	 * 固有セッション管理IDで管理している領域から、データを取得します。
+	 * トランザクショナル固有セッションIDで管理している領域から、データを取得します。
 	 *
 	 * @param string $key キー。
 	 *
@@ -221,9 +231,11 @@ class WGFSession
 	public function get( string $key ): mixed
 	{
 		$val = null;
-		if ( isset( $_SESSION[ $this->sessionid ][ $this->transactionid ][ $key ] ) )
+
+		$_SESSION[ $this->sessionId ][ $this->transactionId ]['%atime'] = time();
+		if ( isset( $_SESSION[ $this->sessionId ][ $this->transactionId ][ $key ] ) )
 		{
-			$val = $_SESSION[ $this->sessionid ][ $this->transactionid ][ $key ];
+			$val = $_SESSION[ $this->sessionId ][ $this->transactionId ][ $key ];
 		}
 		if ( WG_SESSIONDEBUG )
 		{
@@ -234,60 +246,62 @@ class WGFSession
 	}
 
 	/**
-	 * 固有セッション管理IDで管理している領域に、データがセットされているか確認します。
+	 * トランザクショナル固有セッションIDで管理している領域に、データがセットされているか確認します。
+	 * セット状態の確認は、isset で行う。
 	 *
 	 * @param string $key キー。
 	 *
-	 * @return boolean true データが存在する場合。存在性の確認は isset 関数で行います。false それ以外。
+	 * @return bool データが存在する場合 true を返す。
 	 */
-	public function isExists( $key )
+	public function isExists( string $key ): bool
 	{
-		return isset( $_SESSION[ $this->sessionid ][ $this->transactionid ][ $key ] );
+		return isset( $_SESSION[ $this->sessionId ][ $this->transactionId ][ $key ] );
 	}
 
 	/**
-	 * 固有セッション管理IDで管理している領域で、該当するキーのデータが空の状態化か確認します。
+	 * トランザクショナル固有セッションIDで管理している領域で、該当するキーのデータが空の状態化か確認します。
+	 * 空の状態の確認は、empty で行う。
 	 *
 	 * @param string $key キー。
 	 *
-	 * @return boolean true データが存在しない場合。存在性の確認は empty 関数で行います。false それ以外。
+	 * @return boolean true データが空の場合、true を返す。
 	 */
-	public function isEmpty( $key )
+	public function isEmpty( string $key ): bool
 	{
-		return empty( $_SESSION[ $this->sessionid ][ $this->transactionid ][ $key ] );
+		return empty( $_SESSION[ $this->sessionId ][ $this->transactionId ][ $key ] );
 	}
 
 	/**
-	 * 固有セッション管理IDで管理している領域で、該当するキーのデータを削除します。
+	 * トランザクショナル固有セッションIDで管理している領域で、該当するキーのデータを削除します。
 	 *
 	 * @param string $key キー。
 	 */
-	public function delete( $key )
+	public function delete( string $key ): void
 	{
 		$this->set( $key, null );
 	}
 
 	/**
-	 * 固有セッション管理IDで管理している領域を GC対象領域としてマークします。
+	 * トランザクショナル固有セッションIDで管理している領域を GC対象領域としてマークします。
 	 */
-	public function release()
+	public function release(): void
 	{
-		$_SESSION[ $this->sessionid ][ $this->transactionid ] = [ "%release" => true ];
+		$_SESSION[ $this->sessionId ][ $this->transactionId ] = [ "%release" => true ];
 	}
 
 	/**
-	 * 固有セッション管理IDで管理している領域を、すべてクリアします。
+	 * トランザクショナル固有セッションIDで管理している領域を、すべてクリアします。
 	 */
-	public function cleanup()
+	public function cleanup(): void
 	{
-		$_SESSION[ $this->sessionid ][ $this->transactionid ] = null;
-		unset( $_SESSION[ $this->sessionid ][ $this->transactionid ] );
+		$_SESSION[ $this->sessionId ][ $this->transactionId ] = null;
+		unset( $_SESSION[ $this->sessionId ][ $this->transactionId ] );
 	}
 
 	/**
-	 * PHPセッションから、固有セッションの状態を確認し、利用されていない場合開放します。
+	 * PHPセッションから、トランザクショナルセッションの状態を確認し、利用されていない場合開放します。
 	 */
-	static public function gc()
+	static public function gc(): void
 	{
 		if ( WG_SESSIONDEBUG )
 		{
@@ -295,21 +309,21 @@ class WGFSession
 		}
 		self::open();
 
-		$ntime = time();
+		$nTime = time();
 		foreach ( $_SESSION as $sk => $trs )
 		{
 			if ( preg_match( '/^[0-9a-zA-Z]/', $sk ) && is_array( $trs ) )
 			{
 				foreach ( $trs as $tk => $td )
 				{
-					if ( ( isset( $td["%atime"] ) && ( $ntime - $td["%atime"] ) > WGCONF_SESSION_GCTIME ) ||
+					if ( ( isset( $td["%atime"] ) && ( $nTime - $td["%atime"] ) > WGCONF_SESSION_GCTIME ) ||
 						 isset( $td["%release"] ) )
 					{
 						$_SESSION[ $sk ][ $tk ] = null;
 						unset( $_SESSION[ $sk ][ $tk ] );
 						if ( WG_SESSIONDEBUG )
 						{
-							wg_log_write( WGLOG_INFO, "[[[ COLLECTED-TRANSACTION ]]] {$sk}{$tk}" );
+							wg_log_write( WGLOG_INFO, "[[[ COLLECTED-TRANSACTION ]]] $sk$tk" );
 						}
 					}
 				}
@@ -319,7 +333,7 @@ class WGFSession
 					unset( $_SESSION[ $sk ] );
 					if ( WG_SESSIONDEBUG )
 					{
-						wg_log_write( WGLOG_INFO, "[[[ COLLECTED-SESSION-KEY ]]] {$sk}" );
+						wg_log_write( WGLOG_INFO, "[[[ COLLECTED-SESSION-KEY ]]] $sk" );
 					}
 				}
 			}
