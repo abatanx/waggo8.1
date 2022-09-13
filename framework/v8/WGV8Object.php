@@ -378,8 +378,8 @@ class WGV8Object
 			[
 				'id'       => $this->getId(),
 				'name'     => $this->getKey(),
-				'value'    => htmlspecialchars( $this->getValue(), ENT_QUOTES | ENT_HTML5 ),
-				'error'    => htmlspecialchars( $this->getError(), ENT_QUOTES | ENT_HTML5 ),
+				'value'    => htmlspecialchars( $this->getValue() ?? '', ENT_QUOTES | ENT_HTML5 ),
+				'error'    => htmlspecialchars( $this->getError() ?? '', ENT_QUOTES | ENT_HTML5 ),
 				'rawValue' => $this->getValue(),
 				'rawError' => $this->getValue(),
 				'params'   => $this->params->toString()
