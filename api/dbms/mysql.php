@@ -546,6 +546,6 @@ class WGDBMSMySQL extends WGDBMS
 	 */
 	public function END(): void
 	{
-		$this->E( 'END;' );
+		$this->E( 'COMMIT;' );
 	}
 }
