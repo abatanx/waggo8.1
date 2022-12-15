@@ -12,7 +12,7 @@ class WGParameters
 	public const METHOD_GET = 'get';
 	public const METHOD_POST = 'post';
 
-	protected array $errors = [];
+	protected array $__errors = [];
 
 	public function __construct()
 	{
@@ -26,12 +26,20 @@ class WGParameters
 		$reflection = new ReflectionObject( $this );
 		foreach ( $reflection->getProperties() as $props )
 		{
+			$isIgnoreInitByDefault    =
+				count( $props->getAttributes( WGParaIgnoreInitByDefault::class, ReflectionAttribute::IS_INSTANCEOF ) ) > 0;
+			$isIgnoreIfSourceNotExist =
+				count( $props->getAttributes( WGParaIgnoreIfSourceNotExist::class, ReflectionAttribute::IS_INSTANCEOF ) ) > 0;
+
 			foreach ( $props->getAttributes( WGPara::class, ReflectionAttribute::IS_INSTANCEOF ) as $attr )
 			{
 				/**
 				 * @var WGPara $instance
 				 */
 				$instance = $attr->newInstance();
+				$instance->setIgnoreInitByDefault( $isIgnoreInitByDefault );
+				$instance->setIgnoreIfSourceNotExist( $isIgnoreIfSourceNotExist );
+
 				/**
 				 * Narrowing down by tags
 				 */
@@ -85,43 +93,52 @@ class WGParameters
 	public function initByDefault( array $tags = [] ): static
 	{
 		return $this->forEachReflection( function ( $props, $instance ) {
-			$props->setValue( $this, $instance->default );
-		}, $tags );
-	}
-
-	protected function by( string $method, array $tags = [] ): static
-	{
-		$this->errors = [];
-
-		return $this->forEachReflection( function ( $props, $instance ) use ( $method ) {
 			/**
 			 * @var WGPara $instance
 			 */
-
-			/**
-			 * Apply input filter before gauntlet chain.
-			 */
-			$value = $instance->applyInputFilterBeforeGauntlet( $instance->input( $method, $props ) ) ?? $instance->default;
-
-			/**
-			 * Auto validation
-			 */
-			if ( $instance->getGauntlet() )
+			if ( ! $instance->isIgnoreInitByDefault )
 			{
-				if ( $instance->getGauntlet()->check( $value )->hasError() )
-				{
-					$this->errors[ $props->getName() ] = $instance->getGauntlet()->getError();
-
-					$value = $instance->default;
-				}
+				$props->setValue( $this, $instance->default );
 			}
+		}, $tags );
+	}
+
+	public function by( string $method, array $tags = [] ): static
+	{
+		$this->__errors = [];
+
+		return $this->forEachReflection( function ( $props, $instance ) use ( $method ) {
 
 			/**
-			 * Apply input filter after gauntlet chain.
+			 * @var WGPara $instance
 			 */
-			$value = $instance->applyInputFilterAfterGauntlet( $value );
+			if ( $instance->isExists( $method, $props ) || ! $instance->isIgnoreIfSourceNotExist )
+			{
+				/**
+				 * Apply input filter before gauntlet chain.
+				 */
+				$value = $instance->applyInputFilterBeforeGauntlet( $instance->input( $method, $props ) );
 
-			$props->setValue( $this, $value );
+				/**
+				 * Auto validation
+				 */
+				if ( $instance->getGauntlet() )
+				{
+					if ( $instance->getGauntlet()->check( $value )->hasError() )
+					{
+						$this->__errors[ $props->getName() ] = $instance->getGauntlet()->getError();
+
+						$value = $instance->default;
+					}
+				}
+
+				/**
+				 * Apply input filter after gauntlet chain.
+				 */
+				$value = $instance->applyInputFilterAfterGauntlet( $value );
+
+				$props->setValue( $this, $value );
+			}
 		}, $tags );
 	}
 
@@ -166,12 +183,12 @@ class WGParameters
 
 	public function getErrorCount(): int
 	{
-		return count( $this->errors );
+		return count( $this->__errors );
 	}
 
 	public function getErrors(): array
 	{
-		return $this->errors;
+		return $this->__errors;
 	}
 
 	public function hasError(): bool
@@ -181,12 +198,12 @@ class WGParameters
 
 	public function getError( string $propName ): ?string
 	{
-		return $this->errors[ $propName ] ?? null;
+		return $this->__errors[ $propName ] ?? null;
 	}
 
 	public function clearErrors(): static
 	{
-		$this->errors = [];
+		$this->__errors = [];
 
 		return $this;
 	}

@@ -11,6 +11,7 @@ require_once __DIR__ . '/local-common.php';
 
 require_once __DIR__ . '/../../../framework/gauntlet/WGGInt.php';
 require_once __DIR__ . '/../../../framework/parameters/WGParameters.php';
+require_once __DIR__ . '/../../../framework/parameters/WGParaFilter.php';
 
 class ParametersFilterArray extends WGParaFilter
 {
