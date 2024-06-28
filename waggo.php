@@ -34,7 +34,7 @@ else
 	}
 	else
 	{
-		$configPort = $_SERVER["SERVER_PORT"] != 80 ? ".${_SERVER['SERVER_PORT']}" : "";
+		$configPort = $_SERVER["SERVER_PORT"] != 80 ? ".{$_SERVER['SERVER_PORT']}" : "";
 		$configFile = __DIR__ . "/../config/waggo.{$_SERVER['SERVER_NAME']}{$configPort}.php";
 	}
 }

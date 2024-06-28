@@ -103,10 +103,10 @@ function wg_clean_resource_dir( $uniqid )
 	while ( ( $file = @readdir( $fd ) ) !== false )
 	{
 		$fullpath = "{$dir}/{$file}";
-		wg_log_write( WGLOG_INFO, "Checking => ${fullpath}" );
+		wg_log_write( WGLOG_INFO, "Checking => {$fullpath}" );
 		if ( is_file( $fullpath ) )
 		{
-			wg_log_write( WGLOG_INFO, "Deleting => ${fullpath}" );
+			wg_log_write( WGLOG_INFO, "Deleting => {$fullpath}" );
 			@unlink( $fullpath );
 			clearstatcache();
 			if ( file_exists( $fullpath ) )
