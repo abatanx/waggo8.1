@@ -9,6 +9,8 @@ if( !file_exists(WGCONF_PEAR . '/Mail.php') ) return false;
 
 require_once WGCONF_PEAR . '/Mail.php' ;
 
+require_once __DIR__ . '/encoding.php';
+
 class WGMail
 {
 	protected $mail_from;
@@ -36,7 +38,7 @@ class WGMail
 		$addr = $from;
 		if ( $nickname != "" )
 		{
-			$addr = sprintf( '"%s"<%s>', mb_encode_mimeheader( $nickname, "iso-2022-jp" ), $addr );
+			$addr = sprintf( '"%s"<%s>', mb_encode_mimeheader( $nickname, WGCONF_SMTP_ENCODING ), $addr );
 		}
 		$this->mail_from = $addr;
 
@@ -55,7 +57,7 @@ class WGMail
 		}
 		if ( $nickname != "" )
 		{
-			$addr = mb_encode_mimeheader( $nickname, "iso-2022-jp" ) . sprintf( "<%s>", $addr );
+			$addr = mb_encode_mimeheader( $nickname, WGCONF_SMTP_ENCODING ) . sprintf( "<%s>", $addr );
 		}
 		$this->mail_to    = $addr;
 		$this->to_address = $to;
@@ -79,7 +81,7 @@ class WGMail
 
 	public function subject( $sub )
 	{
-		$this->mail_subject = mb_encode_mimeheader( "{$sub}", "iso-2022-jp" );
+		$this->mail_subject = mb_encode_mimeheader( $sub, WGCONF_SMTP_ENCODING );
 
 		return $this;
 	}
@@ -116,7 +118,7 @@ class WGMail
 		$headers["Errors-To"]                 = $this->mail_error_to;
 		$headers["Reply-To"]                  = $this->mail_reply_to;
 		$headers["Date"]                      = date( "r" ); // RFC822
-		$headers["Content-Type"]              = 'text/plain; charset="iso-2022-jp"';
+		$headers['Content-Type']              = 'text/plain; charset="' . WGCONF_SMTP_ENCODING_CHARSET . '"';
 		$headers["Content-Transfer-Encoding"] = '7bit';
 		$headers["MIME-Version"]              = '1.0';
 		$headers["X-Mailer"]                  = "waggo WGMail API ver.1.0";
@@ -143,7 +145,7 @@ class WGMail
 			$newbody = "(DEBUG) {$this->to_address} 宛メールです。\r\n" . $newbody;
 		}
 
-		$newbody = mb_convert_encoding( $newbody, "iso-2022-jp" );
+		$newbody = mb_convert_encoding( $newbody, WGCONF_SMTP_ENCODING );
 
 		return $newbody;
 	}
@@ -205,7 +207,7 @@ class WGMail
 		$options["password"]  = WGCONF_SMTP_AUTH_PASSWORD;
 		$options["localhost"] = WGCONF_SMTP_LOCALHOST;
 
-		$newsubject = mb_encode_mimeheader( "{$subject}", "iso-2022-jp" );
+		$newsubject = mb_encode_mimeheader( "{$subject}", WGCONF_SMTP_ENCODING );
 
 		$headers         = [];
 		$headers["From"] = $from;
@@ -223,7 +225,7 @@ class WGMail
 		$headers["Errors-To"]                 = $err;
 		$headers["Reply-To"]                  = $from;
 		$headers["Date"]                      = date( "r" ); // RFC822
-		$headers["Content-Type"]              = 'text/plain; charset="iso-2022-jp"';
+		$headers['Content-Type']              = 'text/plain; charset="' . WGCONF_SMTP_ENCODING_CHARSET . '"';
 		$headers["Content-Transfer-Encoding"] = '7bit';
 		$headers["MIME-Version"]              = '1.0';
 		$headers["X-Mailer"]                  = "waggo postmail API ver.5.0";
@@ -241,7 +243,7 @@ class WGMail
 
 		$newbody = preg_replace( '/\r\n/', "\n", $newbody );
 		$newbody = preg_replace( '/\n/', "\r\n", $newbody );
-		$newbody = mb_convert_encoding( $newbody, "iso-2022-jp" );
+		$newbody = mb_convert_encoding( $newbody, WGCONF_SMTP_ENCODING );
 
 		$mail_object =& Mail::factory( "SMTP", $options );
 
